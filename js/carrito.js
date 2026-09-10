@@ -37,7 +37,34 @@ function agregarAlCarrito(productoId, cantidad = 1) {
     });
   }
   guardarCarrito(carrito);
-  alert(`Agregado al carro: ${producto.nombre}`);
+
+  // Notificación momentánea en esquina superior derecha (Toast)
+  if (typeof Swal !== "undefined") {
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 1800,
+      timerProgressBar: true,
+      background: '#111111',
+      color: '#FFFFFF',
+      iconColor: '#FFFFFF',
+      customClass: {
+        popup: 'rounded-0'
+      },
+      didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer);
+        toast.addEventListener('mouseleave', Swal.resumeTimer);
+      }
+    });
+
+    Toast.fire({
+      icon: 'success',
+      title: `${producto.nombre.toUpperCase()} AÑADIDO AL CARRO`
+    });
+  } else {
+    alert(`Agregado al carro: ${producto.nombre}`);
+  }
 }
 
 function modificarCantidad(productoId, delta) {
