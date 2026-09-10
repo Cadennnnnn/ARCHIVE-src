@@ -7,14 +7,14 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
   <!-- HEADER & NAVEGACIÓN -->
   <header>
     <nav class="navbar navbar-expand-lg archive-navbar py-3">
       <div class="container">
         <a class="navbar-brand brand-logo" href="index.html">ARCHIVE[src]</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
+        <button class="navbar-toggler rounded-0 border-dark" type="button" data-bs-toggle="collapse" data-bs-target="#navContent">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navContent">
@@ -39,29 +39,104 @@
   </header>
 
   <!-- CONTENIDO PRINCIPAL -->
-  <main class="container my-5">
-    <!-- HERO COMPONENT -->
-    <section class="p-5 mb-5 bg-light border">
-      <div class="row align-items-center g-4">
-        <div class="col-lg-6">
-          <h1 class="display-4 fw-bolder" style="text-transform: none;">ARCHIVE[src]</h1>
-          <p class="lead text-muted my-3">Volver a la fuente de la cultura. Un archivo curado con tranquilidad: zapatillas, prendas y accesorios esenciales directo desde su [source] original.</p>
-          <a href="productos.html" class="btn btn-archive-primary">Ver productos &darr;</a>
+  <main class="container my-5 flex-grow-1">
+
+    <!-- CARRUSEL PRINCIPAL -->
+    <section class="mb-5 border bg-light">
+      <div id="archiveCarousel" class="carousel slide" data-bs-ride="carousel">
+        
+        <!-- Indicadores de posición -->
+        <div class="carousel-indicators">
+          <button type="button" data-bs-target="#archiveCarousel" data-bs-slide-to="0" class="active bg-dark" aria-current="true" aria-label="Slide 1"></button>
+          <button type="button" data-bs-target="#archiveCarousel" data-bs-slide-to="1" class="bg-dark" aria-label="Slide 2"></button>
+          <button type="button" data-bs-target="#archiveCarousel" data-bs-slide-to="2" class="bg-dark" aria-label="Slide 3"></button>
+          <button type="button" data-bs-target="#archiveCarousel" data-bs-slide-to="3" class="bg-dark" aria-label="Slide 4"></button>
         </div>
-        <div class="col-lg-6 text-center">
-          <img src="img/hero.image.jpg" alt="Hero Archive" class="img-fluid" style="max-height: 380px; object-fit: contain;">
+        
+        <div class="carousel-inner">
+          
+          <!-- Slide 1: Presentación Oficial -->
+          <div class="carousel-item active">
+            <div class="row align-items-center g-4 p-4 p-lg-5">
+              <div class="col-lg-6">
+                <span class="badge bg-dark rounded-0 text-uppercase px-2 py-1 mb-2 font-monospace">Lanzamiento</span>
+                <h2 class="display-4 fw-bolder" style="text-transform: none;">ARCHIVE[src]</h2>
+                <p class="lead text-muted my-3">Volver a la fuente de la cultura. Un archivo seleccionado con tranquilidad: zapatillas, prendas y accesorios esenciales directo desde su [source] original.</p>
+                <a href="productos.html" class="btn btn-archive-primary px-4 py-3">Ver productos &darr;</a>
+              </div>
+              <div class="col-lg-6 text-center">
+                <img src="img/hero.image.jpg" alt="Hero Archive" class="img-fluid" style="max-height: 380px; object-fit: contain;">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Slide 2: Indumentaria Técnica (Apparel) -->
+          <div class="carousel-item">
+            <div class="row align-items-center g-4 p-4 p-lg-5">
+              <div class="col-lg-6 order-lg-2 text-lg-end">
+                <span class="badge bg-dark rounded-0 text-uppercase px-2 py-1 mb-2 font-monospace">Indumentaria</span>
+                <h2 class="display-4 fw-bolder" style="text-transform: none;">NUEVA ERA</h2>
+                <p class="lead text-muted my-3">Equipamiento técnico, siluetas utilitarias y cortes pesados diseñados bajo estándares de conservación textil.</p>
+                <a href="productos.html" class="btn btn-archive-outline px-4 py-3">Explorar Ropa &rarr;</a>
+              </div>
+              <div class="col-lg-6 text-center order-lg-1">
+                <img src="https://cdn.shopify.com/s/files/1/0271/9658/8125/files/gorpcore-fashion.jpg?v=1693332721" alt="Apparel Drop" class="img-fluid" style="max-height: 380px; object-fit: contain;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 3: Accesorios Utilitarios (Goods) -->
+          <div class="carousel-item">
+            <div class="row align-items-center g-4 p-4 p-lg-5">
+              <div class="col-lg-6">
+                <span class="badge bg-dark rounded-0 text-uppercase px-2 py-1 mb-2 font-monospace">Accesorios</span>
+                <h2 class="display-4 fw-bolder" style="text-transform: none;">ESSENTIAL GOODS</h2>
+                <p class="lead text-muted my-3">Detalles que marcan la diferencia en tu rotación diaria: gorros, bolsos utilitarios y piezas limitadas.</p>
+                <a href="productos.html" class="btn btn-archive-primary px-4 py-3">Ver Accesorios &darr;</a>
+              </div>
+              <div class="col-lg-6 text-center">
+                <img src="https://moredrops.cl/medias/desktop-drops.webp?context=bWFzdGVyfGltYWdlc3wzNjc3MjZ8aW1hZ2Uvd2VicHxhR0kzTDJneFppOHhNREUzTWpRME56TTVNVGMzTkM5a1pYTnJkRzl3TFdSeWIzQnpMbmRsWW5BfGZkNGVlYmNmNzVjMTFlNTdiODhlNDUxMGY5YzEyNjJkMWUxNzBlNzY4ZTIxNDMwOGQ5NmFlN2IxMjQzZTFmMzY" alt="Accesorios Drop" class="img-fluid" style="max-height: 380px; object-fit: contain;">
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 4: Zapatillas de Culto (Grails) -->
+          <div class="carousel-item">
+            <div class="row align-items-center g-4 p-4 p-lg-5">
+              <div class="col-lg-6 order-lg-2 text-lg-end">
+                <span class="badge bg-dark rounded-0 text-uppercase px-2 py-1 mb-2 font-monospace">Bóveda</span>
+                <h2 class="display-4 fw-bolder" style="text-transform: none;">GRAILS DEL ARCHIVO</h2>
+                <p class="lead text-muted my-3">Siluetas históricas verificadas manualmente una a una. Revisa nuestra selección exclusiva de calzado.</p>
+                <a href="productos.html" class="btn btn-archive-outline px-4 py-3">Explorar Zapatillas &rarr;</a>
+              </div>
+              <div class="col-lg-6 text-center order-lg-1">
+                <img src="https://hips.hearstapps.com/hmg-prod/images/travis-scott-jordan-1-low-1670838159.jpg" alt="Sneakers Grails" class="img-fluid" style="max-height: 380px; object-fit: contain;">
+              </div>
+            </div>
+          </div>
+
         </div>
+        
+        <!-- Controles laterales -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#archiveCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true" style="filter: invert(1);"></span>
+          <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#archiveCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true" style="filter: invert(1);"></span>
+          <span class="visually-hidden">Siguiente</span>
+        </button>
       </div>
     </section>
 
     <!-- LISTA PRELIMINAR DE PRODUCTOS -->
     <section>
       <div class="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
-        <h2>Lanzamientos Recientes</h2>
+        <h2 class="h3 fw-bold">Lanzamientos Recientes</h2>
         <a href="productos.html" class="text-uppercase fw-bold text-muted small">Ver Todo &rarr;</a>
       </div>
       <div class="row g-4" id="home-product-grid">
-        <!-- Tarjetas dinámicas inyectadas desde JavaScript -->
+        <!-- Inyección dinámica vía JavaScript -->
       </div>
     </section>
 
@@ -69,11 +144,11 @@
     <section class="my-5 p-4 border bg-white">
       <div class="row align-items-center">
         <div class="col-md-6">
-          <h4 class="mb-1">Stay In Touch! Join Our Newsletter</h4>
+          <h4 class="mb-1 fw-bold">Stay In Touch! Join Our Newsletter</h4>
           <p class="text-muted small mb-0">Recibe acceso prioritario a los próximos drops y noticias de la tienda.</p>
         </div>
         <div class="col-md-6">
-          <form class="d-flex gap-2 mt-3 mt-md-0" onsubmit="event.preventDefault(); alert('Suscripción confirmada.');">
+          <form class="d-flex gap-2 mt-3 mt-md-0" onsubmit="event.preventDefault(); Swal.fire({ title: '¡SUSCRITO!', text: 'Recibirás acceso prioritario a los próximos drops.', icon: 'success', confirmButtonColor: '#1B2A4A', customClass: { popup: 'rounded-0 border border-dark', confirmButton: 'rounded-0 fw-bold px-4' } }); this.reset();">
             <input type="email" class="form-control rounded-0" placeholder="Enter Email" required>
             <button type="submit" class="btn btn-archive-primary">Subscribe</button>
           </form>
@@ -82,44 +157,73 @@
     </section>
   </main>
 
-  <!-- PIE DE PÁGINA -->
+  <!-- PIE DE PÁGINA (Footer Oficial ARCHIVE[src]) -->
   <footer class="border-top py-5 bg-light mt-auto">
-    <div class="container">
-      <div class="row g-4">
-        <div class="col-md-4">
-          <span class="brand-logo d-block mb-2">ARCHIVE[src]</span>
-          <p class="text-muted small">Plataforma e-commerce desarrollada para evaluación.</p>
+    <div class="container pb-4">
+      <div class="row g-5">
+        
+        <!-- Logo Gigante A[src] -->
+        <div class="col-12 col-lg-4 d-flex flex-column justify-content-center">
+          <div style="font-family: var(--font-hero); font-weight: 900;">
+            <div style="font-size: 11rem; line-height: 0.75; color: var(--color-dark); letter-spacing: -0.05em;">A</div>
+            <div style="font-size: 3.5rem; line-height: 0.8; color: var(--color-navy); letter-spacing: -0.02em; padding-left: 0.3rem; margin-top: 0.5rem;">[src]</div>
+          </div>
         </div>
-        <div class="col-md-4">
-          <h6 class="fw-bold text-uppercase">Categorías</h6>
-          <ul class="list-unstyled small text-muted">
-            <li><a href="productos.html">Zapatillas (Sneakers)</a></li>
-            <li><a href="productos.html">Ropa (Apparel)</a></li>
-            <li><a href="productos.html">Accesorios (Goods)</a></li>
+
+        <!-- Categorías -->
+        <div class="col-12 col-md-4 col-lg-2 mt-lg-5">
+          <h6 class="fw-bold text-uppercase mb-2">Categorías</h6>
+          <div class="mb-4" style="width: 30px; border-top: 3px solid var(--color-navy);"></div>
+          <ul class="list-unstyled gap-3 d-flex flex-column" style="font-size: 0.95rem;">
+            <li><a href="productos.html" class="text-decoration-none text-dark">Sneakers</a></li>
+            <li><a href="productos.html" class="text-decoration-none text-dark">Apparel</a></li>
+            <li><a href="productos.html" class="text-decoration-none text-dark">Goods</a></li>
           </ul>
         </div>
-        <div class="col-md-4">
-          <h6 class="fw-bold text-uppercase">Administración</h6>
-          <ul class="list-unstyled small text-muted">
-            <li><a href="admin/index.html">Panel de Control (Admin)</a></li>
-            <li><a href="contacto.html">Soporte Técnico</a></li>
+
+        <!-- Información -->
+        <div class="col-12 col-md-4 col-lg-3 mt-lg-5">
+          <h6 class="fw-bold text-uppercase mb-2">Información</h6>
+          <div class="mb-4" style="width: 30px; border-top: 3px solid var(--color-navy);"></div>
+          <ul class="list-unstyled gap-3 d-flex flex-column" style="font-size: 0.95rem;">
+            <li><a href="nosotros.html" class="text-decoration-none text-dark">Sobre nosotros</a></li>
+            <li><a href="contacto.html" class="text-decoration-none text-dark">Contacto y Ayuda</a></li>
+            <li><a href="admin/index.html" class="text-decoration-none text-dark">Panel Administrativo</a></li>
           </ul>
         </div>
+
+        <!-- Redes Sociales -->
+        <div class="col-12 col-md-4 col-lg-3 mt-lg-5">
+          <h6 class="fw-bold text-uppercase mb-2">Síguenos</h6>
+          <div class="mb-4" style="width: 30px; border-top: 3px solid var(--color-navy);"></div>
+          <ul class="list-unstyled gap-3 d-flex flex-column" style="font-size: 0.95rem;">
+            <li><a href="#" class="text-decoration-none text-dark">Instagram</a></li>
+            <li><a href="#" class="text-decoration-none text-dark">TikTok</a></li>
+            <li><a href="#" class="text-decoration-none text-dark">X (Twitter)</a></li>
+          </ul>
+        </div>
+
       </div>
-      <div class="border-top mt-4 pt-3 text-center small text-muted">
-        &copy; 2026 ARCHIVE[src]. Todos los derechos reservados.
+      
+      <!-- Contacto Físico y Copyright -->
+      <div class="mt-5 pt-4 text-dark border-top text-center">
+        <p class="mb-2" style="font-size: 0.95rem;">
+          <strong>Dirección:</strong> Av. Providencia 1234, Local 10 &nbsp; | &nbsp; <strong>Teléfono:</strong> +56 9 1234 5678
+        </p>
+        <span class="small text-muted">&copy; 2026 ARCHIVE[src] - Todos los derechos reservados.</span>
       </div>
     </div>
   </footer>
 
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/carrito.js"></script>
   <script>
-    // Inyección de catálogo en Home
     document.addEventListener("DOMContentLoaded", () => {
       const container = document.getElementById("home-product-grid");
-      if (!container) return;
+      if (!container || typeof ARCHIVE_PRODUCTS === "undefined") return;
       container.innerHTML = ARCHIVE_PRODUCTS.map(p => `
         <article class="col-12 col-sm-6 col-lg-3">
           <div class="product-card p-3 h-100 d-flex flex-column">
