@@ -1,54 +1,73 @@
-# ARCHIVE[src] — Official Store
+# ARCHIVE[src] — Official Store & Management System
 
-Plataforma de comercio electrónico frontend desarrollada para la **Evaluación 1** de la asignatura **Desarrollo Fullstack II (DSY1104)** en **Duoc UC**.
-
-El proyecto consiste en una tienda minimalista y utilitaria enfocada en calzado, vestuario y accesorios urbanos de archivo y colecciones limitadas, diseñada bajo una estética inspirada en *More Drops* con una paleta neutra y acentos en azul marino (`#1B2A4A`).
+> Plataforma e-commerce y módulo de administración frontend desarrollado para la **Evaluación 1** de la asignatura **Desarrollo Fullstack II (DSY1104)** en **Duoc UC**.
 
 ---
 
-## 🚀 Tecnologías Implementadas
+## 1. Descripción del Proyecto
 
-En estricto cumplimiento con las restricciones técnicas de la evaluación:
-
-* **HTML5 Semántico:** Estructuración limpia mediante elementos nativos (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`) e hipervínculos coherentes entre todas las vistas públicas y administrativas.
-* **CSS3 Personalizado (Externo):** Centralizado en `css/styles.css` para un mantenimiento modular, utilizando tipografías contundentes (*Montserrat*, *Inter* y variantes *bold/black*) y diseño responsivo sin estilos en línea.
-* **Bootstrap 5:** Implementado para el sistema de grillas, contenedores adaptables y maquetación de componentes estructurales.
-* **JavaScript Nativo (ES6+):** Manipulación dinámica del DOM, gestión de catálogo y persistencia del estado en el navegador:
-  * **Catálogo y Renderizado:** Inyección dinámica de productos a partir de arreglos de objetos (`js/data.js`).
-  * **Carrito de Compras:** Persistencia completa de órdenes, cálculo de totales y almacenamiento local en `localStorage` (`js/carrito.js`).
-  * **Reglas de Negocio y Validaciones:** Control de formularios en tiempo real con mensajes de error contextuales (`js/validaciones.js`):
-    * Formato de RUN chileno (7 a 9 caracteres alfanuméricos, sin puntos ni guion).
-    * Dominios de correo autorizados (`@duoc.cl`, `@profesor.duoc.cl`, `@gmail.com`).
-    * Contraseñas con restricciones de extensión (4 a 10 caracteres).
-    * Selectores anidados dinámicos de Regiones y Comunas de Chile.
-  * **Panel Administrativo:** Control de vistas según roles autenticados (`Administrador` y `Vendedor`) y mantenedores de catálogo interactivos (`js/admin.js`).
+**ARCHIVE[src]** es una tienda web de alta gama inspirada en la cultura *streetwear* y el coleccionismo (*archive fashion*). El sistema combina un catálogo público para clientes con un sistema de gestión interna protegido por roles, priorizando una interfaz minimalista, sobria (blanco, negro y azul marino `#1B2A4A`), responsiva y con validaciones estrictas en el cliente.
 
 ---
 
-## 📁 Estructura del Proyecto
+## 2. Tecnologías y Herramientas Utilizadas
 
-```text
-ARCHIVE[src]/
-├── index.html              # Vista principal (Home con hero y lanzamientos)
-├── productos.html          # Catálogo completo con grilla interactiva
-├── detalle-producto.html   # Ficha técnica individual de productos
-├── carrito.html            # Carrito de compras persistente con localStorage
-├── nosotros.html           # Información corporativa y de desarrolladores
-├── blogs.html              # Listado de casos de estudio y noticias
-├── detalle-blog-1.html     # Caso de estudio #1
-├── detalle-blog-2.html     # Caso de estudio #2
-├── contacto.html           # Formulario de soporte validado por JS
-├── login.html              # Inicio de sesión con validación de credenciales
-├── registro.html           # Registro de usuarios y selector de región/comuna
-├── admin/
-│   ├── index.html          # Dashboard principal con métricas dinámicas
-│   ├── productos.html      # Mantenedor y listado del catálogo
-│   └── usuarios.html       # Mantenedor de cuentas y roles
-├── css/
-│   └── styles.css          # Hoja de estilos externa y centralizada
-├── js/
-│   ├── data.js             # Fuente de datos centralizada del catálogo
-│   ├── carrito.js          # Lógica y almacenamiento de compras
-│   ├── validaciones.js     # Validaciones de formularios y RUN
-│   └── admin.js            # Lógica de métricas, roles y mantenedores
-└── README.md               # Documentación general del repositorio
+* **HTML5:** Estructura y maquetación semántica (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`).
+* **CSS3:** Hoja de estilos externa personalizada (`css/styles.css`) con variables tipográficas y de color.
+* **Bootstrap 5 (v5.3.3):** Sistema de grillas responsivas (`grid`), contenedores y componente de Carrusel interactivo.
+* **JavaScript Nativo (ES6+):** Manipulación dinámica del DOM, inyección de catálogo, manejo de eventos y selectores en cascada.
+* **Persistencia Local (`localStorage`):** 
+  * `ARCHIVE_CART_ITEMS`: Almacenamiento persistente de productos, cantidades y totales del carrito.
+  * `ARCHIVE_USERS`: Registro persistente de clientes en memoria local.
+  * `ARCHIVE_AUTH_ROLE` / `ARCHIVE_USER_NAME`: Control de sesiones activas y saludo dinámico.
+* **SweetAlert2:** Mensajes emergentes, cuadros de confirmación y notificaciones flotantes (*Toast*).
+* **Git & GitHub:** Control de versiones con historial colaborativo bajo el estándar *Conventional Commits*.
+
+---
+
+## 3. Mapa de Vistas del Sitio
+
+### Módulo Público (Tienda)
+* **`index.html`:** Página de inicio con carrusel interactivo de novedades (4 diapositivas), catálogo preliminar, suscripción a newsletter y pie de página corporativo unificado.
+* **`productos.html`:** Vitrina completa de productos organizados en categorías (*Sneakers*, *Apparel*, *Goods*).
+* **`detalle-producto.html`:** Ficha de producto dinámica con descripción, selección de atributos y botón para añadir al carrito.
+* **`carrito.html`:** Gestor de compras con cálculo reactivo de subtotales, control de unidades, vaciado y persistencia de orden.
+* **`registro.html`:** Formulario de alta de clientes con control de campos vacíos, selectores reactivos y validaciones de formato.
+* **`login.html`:** Acceso de usuarios con redirección basada en roles y saludo personalizado en el modal de bienvenida.
+* **`nosotros.html`:** Manifiesto de la tienda, pilares de curaduría e información del equipo desarrollador.
+* **`blogs.html`:** Portal de artículos sobre preservación textil e historia del calzado urbano.
+* **`detalle-blog-1.html` & `detalle-blog-2.html`:** Artículos especializados sobre hidrólisis en poliuretano y la tendencia *Gorpcore*.
+* **`contacto.html`:** Formulario de atención al cliente con validaciones en tiempo real.
+
+### Módulo Administrativo (`/admin/`)
+* **`admin/index.html`:** Panel de métricas y resumen de operaciones comerciales con menú lateral.
+* **Gestión de Inventario y Usuarios:** Vistas de mantenedores protegidas, restringiendo accesos si el rol autenticado corresponde a *Vendedor*.
+
+---
+
+## 4. Reglas de Negocio y Validaciones Implementadas
+
+1. **RUN Chileno:** Campo obligatorio, longitud entre 7 y 9 caracteres, ingresado sin puntos ni guión (ej: `19011022K`).
+2. **Nombres y Apellidos:** Campos obligatorios con límites de 50 y 100 caracteres respectivamente.
+3. **Correos Electrónicos:** Restricción estricta a dominios autorizados (`@duoc.cl`, `@profesor.duoc.cl` o `@gmail.com`).
+4. **Contraseñas:** Longitud obligatoria de entre 4 y 10 caracteres alfanuméricos.
+5. **División Político-Administrativa:** Carga dinámica de las 16 regiones de Chile y actualización en cascada de sus comunas correspondientes al cambiar la selección.
+6. **Manejo de Errores Visuales:** Bloqueo del envío mediante JavaScript, pintando bordes rojos (`.is-invalid`) y textos de advertencia debajo de cada campo no completado o con formato erróneo.
+
+---
+
+## 5. Cuentas de Prueba para Evaluación
+
+Para probar el inicio de sesión y la asignación de roles en `login.html`:
+
+| Perfil | Correo de Prueba | Contraseña | Comportamiento del Sistema |
+| :--- | :--- | :--- | :--- |
+| **Administrador** | `admin@duoc.cl` | `1234` | Acceso total al panel administrativo (`/admin/index.html`). |
+| **Vendedor** | `vendedor@duoc.cl` | `1234` | Acceso al panel administrativo con gestión de usuarios oculta. |
+| **Cliente** | `cliente@gmail.com` | `1234` | Redirección a la tienda (`index.html`) con saludo personalizado. |
+
+---
+
+## 6. Documentación Adicional
+
+Junto a este repositorio se adjunta la **Especificación de Requisitos de Software (Documento ERS - Versión 1.0)** cumpliendo con los estándares solicitados en la pauta de evaluación institucional.
