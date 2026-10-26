@@ -170,3 +170,7 @@ a {
 }
 .field-msg.error { color: #DC3545; }
 .field-msg.success { color: #198754; }
+
+:root {
+  --font-hero: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
