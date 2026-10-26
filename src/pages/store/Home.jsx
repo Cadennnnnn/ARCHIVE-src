@@ -5,13 +5,40 @@ import ProductGrid from "../../components/products/ProductGrid.jsx";
 import { getProducts } from "../../data/db.js";
 import { useCart } from "../../context/CartContext.jsx";
 import { toastAgregado } from "../../utils/alerts.js";
-import heroImg from "../../assets/hero.image.jpg";
 
 const SLIDES = [
-  { badge: "Lanzamiento", titulo: "ARCHIVE[src]", texto: "Volver a la fuente de la cultura. Zapatillas, prendas y accesorios esenciales directo desde su [source] original.", cta: "Ver productos", to: "/productos", img: heroImg },
-  { badge: "Indumentaria", titulo: "NUEVA ERA", texto: "Equipamiento técnico, siluetas utilitarias y cortes pesados diseñados bajo estándares de conservación textil.", cta: "Explorar Ropa", to: "/categorias?cat=Ropa", img: "https://cdn.shopify.com/s/files/1/0271/9658/8125/files/gorpcore-fashion.jpg?v=1693332721" },
-  { badge: "Accesorios", titulo: "ESSENTIAL GOODS", texto: "Detalles que marcan la diferencia en tu rotación diaria: gorros, lentes y piezas limitadas.", cta: "Ver Accesorios", to: "/categorias?cat=Accesorios", img: "https://images.stockx.com/images/OFF-WHITE-Virgil-Sunglasses-Black-Dark-Grey-OERI126C99PLA0011307.jpg?fit=fill&bg=FFFFFF&w=576&h=384&q=60&dpr=1&trim=color&trimcolor=ffffff&updated_at=1748535346" },
-  { badge: "Bóveda", titulo: "GRAILS DEL ARCHIVO", texto: "Siluetas históricas verificadas manualmente una a una. Revisa nuestra selección exclusiva de calzado.", cta: "Explorar Zapatillas", to: "/categorias?cat=Zapatillas", img: "https://hips.hearstapps.com/hmg-prod/images/travis-scott-jordan-1-low-1670838159.jpg" },
+  {
+    badge: "Lanzamiento",
+    titulo: "ARCHIVE[src]",
+    texto: "Volver a la fuente de la cultura. Un archivo seleccionado con tranquilidad: zapatillas, prendas y accesorios esenciales directo desde su [source] original.",
+    cta: "Ver productos ↓",
+    to: "/productos",
+    img: "/img/hero.jpg",
+  },
+  {
+    badge: "Indumentaria",
+    titulo: "NUEVA ERA",
+    texto: "Equipamiento técnico, siluetas utilitarias y cortes pesados diseñados bajo estándares de conservación textil.",
+    cta: "Explorar Ropa →",
+    to: "/categorias?cat=Ropa",
+    img: "https://cdn.shopify.com/s/files/1/0271/9658/8125/files/gorpcore-fashion.jpg?v=1693332721",
+  },
+  {
+    badge: "Accesorios",
+    titulo: "ESSENTIAL GOODS",
+    texto: "Detalles que marcan la diferencia en tu rotación diaria: gorros, bolsos utilitarios y piezas limitadas.",
+    cta: "Ver Accesorios ↓",
+    to: "/categorias?cat=Accesorios",
+    img: "https://moredrops.cl/medias/desktop-drops.webp?context=bWFzdGVyfGltYWdlc3wzNjc3MjZ8aW1hZ2Uvd2VicHxhR0kzTDJneFppOHhNREUzTWpRME56TTVNVGMzTkM5a1pYTnJkRzl3TFdSeWIzQnpMbmRsWW5BfGZkNGVlYmNmNzVjMTFlNTdiODhlNDUxMGY5YzEyNjJkMWUxNzBlNzY4ZTIxNDMwOGQ5NmFlN2IxMjQzZTFmMzY",
+  },
+  {
+    badge: "Bóveda",
+    titulo: "GRAILS DEL ARCHIVO",
+    texto: "Siluetas históricas verificadas manualmente una a una. Revisa nuestra selección exclusiva de calzado.",
+    cta: "Explorar Zapatillas →",
+    to: "/categorias?cat=Zapatillas",
+    img: "https://hips.hearstapps.com/hmg-prod/images/travis-scott-jordan-1-low-1670838159.jpg",
+  },
 ];
 
 export default function Home() {
@@ -42,8 +69,14 @@ export default function Home() {
         <div id="archiveCarousel" className="carousel slide" data-bs-ride="carousel">
           <div className="carousel-indicators">
             {SLIDES.map((s, i) => (
-              <button key={s.titulo} type="button" data-bs-target="#archiveCarousel" data-bs-slide-to={i}
-                className={`bg-dark ${i === 0 ? "active" : ""}`} aria-label={`Slide ${i + 1}`} />
+              <button
+                key={s.titulo}
+                type="button"
+                data-bs-target="#archiveCarousel"
+                data-bs-slide-to={i}
+                className={`bg-dark ${i === 0 ? "active" : ""}`}
+                aria-label={`Slide ${i + 1}`}
+              />
             ))}
           </div>
           <div className="carousel-inner">
@@ -54,7 +87,9 @@ export default function Home() {
                     <span className="badge bg-dark rounded-0 text-uppercase px-2 py-1 mb-2 font-monospace">{s.badge}</span>
                     <h2 className="display-4 fw-bolder" style={{ textTransform: "none" }}>{s.titulo}</h2>
                     <p className="lead text-muted my-3">{s.texto}</p>
-                    <Link to={s.to} className={`btn px-4 py-3 ${i % 2 ? "btn-archive-outline" : "btn-archive-primary"}`}>{s.cta} &rarr;</Link>
+                    <Link to={s.to} className={`btn px-4 py-3 ${i % 2 ? "btn-archive-outline" : "btn-archive-primary"}`}>
+                      {s.cta}
+                    </Link>
                   </div>
                   <div className={`col-lg-6 text-center ${i % 2 ? "order-lg-1" : ""}`}>
                     <img src={s.img} alt={s.titulo} className="img-fluid" style={{ maxHeight: 380, objectFit: "contain" }} />
@@ -90,8 +125,14 @@ export default function Home() {
           </div>
           <div className="col-md-6">
             <form className="d-flex gap-2 mt-3 mt-md-0" onSubmit={handleSubscribe}>
-              <input type="email" className="form-control rounded-0" placeholder="Enter Email" required
-                value={email} onChange={(e) => setEmail(e.target.value)} />
+              <input
+                type="email"
+                className="form-control rounded-0"
+                placeholder="Enter Email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
               <button type="submit" className="btn btn-archive-primary">Subscribe</button>
             </form>
           </div>
