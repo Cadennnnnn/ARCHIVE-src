@@ -91,21 +91,4 @@ const ARCHIVE_PRODUCTS = [
 
 ];
 
-const CHILE_GEO = [
-  {
-    region: "Región Metropolitana de Santiago",
-    comunas: ["Santiago", "Providencia", "Las Condes", "Maipú", "Ñuñoa", "Puente Alto"]
-  },
-  {
-    region: "Región de Valparaíso",
-    comunas: ["Valparaíso", "Viña del Mar", "Concón", "Quilpué", "Villa Alemana"]
-  },
-  {
-    region: "Región del Biobío",
-    comunas: ["Concepción", "Talcahuano", "San Pedro de la Paz", "Chiguayante"]
-  },
-  {
-    region: "Región de la Araucanía",
-    comunas: ["Temuco", "Padre Las Casas", "Villarrica", "Pucón"]
-  }
-];
+export { ARCHIVE_PRODUCTS };
