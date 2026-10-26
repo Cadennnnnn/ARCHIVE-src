@@ -6,6 +6,12 @@ import Products from "./pages/store/Products.jsx";
 import ProductDetail from "./pages/store/ProductDetail.jsx";
 import Categories from "./pages/store/Categories.jsx";
 import Offers from "./pages/store/Offers.jsx";
+import Login from "./pages/store/Login.jsx";
+import Register from "./pages/store/Register.jsx";
+import Cart from "./pages/store/Cart.jsx";
+import Checkout from "./pages/store/Checkout.jsx";
+import PurchaseSuccess from "./pages/store/PurchaseSuccess.jsx";
+import PurchaseError from "./pages/store/PurchaseError.jsx";
 
 function Pendiente({ nombre }) {
   return (
@@ -26,8 +32,13 @@ export default function App() {
         <Route path="/productos/:id" element={<ProductDetail />} />
         <Route path="/categorias" element={<Categories />} />
         <Route path="/ofertas" element={<Offers />} />
-        <Route path="/login" element={<Pendiente nombre="LOGIN" />} />
-        <Route path="/carrito" element={<Pendiente nombre="CARRITO" />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/registro" element={<Register />} />
+        <Route path="/carrito" element={<Cart />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/compra-exitosa" element={<PurchaseSuccess />} />
+        <Route path="/compra-fallida" element={<PurchaseError />} />
+        <Route path="/admin" element={<Pendiente nombre="PANEL ADMIN" />} />
         <Route path="*" element={<Pendiente nombre="404" />} />
       </Routes>
       <Footer />
