@@ -1,6 +1,8 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Outlet } from "react-router-dom";
 import Navbar from "./components/layout/Navbar.jsx";
 import Footer from "./components/layout/Footer.jsx";
+import AdminLayout from "./components/layout/AdminLayout.jsx";
+import ProtectedRoute from "./components/common/ProtectedRoute.jsx";
 import Home from "./pages/store/Home.jsx";
 import Products from "./pages/store/Products.jsx";
 import ProductDetail from "./pages/store/ProductDetail.jsx";
@@ -12,6 +14,9 @@ import Cart from "./pages/store/Cart.jsx";
 import Checkout from "./pages/store/Checkout.jsx";
 import PurchaseSuccess from "./pages/store/PurchaseSuccess.jsx";
 import PurchaseError from "./pages/store/PurchaseError.jsx";
+import Dashboard from "./pages/admin/Dashboard.jsx";
+import AdminProducts from "./pages/admin/AdminProducts.jsx";
+import AdminUsers from "./pages/admin/AdminUsers.jsx";
 
 function Pendiente({ nombre }) {
   return (
@@ -22,11 +27,20 @@ function Pendiente({ nombre }) {
   );
 }
 
-export default function App() {
+function StoreLayout() {
   return (
     <div className="d-flex flex-column min-vh-100">
       <Navbar />
-      <Routes>
+      <Outlet />
+      <Footer />
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route element={<StoreLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/productos" element={<Products />} />
         <Route path="/productos/:id" element={<ProductDetail />} />
@@ -38,10 +52,17 @@ export default function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/compra-exitosa" element={<PurchaseSuccess />} />
         <Route path="/compra-fallida" element={<PurchaseError />} />
-        <Route path="/admin" element={<Pendiente nombre="PANEL ADMIN" />} />
         <Route path="*" element={<Pendiente nombre="404" />} />
-      </Routes>
-      <Footer />
-    </div>
+      </Route>
+
+      <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+        <Route index element={<Dashboard />} />
+        <Route path="productos" element={<AdminProducts />} />
+        <Route
+          path="usuarios"
+          element={<ProtectedRoute soloAdmin><AdminUsers /></ProtectedRoute>}
+        />
+      </Route>
+    </Routes>
   );
 }
