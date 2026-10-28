@@ -174,3 +174,8 @@ a {
 :root {
   --font-hero: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
+
+@media print {
+  .no-print { display: none !important; }
+  .boleta { border: none !important; max-width: 100% !important; }
+}

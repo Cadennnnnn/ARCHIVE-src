@@ -6,7 +6,7 @@ export default function AdminLayout() {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      <header className="border-bottom bg-white py-2">
+      <header className="border-bottom bg-white py-2 no-print">
         <div className="container-fluid d-flex justify-content-between align-items-center px-4">
           <span className="brand-logo" style={{ fontSize: "1.8rem" }}>
             ARCHIVE[src] <small className="text-muted fs-6 fw-normal">| Management Portal</small>
@@ -21,10 +21,12 @@ export default function AdminLayout() {
 
       <div className="container-fluid flex-grow-1">
         <div className="row">
-          <nav className="col-md-3 col-lg-2 sidebar p-0">
+          <nav className="col-md-3 col-lg-2 sidebar p-0 no-print">
             <ul className="nav flex-column">
               <li className="nav-item"><NavLink className="nav-link" to="/admin" end>Dashboard</NavLink></li>
+              <li className="nav-item"><NavLink className="nav-link" to="/admin/ordenes">Órdenes / Boletas</NavLink></li>
               <li className="nav-item"><NavLink className="nav-link" to="/admin/productos">Gestión Productos</NavLink></li>
+              <li className="nav-item"><NavLink className="nav-link" to="/admin/criticos">Productos críticos</NavLink></li>
               {esAdmin && (
                 <li className="nav-item"><NavLink className="nav-link" to="/admin/usuarios">Gestión Usuarios</NavLink></li>
               )}

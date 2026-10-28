@@ -4,7 +4,13 @@ const KEYS = {
   products: "ARCHIVE_DB_PRODUCTS",
   users: "ARCHIVE_DB_USERS",
   orders: "ARCHIVE_DB_ORDERS",
+  categories: "ARCHIVE_DB_CATEGORIES",
 };
+
+export const STOCK_CRITICO = 5;
+export const ESTADOS_PEDIDO = ["Pagado", "Enviado", "Entregado", "Anulado"];
+
+const CATEGORIAS_SEMILLA = ["Zapatillas", "Ropa", "Accesorios"];
 
 // Precios de oferta de ejemplo (id de producto -> precio con descuento)
 const OFERTAS_SEMILLA = { 2: 159990, 5: 169990, 6: 149990 };
@@ -45,6 +51,7 @@ export function initDB() {
   }
   if (!read(KEYS.users)) write(KEYS.users, USUARIOS_SEMILLA);
   if (!read(KEYS.orders)) write(KEYS.orders, []);
+  if (!read(KEYS.categories)) write(KEYS.categories, CATEGORIAS_SEMILLA);
 }
 
 export function resetDB() {
@@ -68,6 +75,13 @@ export function getProductsByCategory(categoria) {
 
 export function getOffers() {
   return getProducts().filter((p) => p.oferta !== null && p.oferta > 0);
+}
+
+// Productos con stock menor o igual al umbral, del más crítico al menos crítico
+export function getCriticalProducts(umbral = STOCK_CRITICO) {
+  return getProducts()
+    .filter((p) => p.stock <= umbral)
+    .sort((a, b) => a.stock - b.stock);
 }
 
 export function createProduct(data) {
@@ -105,6 +119,51 @@ export function deleteProduct(id) {
   const filtrados = productos.filter((p) => p.id !== Number(id));
   write(KEYS.products, filtrados);
   return filtrados.length < productos.length;
+}
+
+// ---------- CATEGORÍAS (CRUD) ----------
+function limpiarNombreCategoria(nombre = "") {
+  const n = normalizarCategoria(nombre);
+  if (!n) throw new Error("El nombre de la categoría es obligatorio.");
+  if (n.length > 30) throw new Error("Máximo 30 caracteres.");
+  return n;
+}
+
+export function getCategories() {
+  return read(KEYS.categories) ?? [];
+}
+
+export function createCategory(nombre) {
+  const categorias = getCategories();
+  const n = limpiarNombreCategoria(nombre);
+  if (categorias.includes(n)) throw new Error("Ya existe una categoría con ese nombre.");
+  write(KEYS.categories, [...categorias, n]);
+  return n;
+}
+
+// Renombra la categoría y actualiza los productos que la usan
+export function updateCategory(actual, nuevo) {
+  const categorias = getCategories();
+  const destino = limpiarNombreCategoria(nuevo);
+  if (!categorias.includes(actual)) throw new Error("Categoría no encontrada.");
+  if (destino !== actual && categorias.includes(destino)) {
+    throw new Error("Ya existe una categoría con ese nombre.");
+  }
+  write(KEYS.categories, categorias.map((c) => (c === actual ? destino : c)));
+  write(
+    KEYS.products,
+    getProducts().map((p) => (p.categoria === actual ? { ...p, categoria: destino } : p))
+  );
+  return destino;
+}
+
+export function deleteCategory(nombre) {
+  const enUso = getProducts().filter((p) => p.categoria === nombre).length;
+  if (enUso > 0) {
+    throw new Error(`No se puede eliminar: ${enUso} producto(s) usan esta categoría.`);
+  }
+  write(KEYS.categories, getCategories().filter((c) => c !== nombre));
+  return true;
 }
 
 // ---------- USUARIOS (CRUD + login) ----------
@@ -150,8 +209,26 @@ export function authenticate(correo, password) {
 }
 
 // ---------- PEDIDOS ----------
+// signo = -1 descuenta stock (compra) y +1 lo repone (anulación)
+function ajustarStock(items, signo) {
+  const productos = getProducts().map((p) => {
+    const linea = items.find((i) => i.id === p.id);
+    return linea ? { ...p, stock: Math.max(0, p.stock + signo * linea.cantidad) } : p;
+  });
+  write(KEYS.products, productos);
+}
+
 export function getOrders() {
   return read(KEYS.orders) ?? [];
+}
+
+export function getOrderById(id) {
+  return getOrders().find((p) => p.id === id) ?? null;
+}
+
+export function getOrdersByEmail(correo = "") {
+  const c = correo.trim().toLowerCase();
+  return getOrders().filter((p) => (p.cliente?.correo ?? "").toLowerCase() === c);
 }
 
 export function createOrder({ items, total, cliente }) {
@@ -165,5 +242,19 @@ export function createOrder({ items, total, cliente }) {
     estado: "Pagado",
   };
   write(KEYS.orders, [...pedidos, pedido]);
+  ajustarStock(items, -1);
   return pedido;
+}
+
+export function updateOrderStatus(id, estado) {
+  if (!ESTADOS_PEDIDO.includes(estado)) throw new Error("Estado no válido.");
+  const pedidos = getOrders();
+  const idx = pedidos.findIndex((p) => p.id === id);
+  if (idx === -1) throw new Error("Pedido no encontrado.");
+  const anterior = pedidos[idx].estado;
+  pedidos[idx] = { ...pedidos[idx], estado };
+  write(KEYS.orders, pedidos);
+  if (estado === "Anulado" && anterior !== "Anulado") ajustarStock(pedidos[idx].items, +1);
+  if (anterior === "Anulado" && estado !== "Anulado") ajustarStock(pedidos[idx].items, -1);
+  return pedidos[idx];
 }

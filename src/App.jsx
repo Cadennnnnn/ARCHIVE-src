@@ -22,6 +22,9 @@ import NotFound from "./pages/store/NotFound.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
 import AdminProducts from "./pages/admin/AdminProducts.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
+import AdminOrders from "./pages/admin/AdminOrders.jsx";
+import AdminOrderDetail from "./pages/admin/AdminOrderDetail.jsx";
+import AdminCriticalProducts from "./pages/admin/AdminCriticalProducts.jsx";
 
 function StoreLayout() {
   return (
@@ -57,7 +60,10 @@ export default function App() {
 
       <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
         <Route index element={<Dashboard />} />
+        <Route path="ordenes" element={<AdminOrders />} />
+        <Route path="ordenes/:id" element={<AdminOrderDetail />} />
         <Route path="productos" element={<AdminProducts />} />
+        <Route path="criticos" element={<AdminCriticalProducts />} />
         <Route
           path="usuarios"
           element={<ProtectedRoute soloAdmin><AdminUsers /></ProtectedRoute>}
