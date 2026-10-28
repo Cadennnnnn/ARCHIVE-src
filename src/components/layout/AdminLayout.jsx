@@ -27,9 +27,12 @@ export default function AdminLayout() {
               <li className="nav-item"><NavLink className="nav-link" to="/admin/ordenes">Órdenes / Boletas</NavLink></li>
               <li className="nav-item"><NavLink className="nav-link" to="/admin/productos">Gestión Productos</NavLink></li>
               <li className="nav-item"><NavLink className="nav-link" to="/admin/criticos">Productos críticos</NavLink></li>
+              <li className="nav-item"><NavLink className="nav-link" to="/admin/categorias">Categorías</NavLink></li>
               {esAdmin && (
                 <li className="nav-item"><NavLink className="nav-link" to="/admin/usuarios">Gestión Usuarios</NavLink></li>
               )}
+              <li className="nav-item"><NavLink className="nav-link" to="/admin/reportes">Reportes</NavLink></li>
+              <li className="nav-item"><NavLink className="nav-link" to="/admin/perfil">Mi perfil</NavLink></li>
             </ul>
           </nav>
           <main className="col-md-9 col-lg-10 p-4">

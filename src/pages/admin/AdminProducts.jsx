@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
 import FormField from "../../components/forms/FormField.jsx";
-import { createProduct, deleteProduct, getProducts, updateProduct } from "../../data/db.js";
+import { createProduct, deleteProduct, getCategories, getProducts, updateProduct } from "../../data/db.js";
 import { formatearPrecio } from "../../utils/formatters.js";
 import { validarCodigoProducto, validarNombre, validarPrecio } from "../../utils/validaciones.js";
 
@@ -9,6 +9,7 @@ const VACIO = { codigo: "", nombre: "", categoria: "", precio: "", oferta: "", s
 
 export default function AdminProducts() {
   const [productos, setProductos] = useState(getProducts);
+  const [categorias] = useState(getCategories);
   const [datos, setDatos] = useState(VACIO);
   const [editandoId, setEditandoId] = useState(null);
   const [errores, setErrores] = useState({});
@@ -100,9 +101,7 @@ export default function AdminProducts() {
             <FormField id="prod-categoria" label="Categoría" error={errores.categoria}>
               <select id="prod-categoria" className={`form-select rounded-0 ${errores.categoria ? "is-invalid" : ""}`} value={datos.categoria} onChange={(e) => set("categoria")(e.target.value)}>
                 <option value="">-- Seleccionar --</option>
-                <option>Zapatillas</option>
-                <option>Ropa</option>
-                <option>Accesorios</option>
+                {categorias.map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </FormField>
             <FormField id="prod-precio" label="Precio ($ CLP)" type="number" value={datos.precio} onChange={set("precio")} error={errores.precio} />

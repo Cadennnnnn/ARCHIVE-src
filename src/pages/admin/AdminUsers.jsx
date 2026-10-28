@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import FormField from "../../components/forms/FormField.jsx";
 import { createUser, deleteUser, getUsers, updateUser } from "../../data/db.js";
@@ -133,6 +134,7 @@ export default function AdminUsers() {
                     <td>{u.correo}</td>
                     <td><span className={`badge ${u.rol === "Administrador" ? "bg-dark" : "bg-secondary"}`}>{u.rol}</span></td>
                     <td className="text-end text-nowrap">
+                      <Link to={`/admin/usuarios/${u.run}/compras`} className="btn btn-sm btn-outline-secondary me-1">Historial</Link>
                       <button className="btn btn-sm btn-outline-dark me-1" onClick={() => handleEdit(u)}>Editar</button>
                       <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(u)}>Eliminar</button>
                     </td>

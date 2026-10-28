@@ -28,11 +28,18 @@ export function AuthProvider({ children }) {
     setUser(null);
   };
 
+  // Actualiza los datos de la sesión activa (por ejemplo tras editar el perfil)
+  const actualizarSesion = (cambios) => {
+    const nuevo = { ...user, ...cambios };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(nuevo));
+    setUser(nuevo);
+  };
+
   const esStaff = user?.rol === "Administrador" || user?.rol === "Vendedor";
   const esAdmin = user?.rol === "Administrador";
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, esStaff, esAdmin }}>
+    <AuthContext.Provider value={{ user, login, logout, actualizarSesion, esStaff, esAdmin }}>
       {children}
     </AuthContext.Provider>
   );
