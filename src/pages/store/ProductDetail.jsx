@@ -22,6 +22,7 @@ export default function ProductDetail() {
   }
 
   const enOferta = producto.oferta !== null && producto.oferta > 0;
+  const agotado = producto.stock <= 0;
 
   const handleAdd = () => {
     addItem(producto, cantidad);
@@ -64,16 +65,21 @@ export default function ProductDetail() {
                 type="number"
                 min="1"
                 max={producto.stock}
+                disabled={agotado}
                 className="form-control rounded-0"
                 value={cantidad}
                 onChange={(e) => setCantidad(Math.max(1, Math.min(producto.stock, Number(e.target.value) || 1)))}
               />
             </div>
           </div>
-          <p className="small text-muted">Stock disponible: {producto.stock}</p>
+          <p className="small text-muted">
+            {agotado ? <span className="badge bg-danger">Agotado</span> : `Stock disponible: ${producto.stock}`}
+          </p>
 
           <div className="d-flex gap-3">
-            <button className="btn btn-archive-primary px-4 py-3" onClick={handleAdd}>Añadir al Carrito</button>
+            <button className="btn btn-archive-primary px-4 py-3" onClick={handleAdd} disabled={agotado}>
+              {agotado ? "Agotado" : "Añadir al Carrito"}
+            </button>
             <Link to="/productos" className="btn btn-archive-outline px-4 py-3">Volver al catálogo</Link>
           </div>
         </div>

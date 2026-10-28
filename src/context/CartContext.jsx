@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { getProductById } from "../data/db.js";
 import { precioFinal } from "../utils/precios.js";
 
 const CartContext = createContext(null);
@@ -12,6 +13,12 @@ function leerCarrito() {
   }
 }
 
+// Si el producto existe en la base, la cantidad no puede superar su stock
+function topeStock(id) {
+  const stock = getProductById(id)?.stock;
+  return (n) => (typeof stock === "number" ? Math.min(n, stock) : n);
+}
+
 export function CartProvider({ children }) {
   const [items, setItems] = useState(leerCarrito);
 
@@ -20,11 +27,13 @@ export function CartProvider({ children }) {
   }, [items]);
 
   const addItem = (producto, cantidad = 1) => {
+    const tope = topeStock(producto.id);
     setItems((prev) => {
       const existe = prev.find((i) => i.id === producto.id);
       if (existe) {
-        return prev.map((i) => (i.id === producto.id ? { ...i, cantidad: i.cantidad + cantidad } : i));
+        return prev.map((i) => (i.id === producto.id ? { ...i, cantidad: tope(i.cantidad + cantidad) } : i));
       }
+      if (tope(cantidad) <= 0) return prev;
       return [
         ...prev,
         {
@@ -33,16 +42,18 @@ export function CartProvider({ children }) {
           nombre: producto.nombre,
           precio: precioFinal(producto),
           imagen: producto.imagen,
-          cantidad,
+          cantidad: tope(cantidad),
         },
       ];
     });
   };
 
-  const changeQty = (id, delta) =>
+  const changeQty = (id, delta) => {
+    const tope = topeStock(id);
     setItems((prev) =>
-      prev.map((i) => (i.id === id ? { ...i, cantidad: i.cantidad + delta } : i)).filter((i) => i.cantidad > 0)
+      prev.map((i) => (i.id === id ? { ...i, cantidad: tope(i.cantidad + delta) } : i)).filter((i) => i.cantidad > 0)
     );
+  };
 
   const removeItem = (id) => setItems((prev) => prev.filter((i) => i.id !== id));
   const clearCart = () => setItems([]);

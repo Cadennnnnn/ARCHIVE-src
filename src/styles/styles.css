@@ -179,3 +179,8 @@ a {
   .no-print { display: none !important; }
   .boleta { border: none !important; max-width: 100% !important; }
 }
+
+@media print {
+  header, footer, nav { display: none !important; }
+  body { background: #fff !important; }
+}

@@ -2,8 +2,9 @@ import { Link } from "react-router-dom";
 import { formatearPrecio } from "../../utils/formatters.js";
 
 export default function ProductCard({ producto, onAdd }) {
-  const { id, nombre, categoria, precio, oferta, imagen } = producto;
+  const { id, nombre, categoria, precio, oferta, imagen, stock } = producto;
   const enOferta = oferta !== null && oferta > 0;
+  const agotado = typeof stock === "number" && stock <= 0;
 
   return (
     <article className="col-12 col-sm-6 col-lg-3">
@@ -30,7 +31,9 @@ export default function ProductCard({ producto, onAdd }) {
         </div>
         <div className="mt-auto d-flex gap-2">
           <Link to={`/productos/${id}`} className="btn btn-sm btn-archive-outline w-50">Detalle</Link>
-          <button className="btn btn-sm btn-archive-primary w-50" onClick={() => onAdd(producto)}>Añadir</button>
+          <button className="btn btn-sm btn-archive-primary w-50" disabled={agotado} onClick={() => onAdd(producto)}>
+            {agotado ? "Agotado" : "Añadir"}
+          </button>
         </div>
       </div>
     </article>

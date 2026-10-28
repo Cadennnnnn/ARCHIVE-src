@@ -1,11 +1,27 @@
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import CartItemRow from "../../components/cart/CartItemRow.jsx";
 import CartSummary from "../../components/cart/CartSummary.jsx";
 import { useCart } from "../../context/CartContext.jsx";
+import { getProductById } from "../../data/db.js";
 
 export default function Cart() {
-  const { items, changeQty, removeItem, total } = useCart();
+  const { items, changeQty, removeItem, clearCart, total } = useCart();
   const navigate = useNavigate();
+
+  const handleClear = async () => {
+    const r = await Swal.fire({
+      title: "¿Vaciar el carrito?",
+      text: "Se quitarán todos los productos.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#1B2A4A",
+      confirmButtonText: "Vaciar",
+      cancelButtonText: "Cancelar",
+      customClass: { popup: "rounded-0 border border-dark" },
+    });
+    if (r.isConfirmed) clearCart();
+  };
 
   return (
     <main className="container my-5 flex-grow-1">
@@ -24,14 +40,27 @@ export default function Cart() {
                 {items.length === 0 ? (
                   <tr><td colSpan="5" className="text-center py-4">Tu carrito está vacío.</td></tr>
                 ) : (
-                  items.map((i) => <CartItemRow key={i.id} item={i} onChangeQty={changeQty} onRemove={removeItem} />)
+                  items.map((i) => (
+                    <CartItemRow
+                      key={i.id}
+                      item={i}
+                      stock={getProductById(i.id)?.stock}
+                      onChangeQty={changeQty}
+                      onRemove={removeItem}
+                    />
+                  ))
                 )}
               </tbody>
             </table>
           </div>
         </section>
         <section className="col-lg-4">
-          <CartSummary total={total} disabled={items.length === 0} onCheckout={() => navigate("/checkout")} />
+          <CartSummary
+            total={total}
+            disabled={items.length === 0}
+            onCheckout={() => navigate("/checkout")}
+            onClear={handleClear}
+          />
         </section>
       </div>
     </main>
