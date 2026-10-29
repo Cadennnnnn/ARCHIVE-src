@@ -8,8 +8,10 @@ import App from "./App.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { CartProvider } from "./context/CartContext.jsx";
 import { initDB } from "./data/db.js";
+import { sembrarPedidosDemo } from "./data/demo.js";
 
 initDB();
+sembrarPedidosDemo();
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

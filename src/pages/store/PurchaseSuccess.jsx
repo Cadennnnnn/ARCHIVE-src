@@ -1,6 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import OrderSummary from "../../components/cart/OrderSummary.jsx";
+import { descargarBoletaPdf } from "../../utils/boletaPdf.js";
 
 export default function PurchaseSuccess() {
   const pedido = useLocation().state?.pedido;
@@ -33,7 +34,8 @@ export default function PurchaseSuccess() {
         </div>
         <OrderSummary cliente={pedido.cliente} items={pedido.items} total={pedido.total} etiquetaTotal="Total pagado" />
         <div className="no-print d-flex flex-wrap gap-2 justify-content-center mt-4">
-          <button className="btn btn-danger rounded-0 fw-bold" onClick={() => window.print()}>Imprimir boleta en PDF</button>
+          <button className="btn btn-danger rounded-0 fw-bold" onClick={() => descargarBoletaPdf(pedido)}>Descargar boleta en PDF</button>
+          <button className="btn btn-outline-dark rounded-0 fw-bold" onClick={() => window.print()}>Imprimir</button>
           <button className="btn btn-success rounded-0 fw-bold" onClick={handleEmail}>Enviar boleta por email</button>
           <Link to="/productos" className="btn btn-archive-outline">Seguir comprando</Link>
         </div>

@@ -21,13 +21,15 @@ import PurchaseError from "./pages/store/PurchaseError.jsx";
 import NotFound from "./pages/store/NotFound.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
 import AdminProducts from "./pages/admin/AdminProducts.jsx";
+import AdminProductDetail from "./pages/admin/AdminProductDetail.jsx";
 import AdminUsers from "./pages/admin/AdminUsers.jsx";
+import AdminUserDetail from "./pages/admin/AdminUserDetail.jsx";
+import AdminUserHistory from "./pages/admin/AdminUserHistory.jsx";
 import AdminOrders from "./pages/admin/AdminOrders.jsx";
 import AdminOrderDetail from "./pages/admin/AdminOrderDetail.jsx";
 import AdminCriticalProducts from "./pages/admin/AdminCriticalProducts.jsx";
 import AdminCategories from "./pages/admin/AdminCategories.jsx";
 import AdminReports from "./pages/admin/AdminReports.jsx";
-import AdminUserHistory from "./pages/admin/AdminUserHistory.jsx";
 import AdminProfile from "./pages/admin/AdminProfile.jsx";
 
 function StoreLayout() {
@@ -67,18 +69,14 @@ export default function App() {
         <Route path="ordenes" element={<AdminOrders />} />
         <Route path="ordenes/:id" element={<AdminOrderDetail />} />
         <Route path="productos" element={<AdminProducts />} />
+        <Route path="productos/:id" element={<AdminProductDetail />} />
         <Route path="criticos" element={<AdminCriticalProducts />} />
         <Route path="categorias" element={<AdminCategories />} />
         <Route path="reportes" element={<AdminReports />} />
         <Route path="perfil" element={<AdminProfile />} />
-        <Route
-          path="usuarios"
-          element={<ProtectedRoute soloAdmin><AdminUsers /></ProtectedRoute>}
-        />
-        <Route
-          path="usuarios/:run/compras"
-          element={<ProtectedRoute soloAdmin><AdminUserHistory /></ProtectedRoute>}
-        />
+        <Route path="usuarios" element={<ProtectedRoute soloAdmin><AdminUsers /></ProtectedRoute>} />
+        <Route path="usuarios/:run" element={<ProtectedRoute soloAdmin><AdminUserDetail /></ProtectedRoute>} />
+        <Route path="usuarios/:run/compras" element={<ProtectedRoute soloAdmin><AdminUserHistory /></ProtectedRoute>} />
       </Route>
     </Routes>
   );

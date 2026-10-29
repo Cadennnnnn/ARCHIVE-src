@@ -1,7 +1,9 @@
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useCart } from "../../context/CartContext.jsx";
 import { getCategories } from "../../data/db.js";
+import { formatearPrecio } from "../../utils/formatters.js";
 
 const LINKS_ANTES = [
   { to: "/", label: "Home" },
@@ -25,13 +27,21 @@ function ItemNav({ to, label }) {
 
 export default function Navbar() {
   const { user, logout, esStaff } = useAuth();
-  const { totalItems } = useCart();
+  const { totalItems, total } = useCart();
+  const [q, setQ] = useState("");
+  const navigate = useNavigate();
   useLocation(); // vuelve a leer las categorías al navegar
   const categorias = getCategories();
 
+  const buscar = (e) => {
+    e.preventDefault();
+    const t = q.trim();
+    navigate(t ? `/productos?q=${encodeURIComponent(t)}` : "/productos");
+  };
+
   return (
     <header>
-      <nav className="navbar navbar-expand-lg archive-navbar py-3">
+      <nav className="navbar navbar-expand-xl archive-navbar py-3">
         <div className="container">
           <Link className="navbar-brand brand-logo" to="/">ARCHIVE[src]</Link>
           <button
@@ -44,7 +54,7 @@ export default function Navbar() {
             <span className="navbar-toggler-icon"></span>
           </button>
           <div className="collapse navbar-collapse" id="navContent">
-            <ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
+            <ul className="navbar-nav mx-auto mb-2 mb-xl-0 gap-xl-3">
               {LINKS_ANTES.map((l) => <ItemNav key={l.to} {...l} />)}
               <li className="nav-item dropdown">
                 <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -61,6 +71,20 @@ export default function Navbar() {
               </li>
               {LINKS_DESPUES.map((l) => <ItemNav key={l.to} {...l} />)}
             </ul>
+
+            <form role="search" className="d-flex gap-2 me-xl-3 mb-2 mb-xl-0" onSubmit={buscar}>
+              <input
+                type="search"
+                className="form-control form-control-sm rounded-0"
+                style={{ minWidth: 150 }}
+                placeholder="Buscar productos..."
+                aria-label="Buscar productos"
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+              />
+              <button type="submit" className="btn btn-sm btn-archive-outline">Buscar</button>
+            </form>
+
             <div className="d-flex align-items-center gap-3">
               {user ? (
                 <>
@@ -75,7 +99,9 @@ export default function Navbar() {
                   <Link to="/registro" className="nav-link">Registrar usuario</Link>
                 </>
               )}
-              <Link to="/carrito" className="btn btn-archive-outline">Cart ({totalItems})</Link>
+              <Link to="/carrito" className="btn btn-archive-outline text-nowrap" title={`${totalItems} producto(s) en el carrito`}>
+                {`Carrito ${formatearPrecio(total)}`}
+              </Link>
             </div>
           </div>
         </div>
