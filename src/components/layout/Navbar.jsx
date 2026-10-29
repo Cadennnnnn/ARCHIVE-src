@@ -1,20 +1,33 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext.jsx";
 import { useCart } from "../../context/CartContext.jsx";
+import { getCategories } from "../../data/db.js";
 
-const LINKS = [
+const LINKS_ANTES = [
   { to: "/", label: "Home" },
   { to: "/productos", label: "Productos" },
-  { to: "/categorias", label: "Categorías" },
+];
+
+const LINKS_DESPUES = [
   { to: "/ofertas", label: "Ofertas" },
   { to: "/nosotros", label: "Nosotros" },
   { to: "/blogs", label: "Blogs" },
   { to: "/contacto", label: "Contacto" },
 ];
 
+function ItemNav({ to, label }) {
+  return (
+    <li className="nav-item">
+      <NavLink className="nav-link" to={to} end={to === "/"}>{label}</NavLink>
+    </li>
+  );
+}
+
 export default function Navbar() {
   const { user, logout, esStaff } = useAuth();
   const { totalItems } = useCart();
+  useLocation(); // vuelve a leer las categorías al navegar
+  const categorias = getCategories();
 
   return (
     <header>
@@ -32,11 +45,21 @@ export default function Navbar() {
           </button>
           <div className="collapse navbar-collapse" id="navContent">
             <ul className="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
-              {LINKS.map((l) => (
-                <li className="nav-item" key={l.to}>
-                  <NavLink className="nav-link" to={l.to} end={l.to === "/"}>{l.label}</NavLink>
-                </li>
-              ))}
+              {LINKS_ANTES.map((l) => <ItemNav key={l.to} {...l} />)}
+              <li className="nav-item dropdown">
+                <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  Categorías
+                </a>
+                <ul className="dropdown-menu rounded-0">
+                  <li><Link className="dropdown-item" to="/categorias">Todas</Link></li>
+                  {categorias.map((c) => (
+                    <li key={c}>
+                      <Link className="dropdown-item" to={`/categorias?cat=${encodeURIComponent(c)}`}>{c}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+              {LINKS_DESPUES.map((l) => <ItemNav key={l.to} {...l} />)}
             </ul>
             <div className="d-flex align-items-center gap-3">
               {user ? (
