@@ -4,7 +4,9 @@ import { formatearPrecio } from "../../utils/formatters.js";
 export default function ProductCard({ producto, onAdd }) {
   const { id, nombre, categoria, precio, oferta, imagen, stock } = producto;
   const enOferta = oferta !== null && oferta > 0;
-  const agotado = typeof stock === "number" && stock <= 0;
+  const conStock = typeof stock === "number";
+  const agotado = conStock && stock <= 0;
+  const pocoStock = conStock && stock > 0 && stock <= 5;
 
   return (
     <article className="col-12 col-sm-6 col-lg-3">
@@ -19,7 +21,7 @@ export default function ProductCard({ producto, onAdd }) {
         <h6 className="fw-bold my-1">
           <Link to={`/productos/${id}`}>{nombre}</Link>
         </h6>
-        <div className="mb-3 font-monospace fw-bold">
+        <div className="mb-1 font-monospace fw-bold">
           {enOferta ? (
             <>
               <span className="text-danger me-2">{formatearPrecio(oferta)}</span>
@@ -29,6 +31,11 @@ export default function ProductCard({ producto, onAdd }) {
             formatearPrecio(precio)
           )}
         </div>
+        {conStock && (
+          <small className={`d-block mb-3 ${agotado || pocoStock ? "text-danger" : "text-muted"}`}>
+            {agotado ? "Sin stock disponible" : `Stock disponible: ${stock}`}
+          </small>
+        )}
         <div className="mt-auto d-flex gap-2">
           <Link to={`/productos/${id}`} className="btn btn-sm btn-archive-outline w-50">Detalle</Link>
           <button className="btn btn-sm btn-archive-primary w-50" disabled={agotado} onClick={() => onAdd(producto)}>

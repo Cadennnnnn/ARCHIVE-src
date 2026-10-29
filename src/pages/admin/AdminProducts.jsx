@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import FormField from "../../components/forms/FormField.jsx";
 import { createProduct, deleteProduct, getCategories, getProducts, updateProduct } from "../../data/db.js";
@@ -7,11 +8,26 @@ import { validarCodigoProducto, validarNombre, validarPrecio } from "../../utils
 
 const VACIO = { codigo: "", nombre: "", categoria: "", precio: "", oferta: "", stock: "0", imagen: "" };
 
+function datosDe(p) {
+  return {
+    codigo: p.codigo,
+    nombre: p.nombre,
+    categoria: p.categoria,
+    precio: String(p.precio),
+    oferta: p.oferta ? String(p.oferta) : "",
+    stock: String(p.stock),
+    imagen: p.imagen,
+  };
+}
+
 export default function AdminProducts() {
+  const [params] = useSearchParams();
   const [productos, setProductos] = useState(getProducts);
   const [categorias] = useState(getCategories);
-  const [datos, setDatos] = useState(VACIO);
-  const [editandoId, setEditandoId] = useState(null);
+  // Si se llega desde "Editar producto" (?editar=ID) el formulario parte cargado
+  const [inicial] = useState(() => getProducts().find((p) => p.id === Number(params.get("editar"))) ?? null);
+  const [datos, setDatos] = useState(inicial ? datosDe(inicial) : VACIO);
+  const [editandoId, setEditandoId] = useState(inicial?.id ?? null);
   const [errores, setErrores] = useState({});
 
   const set = (campo) => (valor) => setDatos((d) => ({ ...d, [campo]: valor }));
@@ -25,15 +41,7 @@ export default function AdminProducts() {
 
   const handleEdit = (p) => {
     setEditandoId(p.id);
-    setDatos({
-      codigo: p.codigo,
-      nombre: p.nombre,
-      categoria: p.categoria,
-      precio: String(p.precio),
-      oferta: p.oferta ? String(p.oferta) : "",
-      stock: String(p.stock),
-      imagen: p.imagen,
-    });
+    setDatos(datosDe(p));
     setErrores({});
   };
 
@@ -133,6 +141,7 @@ export default function AdminProducts() {
                     </td>
                     <td>{p.stock}</td>
                     <td className="text-end text-nowrap">
+                      <Link to={`/admin/productos/${p.id}`} className="btn btn-sm btn-outline-secondary me-1">Ver</Link>
                       <button className="btn btn-sm btn-outline-dark me-1" onClick={() => handleEdit(p)}>Editar</button>
                       <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(p)}>Eliminar</button>
                     </td>

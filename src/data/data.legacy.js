@@ -5,7 +5,7 @@ const ARCHIVE_PRODUCTS = [
     nombre: "NIKE AIR MAX 1/97 SW",
     categoria: "Zapatillas",
     precio: 169990,
-    imagen: "https://images.stockx.com/images/Nike-Air-Max-1-97-Sean-Wotherspoon-NA-Product.jpg?fit=fill&bg=FFFFFF&w=700&h=500&fm=webp&auto=compress&q=90&dpr=2&trim=color&updated_at=1738193358",
+    imagen: "https://imgs.search.brave.com/V7C1cHwwFM6j1Ihvsvh0IXW1CJYtD866GYUhoXeVmg0/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/ay1za2l0LmNvbS93/cC1jb250ZW50L3Vw/bG9hZHMvMjAxOC8w/Ni9JTUdfMTQ5Ny5q/cGc",
     descripcion: "Diseño híbrido icónico creado por Sean Wotherspoon con capellada de corderoy multicolor sobre la amortiguación clásica Air Max 1.",
     tallas: ["US 8", "US 9", "US 10", "US 11"],
     stock: 8

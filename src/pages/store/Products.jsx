@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import ProductGrid from "../../components/products/ProductGrid.jsx";
 import ProductFilters from "../../components/products/ProductFilters.jsx";
 import { getProducts } from "../../data/db.js";
@@ -8,9 +9,13 @@ import { toastAgregado } from "../../utils/alerts.js";
 
 export default function Products() {
   const [productos] = useState(getProducts);
-  const [busqueda, setBusqueda] = useState("");
+  const [params, setParams] = useSearchParams();
   const [categoria, setCategoria] = useState("");
   const { addItem } = useCart();
+
+  // La búsqueda vive en la URL (?q=...) para poder usarla desde la barra de la navbar
+  const busqueda = params.get("q") ?? "";
+  const setBusqueda = (v) => setParams(v ? { q: v } : {}, { replace: true });
 
   const handleAdd = (p) => {
     addItem(p);

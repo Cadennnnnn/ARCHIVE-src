@@ -1,6 +1,7 @@
 import { Link, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getOrderById } from "../../data/db.js";
+import { descargarBoletaPdf } from "../../utils/boletaPdf.js";
 import { formatearPrecio } from "../../utils/formatters.js";
 
 export default function AdminOrderDetail() {
@@ -31,7 +32,8 @@ export default function AdminOrderDetail() {
     <>
       <div className="no-print d-flex flex-wrap gap-2 mb-4">
         <Link to="/admin/ordenes" className="btn btn-archive-outline">&larr; Volver a órdenes</Link>
-        <button className="btn btn-danger rounded-0 fw-bold" onClick={() => window.print()}>Imprimir boleta en PDF</button>
+        <button className="btn btn-danger rounded-0 fw-bold" onClick={() => descargarBoletaPdf(pedido)}>Descargar boleta en PDF</button>
+        <button className="btn btn-outline-dark rounded-0 fw-bold" onClick={() => window.print()}>Imprimir</button>
         <button className="btn btn-success rounded-0 fw-bold" onClick={handleEmail}>Enviar boleta por email</button>
       </div>
 

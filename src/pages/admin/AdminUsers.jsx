@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import FormField from "../../components/forms/FormField.jsx";
 import { createUser, deleteUser, getUsers, updateUser } from "../../data/db.js";
@@ -8,11 +8,18 @@ import { validarCorreo, validarNombre, validarPassword, validarRun } from "../..
 
 const VACIO = { run: "", nombre: "", apellidos: "", correo: "", password: "", rol: "Cliente" };
 
+function datosDe(u) {
+  return { run: u.run, nombre: u.nombre, apellidos: u.apellidos, correo: u.correo, password: "", rol: u.rol };
+}
+
 export default function AdminUsers() {
   const { user: actual } = useAuth();
+  const [params] = useSearchParams();
   const [usuarios, setUsuarios] = useState(getUsers);
-  const [datos, setDatos] = useState(VACIO);
-  const [editandoRun, setEditandoRun] = useState(null);
+  // Si se llega desde "Editar usuario" (?editar=RUN) el formulario parte cargado
+  const [inicial] = useState(() => getUsers().find((u) => u.run === params.get("editar")) ?? null);
+  const [datos, setDatos] = useState(inicial ? datosDe(inicial) : VACIO);
+  const [editandoRun, setEditandoRun] = useState(inicial?.run ?? null);
   const [errores, setErrores] = useState({});
 
   const set = (campo) => (valor) => setDatos((d) => ({ ...d, [campo]: valor }));
@@ -26,7 +33,7 @@ export default function AdminUsers() {
 
   const handleEdit = (u) => {
     setEditandoRun(u.run);
-    setDatos({ run: u.run, nombre: u.nombre, apellidos: u.apellidos, correo: u.correo, password: "", rol: u.rol });
+    setDatos(datosDe(u));
     setErrores({});
   };
 
@@ -134,6 +141,7 @@ export default function AdminUsers() {
                     <td>{u.correo}</td>
                     <td><span className={`badge ${u.rol === "Administrador" ? "bg-dark" : "bg-secondary"}`}>{u.rol}</span></td>
                     <td className="text-end text-nowrap">
+                      <Link to={`/admin/usuarios/${u.run}`} className="btn btn-sm btn-outline-secondary me-1">Ver</Link>
                       <Link to={`/admin/usuarios/${u.run}/compras`} className="btn btn-sm btn-outline-secondary me-1">Historial</Link>
                       <button className="btn btn-sm btn-outline-dark me-1" onClick={() => handleEdit(u)}>Editar</button>
                       <button className="btn btn-sm btn-outline-danger" onClick={() => handleDelete(u)}>Eliminar</button>

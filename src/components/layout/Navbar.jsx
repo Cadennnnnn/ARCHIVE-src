@@ -5,6 +5,14 @@ import CartButton from "./CartButton.jsx";
 import NavMenu from "./NavMenu.jsx";
 import SearchBar from "./SearchBar.jsx";
 
+function ItemNav({ to, label }) {
+  return (
+    <li className="nav-item">
+      <NavLink className="nav-link" to={to} end={to === "/"}>{label}</NavLink>
+    </li>
+  );
+}
+
 export default function Navbar() {
   useLocation(); // vuelve a leer las categorías al navegar
   const categorias = getCategories();

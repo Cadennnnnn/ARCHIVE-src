@@ -2,9 +2,11 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import ProductGrid from "../../components/products/ProductGrid.jsx";
-import { getProducts } from "../../data/db.js";
+import CategoryCards from "../../components/products/CategoryCards.jsx";
+import { getCategories, getProducts } from "../../data/db.js";
 import { useCart } from "../../context/CartContext.jsx";
 import { toastAgregado } from "../../utils/alerts.js";
+import { resumenCategorias } from "../../utils/categorias.js";
 
 const SLIDES = [
   {
@@ -43,6 +45,7 @@ const SLIDES = [
 
 export default function Home() {
   const [productos] = useState(getProducts);
+  const [categorias] = useState(() => resumenCategorias(getCategories(), getProducts()));
   const [email, setEmail] = useState("");
   const { addItem } = useCart();
 
@@ -108,6 +111,8 @@ export default function Home() {
           </button>
         </div>
       </section>
+
+      <CategoryCards categorias={categorias} />
 
       <section>
         <div className="d-flex justify-content-between align-items-center mb-4 border-bottom pb-2">
