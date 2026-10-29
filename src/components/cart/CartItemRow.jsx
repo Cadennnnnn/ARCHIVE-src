@@ -1,8 +1,7 @@
 import { formatearPrecio } from "../../utils/formatters.js";
 
 export default function CartItemRow({ item, stock, onChangeQty, onRemove }) {
-  const conStock = typeof stock === "number";
-  const enTope = conStock && item.cantidad >= stock;
+  const enTope = typeof stock === "number" && item.cantidad >= stock;
 
   return (
     <tr>
@@ -12,7 +11,7 @@ export default function CartItemRow({ item, stock, onChangeQty, onRemove }) {
           <div>
             <strong className="d-block text-uppercase">{item.nombre}</strong>
             <small className="text-muted d-block">{item.codigo}</small>
-            {conStock && <small className={enTope ? "text-danger" : "text-muted"}>Stock disponible: {stock}</small>}
+            {enTope && <small className="text-danger">Alcanzaste el máximo disponible</small>}
           </div>
         </div>
       </td>
@@ -26,7 +25,6 @@ export default function CartItemRow({ item, stock, onChangeQty, onRemove }) {
             className="btn btn-outline-dark"
             aria-label="Aumentar"
             disabled={enTope}
-            title={enTope ? "Alcanzaste el stock disponible" : ""}
             onClick={() => onChangeQty(item.id, 1)}
           >
             +

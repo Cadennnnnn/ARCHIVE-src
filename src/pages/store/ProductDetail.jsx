@@ -72,11 +72,8 @@ export default function ProductDetail() {
               />
             </div>
           </div>
-          <p className="small text-muted">
-            {agotado ? <span className="badge bg-danger">Agotado</span> : `Stock disponible: ${producto.stock}`}
-          </p>
 
-          <div className="d-flex gap-3">
+          <div className="d-flex flex-wrap gap-3">
             <button className="btn btn-archive-primary px-4 py-3" onClick={handleAdd} disabled={agotado}>
               {agotado ? "Agotado" : "Añadir al Carrito"}
             </button>

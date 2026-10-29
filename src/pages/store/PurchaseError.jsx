@@ -4,31 +4,34 @@ import OrderSummary from "../../components/cart/OrderSummary.jsx";
 export default function PurchaseError() {
   const intento = useLocation().state?.intento;
 
-  if (!intento) {
-    return (
-      <main className="container my-5 flex-grow-1 text-center">
-        <h1 className="display-5 fw-bolder">NO SE PUDO REALIZAR EL PAGO</h1>
-        <p className="text-muted my-4">Tu carrito sigue intacto. Revisa tus datos e inténtalo nuevamente.</p>
-        <Link to="/checkout" className="btn btn-archive-primary px-4 py-3 me-2">Reintentar pago</Link>
-        <Link to="/carrito" className="btn btn-archive-outline px-4 py-3">Volver al carrito</Link>
-      </main>
-    );
-  }
-
   return (
     <main className="container my-5 flex-grow-1">
-      <article className="border bg-white p-4 mx-auto" style={{ maxWidth: 800 }}>
-        <h2 className="h4 fw-bold mb-1"><span className="text-danger me-2">&#10007;</span>No se pudo realizar el pago. nro #{intento.numero}</h2>
-        <p className="text-muted small mb-3">Detalle de la compra. Tu carrito sigue intacto y no se realizó ningún cobro.</p>
-        <div className="text-center mb-4">
-          <Link to="/checkout" state={{ datos: intento.cliente }} className="btn btn-success rounded-0 fw-bold px-4 py-2">
-            VOLVER A REALIZAR EL PAGO
+      <article className="border bg-white p-3 p-md-4 mx-auto" style={{ maxWidth: 800 }}>
+        <header className="text-center mb-4">
+          <div className="text-danger display-4" aria-hidden="true">&#10007;</div>
+          <h1 className="h3 fw-bolder">No pudimos procesar tu pago</h1>
+          <p className="text-muted mb-1">Tu pago fue rechazado. No se realizó ningún cobro y tu carrito sigue intacto.</p>
+          {intento && <small className="text-muted">Referencia del intento: {intento.numero}</small>}
+        </header>
+
+        <div className="border bg-light p-3 small mb-4">
+          <strong className="d-block mb-1">¿Qué puedes hacer?</strong>
+          Revisa tus datos, verifica que tu medio de pago tenga fondos disponibles e inténtalo nuevamente en unos minutos.
+        </div>
+
+        <div className="d-flex flex-wrap gap-2 justify-content-center mb-4">
+          <Link to="/checkout" state={intento ? { datos: intento.cliente } : undefined} className="btn btn-archive-primary px-4 py-2">
+            Reintentar pago
           </Link>
+          <Link to="/carrito" className="btn btn-archive-outline px-4 py-2">Volver al carrito</Link>
         </div>
-        <OrderSummary cliente={intento.cliente} items={intento.items} total={intento.total} etiquetaTotal="Total a pagar" />
-        <div className="text-center mt-4">
-          <Link to="/carrito" className="btn btn-archive-outline">Volver al carrito</Link>
-        </div>
+
+        {intento && (
+          <section>
+            <h2 className="h5 fw-bold border-bottom pb-2 mb-3">Detalle de tu compra</h2>
+            <OrderSummary cliente={intento.cliente} items={intento.items} total={intento.total} etiquetaTotal="Total a pagar" />
+          </section>
+        )}
       </article>
     </main>
   );

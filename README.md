@@ -1,73 +1,83 @@
 # ARCHIVE[src] — Official Store & Management System
 
-> Plataforma e-commerce y módulo de administración frontend desarrollado para la **Evaluación 1** de la asignatura **Desarrollo Fullstack II (DSY1104)** en **Duoc UC**.
+> Tienda e-commerce y panel administrativo desarrollado para la asignatura **Desarrollo Fullstack II (DSY1104)** en **Duoc UC**.
+> **Evaluación 1:** HTML + CSS + Bootstrap + JavaScript (versión en `legacy-eval1/`, tag `v1.0-eval1`).
+> **Evaluación 2:** migración a **React** con pruebas unitarias **Jasmine + Karma**.
 
 ---
 
-## 1. Descripción del Proyecto
+## 1. Tecnologías
 
-**ARCHIVE[src]** es una tienda web de alta gama inspirada en la cultura *streetwear* y el coleccionismo (*archive fashion*). El sistema combina un catálogo público para clientes con un sistema de gestión interna protegido por roles, priorizando una interfaz minimalista, sobria (blanco, negro y azul marino `#1B2A4A`), responsiva y con validaciones estrictas en el cliente.
+- **React 19** + **Vite** (JavaScript, componentes `.jsx`)
+- **React Router** (navegación y rutas protegidas por rol)
+- **Bootstrap 5** (diseño responsivo)
+- **SweetAlert2** (alertas y toasts)
+- **Persistencia:** `localStorage` mediante `src/data/db.js` (CRUD de productos, usuarios y pedidos)
+- **Pruebas:** Jasmine + Karma + Testing Library, cobertura con Istanbul
 
----
+## 2. Instalación y ejecución
 
-## 2. Tecnologías y Herramientas Utilizadas
+```bash
+npm install
+npm run dev      # desarrollo: http://localhost:5173
+npm run build    # build de producción
+npm test         # pruebas unitarias + reporte de cobertura
+```
 
-* **HTML5:** Estructura y maquetación semántica (`<header>`, `<nav>`, `<main>`, `<section>`, `<article>`, `<footer>`).
-* **CSS3:** Hoja de estilos externa personalizada (`css/styles.css`) con variables tipográficas y de color.
-* **Bootstrap 5 (v5.3.3):** Sistema de grillas responsivas (`grid`), contenedores y componente de Carrusel interactivo.
-* **JavaScript Nativo (ES6+):** Manipulación dinámica del DOM, inyección de catálogo, manejo de eventos y selectores en cascada.
-* **Persistencia Local (`localStorage`):** 
-  * `ARCHIVE_CART_ITEMS`: Almacenamiento persistente de productos, cantidades y totales del carrito.
-  * `ARCHIVE_USERS`: Registro persistente de clientes en memoria local.
-  * `ARCHIVE_AUTH_ROLE` / `ARCHIVE_USER_NAME`: Control de sesiones activas y saludo dinámico.
-* **SweetAlert2:** Mensajes emergentes, cuadros de confirmación y notificaciones flotantes (*Toast*).
-* **Git & GitHub:** Control de versiones con historial colaborativo bajo el estándar *Conventional Commits*.
+> **Nota Windows:** Karma interpreta los corchetes de rutas como patrones glob. Si la carpeta del proyecto contiene `[` o `]` (por ejemplo `ARCHIVE[src]`), ejecuta `npm test` desde una ruta sin corchetes (clonar en `C:\dev\archive-src` o usar `subst X: "ruta\al\proyecto"`).
 
----
+## 3. Estructura
 
-## 3. Mapa de Vistas del Sitio
+```
+src/
+├── components/   layout/ products/ cart/ forms/ common/
+├── pages/        store/ (tienda pública) · admin/ (panel)
+├── context/      AuthContext · CartContext
+├── data/         db.js (CRUD) · chileGeo.js · blogs.js
+├── utils/        validaciones · filtros · formatters · precios · alerts
+└── styles/
+spec/             pruebas Jasmine
+legacy-eval1/     proyecto HTML de la Evaluación 1
+```
 
-### Módulo Público (Tienda)
-* **`index.html`:** Página de inicio con carrusel interactivo de novedades (4 diapositivas), catálogo preliminar, suscripción a newsletter y pie de página corporativo unificado.
-* **`productos.html`:** Vitrina completa de productos organizados en categorías (*Sneakers*, *Apparel*, *Goods*).
-* **`detalle-producto.html`:** Ficha de producto dinámica con descripción, selección de atributos y botón para añadir al carrito.
-* **`carrito.html`:** Gestor de compras con cálculo reactivo de subtotales, control de unidades, vaciado y persistencia de orden.
-* **`registro.html`:** Formulario de alta de clientes con control de campos vacíos, selectores reactivos y validaciones de formato.
-* **`login.html`:** Acceso de usuarios con redirección basada en roles y saludo personalizado en el modal de bienvenida.
-* **`nosotros.html`:** Manifiesto de la tienda, pilares de curaduría e información del equipo desarrollador.
-* **`blogs.html`:** Portal de artículos sobre preservación textil e historia del calzado urbano.
-* **`detalle-blog-1.html` & `detalle-blog-2.html`:** Artículos especializados sobre hidrólisis en poliuretano y la tendencia *Gorpcore*.
-* **`contacto.html`:** Formulario de atención al cliente con validaciones en tiempo real.
+## 4. Vistas
 
-### Módulo Administrativo (`/admin/`)
-* **`admin/index.html`:** Panel de métricas y resumen de operaciones comerciales con menú lateral.
-* **Gestión de Inventario y Usuarios:** Vistas de mantenedores protegidas, restringiendo accesos si el rol autenticado corresponde a *Vendedor*.
+**Tienda:** Home (carrusel), Productos (búsqueda y filtro), Detalle, Categorías, Ofertas, Nosotros, Blogs y Detalle de blog, Contacto, Login, Registro, Carrito, Checkout, Compra exitosa, Compra fallida, 404.
 
----
+**Panel admin (`/admin`):** Dashboard con métricas reales, CRUD de productos, CRUD de usuarios (solo Administrador).
 
-## 4. Reglas de Negocio y Validaciones Implementadas
+## 5. Reglas de negocio y validaciones
 
-1. **RUN Chileno:** Campo obligatorio, longitud entre 7 y 9 caracteres, ingresado sin puntos ni guión (ej: `19011022K`).
-2. **Nombres y Apellidos:** Campos obligatorios con límites de 50 y 100 caracteres respectivamente.
-3. **Correos Electrónicos:** Restricción estricta a dominios autorizados (`@duoc.cl`, `@profesor.duoc.cl` o `@gmail.com`).
-4. **Contraseñas:** Longitud obligatoria de entre 4 y 10 caracteres alfanuméricos.
-5. **División Político-Administrativa:** Carga dinámica de las 16 regiones de Chile y actualización en cascada de sus comunas correspondientes al cambiar la selección.
-6. **Manejo de Errores Visuales:** Bloqueo del envío mediante JavaScript, pintando bordes rojos (`.is-invalid`) y textos de advertencia debajo de cada campo no completado o con formato erróneo.
+1. **RUN:** 7 a 9 caracteres, sin puntos ni guion (ej. `19011022K`).
+2. **Nombre / Apellidos:** obligatorios, máximo 50 y 100 caracteres.
+3. **Correo:** solo `@duoc.cl`, `@profesor.duoc.cl` o `@gmail.com` (máx. 100).
+4. **Contraseña:** entre 4 y 10 caracteres.
+5. **Región y comuna:** selectores en cascada con las regiones de Chile.
+6. **Código de producto:** formato `ABC-123`, único.
+7. **Precio:** entero mayor a 0; la oferta debe ser menor al precio.
 
----
+## 6. Cuentas de prueba
 
-## 5. Cuentas de Prueba para Evaluación
+| Perfil | Correo | Contraseña | Acceso |
+|---|---|---|---|
+| Administrador | `admin@duoc.cl` | `1234` | Panel completo |
+| Vendedor | `vendedor@duoc.cl` | `1234` | Panel sin gestión de usuarios |
+| Cliente | `cliente@gmail.com` | `1234` | Tienda |
 
-Para probar el inicio de sesión y la asignación de roles en `login.html`:
+## 7. Pruebas unitarias
 
-| Perfil | Correo de Prueba | Contraseña | Comportamiento del Sistema |
-| :--- | :--- | :--- | :--- |
-| **Administrador** | `admin@duoc.cl` | `1234` | Acceso total al panel administrativo (`/admin/index.html`). |
-| **Vendedor** | `vendedor@duoc.cl` | `1234` | Acceso al panel administrativo con gestión de usuarios oculta. |
-| **Cliente** | `cliente@gmail.com` | `1234` | Redirección a la tienda (`index.html`) con saludo personalizado. |
+22 pruebas en `spec/` que cubren renderizado, renderizado condicional, props, estado y eventos, con mocks (`jasmine.createSpy`, `localStorage` simulado).
 
----
+| Métrica | Cobertura |
+|---|---|
+| Sentencias | 72 % |
+| Ramas | 65 % |
+| Funciones | 79,48 % |
+| Líneas | 74,7 % |
 
-## 6. Documentación Adicional
+El reporte HTML se genera en `coverage/` al ejecutar `npm test`.
 
-Junto a este repositorio se adjunta la **Especificación de Requisitos de Software (Documento ERS - Versión 1.0)** cumpliendo con los estándares solicitados en la pauta de evaluación institucional.
+## 8. Documentación
+
+- ERS v2 (Especificación de Requisitos de Software)
+- Documento de cobertura de testing

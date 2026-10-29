@@ -184,3 +184,6 @@ a {
   header, footer, nav { display: none !important; }
   body { background: #fff !important; }
 }
+.archive-navbar .brand-logo {
+  font-size: 2rem;
+}

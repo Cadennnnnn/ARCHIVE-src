@@ -1,6 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import OrderSummary from "../../components/cart/OrderSummary.jsx";
+import ReceiptActions from "../../components/cart/ReceiptActions.jsx";
+import { descargarBoletaPdf } from "../../utils/boletaPdf.js";
 
 export default function PurchaseSuccess() {
   const pedido = useLocation().state?.pedido;
@@ -26,16 +28,30 @@ export default function PurchaseSuccess() {
 
   return (
     <main className="container my-5 flex-grow-1">
-      <article className="border bg-white p-4 mx-auto" style={{ maxWidth: 800 }}>
-        <div className="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-          <h2 className="h4 fw-bold mb-0"><span className="text-success me-2">&#10003;</span>Se ha realizado la compra. nro #{pedido.id}</h2>
-          <small className="text-muted">Código orden: {pedido.id}</small>
-        </div>
+      <article className="border bg-white p-3 p-md-4 mx-auto" style={{ maxWidth: 800 }}>
+        <header className="text-center mb-4">
+          <div className="text-success display-4" aria-hidden="true">&#10003;</div>
+          <h1 className="h3 fw-bolder">¡Compra realizada con éxito!</h1>
+          <p className="text-muted mb-0">Gracias por tu compra. Guarda este comprobante.</p>
+        </header>
+
+        <section className="border bg-light p-3 mb-4">
+          <h2 className="h5 fw-bold mb-2">Detalle de la orden</h2>
+          <p className="mb-1"><strong>ID de orden:</strong> <span data-testid="orden-id">{pedido.id}</span></p>
+          <p className="mb-0"><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString("es-CL")}</p>
+        </section>
+
         <OrderSummary cliente={pedido.cliente} items={pedido.items} total={pedido.total} etiquetaTotal="Total pagado" />
-        <div className="no-print d-flex flex-wrap gap-2 justify-content-center mt-4">
-          <button className="btn btn-danger rounded-0 fw-bold" onClick={() => window.print()}>Imprimir boleta en PDF</button>
-          <button className="btn btn-success rounded-0 fw-bold" onClick={handleEmail}>Enviar boleta por email</button>
-          <Link to="/productos" className="btn btn-archive-outline">Seguir comprando</Link>
+
+        <div className="mt-4">
+          <ReceiptActions
+            onDownload={() => descargarBoletaPdf(pedido)}
+            onPrint={() => window.print()}
+            onEmail={handleEmail}
+          />
+          <div className="text-center mt-3 no-print">
+            <Link to="/productos" className="btn btn-archive-outline">Seguir comprando</Link>
+          </div>
         </div>
       </article>
     </main>
