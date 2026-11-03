@@ -1,0 +1,80 @@
+/* Archivo: src/styles/components/header.css */
+
+.archive-header {
+  background: #fff;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.archive-header .navbar {
+  min-height: 100px;
+}
+
+.archive-brand {
+  display: inline-flex;
+  align-items: baseline;
+  white-space: nowrap;
+  color: #111;
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.09em;
+}
+
+.archive-brand span {
+  margin-left: 2px;
+  color: var(--color-navy);
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -0.07em;
+}
+
+.archive-nav-link {
+  padding: .6rem .3rem;
+  color: #555;
+  font-size: .78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.archive-nav-link:hover,
+.archive-nav-link.active {
+  color: var(--color-navy);
+}
+
+.archive-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.archive-cart-link {
+  padding: .6rem .8rem;
+  border: 1px solid var(--color-dark);
+}
+
+@media (max-width: 991px) {
+  .archive-header__actions {
+    flex-wrap: wrap;
+    padding: 1rem 0;
+  }
+
+  .archive-header .archive-brand {
+    font-size: 2.5rem;
+  }
+
+  .archive-header .archive-brand span {
+    font-size: 1.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .archive-header .archive-brand {
+    font-size: 2.2rem;
+  }
+
+  .archive-header .archive-brand span {
+    font-size: 1.7rem;
+  }
+}

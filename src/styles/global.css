@@ -1,0 +1,13 @@
+/* Archivo: src/styles/global.css */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@import './variables.css';
+@import './base.css';
+@import './components/header.css';
+@import './components/button.css';
+@import './components/home.css';
+@import './components/product-card.css';
+@import './components/catalog.css';
+@import './components/product-detail.css';
+@import './components/cart.css';
+@import './components/footer.css';
