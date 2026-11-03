@@ -33,7 +33,7 @@ describe("PurchaseSuccess (detalle de la orden)", () => {
     expect(screen.getByText("NIKE")).toBeTruthy();
     expect(screen.getByText("SUBTOTAL")).toBeTruthy();
     expect(screen.getByText("TOTAL PAGADO")).toBeTruthy();
-    expect(screen.getByText("Descargar boleta en PDF")).toBeTruthy();
+    expect(screen.getByText("Imprimir boleta en PDF")).toBeTruthy();
   });
 
   it("al enviar la boleta por email muestra la alerta simulada (mock de SweetAlert2)", () => {

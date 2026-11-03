@@ -10,10 +10,10 @@ describe("CartButton", () => {
   afterEach(cleanup);
 
   it("muestra solo el ícono y el monto, sin el texto Carrito", () => {
-    montar();
-    expect(document.querySelector("svg")).not.toBeNull();
-    expect(document.body.textContent).toBe("$0");
-    expect(document.body.textContent).not.toContain("Carrito");
+    const { container } = montar();
+    expect(container.querySelector("svg")).not.toBeNull();
+    expect(container.textContent).toBe("$0");
+    expect(container.textContent).not.toContain("Carrito");
   });
 
   it("refleja el total y la cantidad de productos del carrito", () => {
@@ -21,8 +21,8 @@ describe("CartButton", () => {
       "ARCHIVE_CART_ITEMS",
       JSON.stringify([{ id: 1, codigo: "A", nombre: "X", precio: 1000, imagen: "", cantidad: 3 }])
     );
-    montar();
-    expect(document.body.textContent).toMatch(/3\.?000/);
+    const { container } = montar();
+    expect(container.textContent).toMatch(/3\.?000/);
     expect(screen.getByLabelText(/^Carrito: 3 producto\(s\)/)).toBeTruthy();
   });
 

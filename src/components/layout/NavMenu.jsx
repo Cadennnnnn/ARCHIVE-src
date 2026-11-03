@@ -22,7 +22,7 @@ function ItemNav({ to, label }) {
 
 export default function NavMenu({ categorias }) {
   return (
-    <ul className="navbar-nav mx-lg-auto mb-2 mb-lg-0 gap-lg-3">
+    <ul className="navbar-nav mx-lg-auto py-2 py-lg-1 gap-lg-3">
       {ANTES.map((l) => <ItemNav key={l.to} {...l} />)}
       <li className="nav-item dropdown">
         <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">

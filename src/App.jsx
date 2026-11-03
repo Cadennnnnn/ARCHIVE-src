@@ -19,6 +19,7 @@ import Checkout from "./pages/store/Checkout.jsx";
 import PurchaseSuccess from "./pages/store/PurchaseSuccess.jsx";
 import PurchaseError from "./pages/store/PurchaseError.jsx";
 import NotFound from "./pages/store/NotFound.jsx";
+import Profile from "./pages/store/Profile.jsx";
 import Dashboard from "./pages/admin/Dashboard.jsx";
 import AdminProducts from "./pages/admin/AdminProducts.jsx";
 import AdminProductDetail from "./pages/admin/AdminProductDetail.jsx";
@@ -61,6 +62,7 @@ export default function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/compra-exitosa" element={<PurchaseSuccess />} />
         <Route path="/compra-fallida" element={<PurchaseError />} />
+        <Route path="/perfil" element={<ProtectedRoute requiereStaff={false}><Profile /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Route>
 

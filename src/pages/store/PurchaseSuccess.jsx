@@ -1,11 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-import OrderSummary from "../../components/cart/OrderSummary.jsx";
+import OrderDataFields from "../../components/cart/OrderDataFields.jsx";
+import OrderItemsTable from "../../components/cart/OrderItemsTable.jsx";
+import OrderTotals from "../../components/cart/OrderTotals.jsx";
 import ReceiptActions from "../../components/cart/ReceiptActions.jsx";
+import { getOrderById } from "../../data/db.js";
 import { descargarBoletaPdf } from "../../utils/boletaPdf.js";
 
 export default function PurchaseSuccess() {
-  const pedido = useLocation().state?.pedido;
+  const state = useLocation().state;
+  // Si se pierde el estado de navegación (por ejemplo al recargar), se recupera el último pedido guardado
+  const pedido = state?.pedido ?? getOrderById(sessionStorage.getItem("ARCHIVE_LAST_ORDER"));
 
   if (!pedido) {
     return (
@@ -16,6 +21,8 @@ export default function PurchaseSuccess() {
       </main>
     );
   }
+
+  const subtotal = pedido.items.reduce((acc, i) => acc + i.precio * i.cantidad, 0);
 
   const handleEmail = () =>
     Swal.fire({
@@ -28,27 +35,26 @@ export default function PurchaseSuccess() {
 
   return (
     <main className="container my-5 flex-grow-1">
-      <article className="border bg-white p-3 p-md-4 mx-auto" style={{ maxWidth: 800 }}>
-        <header className="text-center mb-4">
-          <div className="text-success display-4" aria-hidden="true">&#10003;</div>
-          <h1 className="h3 fw-bolder">¡Compra realizada con éxito!</h1>
-          <p className="text-muted mb-0">Gracias por tu compra. Guarda este comprobante.</p>
-        </header>
+      <article className="border bg-white p-3 p-md-4 mx-auto shadow-sm" style={{ maxWidth: 820 }}>
+        <div className="d-flex justify-content-between align-items-start flex-wrap gap-2">
+          <h1 className="h4 fw-bold mb-0">
+            <span className="text-success me-2" aria-hidden="true">&#10003;</span>
+            Se ha realizado la compra. nro #<span data-testid="orden-id">{pedido.id}</span>
+          </h1>
+          <small className="text-muted">Código orden: {pedido.id}</small>
+        </div>
+        <div className="d-flex align-items-center gap-2 my-2">
+          <span className="badge bg-success rounded-0" data-testid="estado-pago">PAGO ACEPTADO</span>
+          <small className="text-muted">{new Date(pedido.fecha).toLocaleString("es-CL")}</small>
+        </div>
+        <h2 className="h6 text-muted mb-3">Detalle de la orden</h2>
 
-        <section className="border bg-light p-3 mb-4">
-          <h2 className="h5 fw-bold mb-2">Detalle de la orden</h2>
-          <p className="mb-1"><strong>ID de orden:</strong> <span data-testid="orden-id">{pedido.id}</span></p>
-          <p className="mb-0"><strong>Fecha:</strong> {new Date(pedido.fecha).toLocaleString("es-CL")}</p>
-        </section>
-
-        <OrderSummary cliente={pedido.cliente} items={pedido.items} total={pedido.total} etiquetaTotal="Total pagado" />
+        <OrderDataFields cliente={pedido.cliente} prefijo="ok" />
+        <OrderItemsTable items={pedido.items} />
+        <OrderTotals subtotal={subtotal} total={pedido.total} etiquetaTotal="Total pagado" />
 
         <div className="mt-4">
-          <ReceiptActions
-            onDownload={() => descargarBoletaPdf(pedido)}
-            onPrint={() => window.print()}
-            onEmail={handleEmail}
-          />
+          <ReceiptActions onDownload={() => descargarBoletaPdf(pedido)} onEmail={handleEmail} />
           <div className="text-center mt-3 no-print">
             <Link to="/productos" className="btn btn-archive-outline">Seguir comprando</Link>
           </div>

@@ -1,3 +1,4 @@
+import ExportSalesButton from "../../components/admin/ExportSalesButton.jsx";
 import { getOrders, getProducts } from "../../data/db.js";
 import { calcularInventario, calcularReporte } from "../../utils/reportes.js";
 import { formatearPrecio } from "../../utils/formatters.js";
@@ -25,7 +26,7 @@ export default function AdminReports() {
           <h2>Reportes</h2>
           <p className="text-muted mb-0">Ventas e inventario. Las órdenes anuladas no se consideran en las ventas.</p>
         </div>
-        <button className="btn btn-archive-outline no-print" onClick={() => window.print()}>Imprimir reportes</button>
+        <div className="d-flex gap-2 no-print"><ExportSalesButton /><button className="btn btn-archive-outline" onClick={() => window.print()}>Imprimir reportes</button></div>
       </section>
 
       <h4 className="mb-3">Reporte de ventas</h4>

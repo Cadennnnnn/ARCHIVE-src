@@ -70,6 +70,7 @@ export default function Checkout() {
 
     if (simularPago()) {
       const pedido = createOrder({ items, total, cliente: datos });
+      sessionStorage.setItem("ARCHIVE_LAST_ORDER", pedido.id);
       clearCart();
       navigate("/compra-exitosa", { state: { pedido } });
     } else {

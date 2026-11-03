@@ -10,30 +10,29 @@ export default function Navbar() {
   const categorias = getCategories();
 
   return (
-    <header className="archive-navbar">
-      <nav className="navbar navbar-expand-lg py-2">
-        <div className="container">
-          <Link className="navbar-brand brand-logo" to="/">ARCHIVE[src]</Link>
-
-          <div className="d-flex align-items-center gap-2 ms-auto ms-lg-0 order-lg-last">
-            <CartButton />
-            <button
-              className="navbar-toggler rounded-0 border-dark"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#navContent"
-              aria-controls="navContent"
-              aria-label="Abrir menú"
-            >
-              <span className="navbar-toggler-icon"></span>
-            </button>
+    <header className="archive-navbar bg-white border-bottom">
+      <nav className="navbar navbar-expand-lg py-0">
+        <div className="container flex-wrap">
+          <div className="d-flex flex-wrap align-items-center justify-content-between gap-2 w-100 py-3">
+            <Link className="navbar-brand brand-logo m-0" to="/">ARCHIVE[src]</Link>
+            <div className="d-flex flex-wrap align-items-center justify-content-end gap-2 gap-md-3">
+              <AuthLinks />
+              <CartButton />
+              <button
+                className="navbar-toggler rounded-0 border-dark"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#navContent"
+                aria-controls="navContent"
+                aria-label="Abrir menú"
+              >
+                <span className="navbar-toggler-icon"></span>
+              </button>
+            </div>
           </div>
 
-          <div className="collapse navbar-collapse" id="navContent">
+          <div className="collapse navbar-collapse w-100 border-top" id="navContent">
             <NavMenu categorias={categorias} />
-            <div className="ms-lg-3 py-2 py-lg-0">
-              <AuthLinks />
-            </div>
           </div>
         </div>
       </nav>
