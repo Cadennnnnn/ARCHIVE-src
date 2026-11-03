@@ -10,6 +10,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const isOnSale = product.precioOriginal !== undefined;
+
   return (
     <article className="product-card">
       <Link
@@ -17,15 +19,30 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         className="product-card__image"
         aria-label={`Ver ${product.nombre}`}
       >
+        {isOnSale && (
+          <span className="product-card__badge">-20%</span>
+        )}
         <img src={product.imagen} alt={product.nombre} loading="lazy" />
       </Link>
 
       <div className="product-card__content">
         <span className="product-card__category">{product.categoria}</span>
+
         <h3>
           <Link to={`/productos/${product.id}`}>{product.nombre}</Link>
         </h3>
-        <p className="product-card__price">{formatPrice(product.precio)}</p>
+
+        <div className="product-card__prices">
+          {isOnSale && (
+            <span className="product-card__original-price">
+              {formatPrice(product.precioOriginal!)}
+            </span>
+          )}
+          <p className={`product-card__price${isOnSale ? ' product-card__price--sale' : ''}`}>
+            {formatPrice(product.precio)}
+          </p>
+        </div>
+
         <Button
           className="w-100"
           disabled={product.stock === 0}

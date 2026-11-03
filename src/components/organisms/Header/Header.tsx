@@ -1,10 +1,11 @@
-// Archivo: src/components/organisms/Header/Header.tsx
 import { Link, NavLink } from 'react-router-dom';
 import { useCart } from '../../../hooks/useCart';
 
 const navigation = [
   { label: 'Home', path: '/' },
   { label: 'Productos', path: '/productos' },
+  { label: 'Categorías', path: '/categorias' },
+  { label: 'Ofertas', path: '/ofertas' },
   { label: 'Nosotros', path: '/nosotros' },
   { label: 'Blogs', path: '/blogs' },
   { label: 'Contacto', path: '/contacto' },

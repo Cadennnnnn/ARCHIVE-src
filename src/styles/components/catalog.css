@@ -1,4 +1,4 @@
-/* Archivo: src/styles/components/catalog.css */
+
 
 .archive-page-heading {
   margin-bottom: 2rem;
@@ -55,9 +55,99 @@
   text-align: center;
 }
 
+/* Selector visual de categorías */
+
+.archive-category-selector {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.25rem;
+  max-width: 850px;
+  margin: 0 auto 4rem;
+}
+
+.archive-category-option {
+  display: flex;
+  min-height: 145px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  transition: border-color .2s ease, background .2s ease;
+}
+
+.archive-category-option:hover,
+.archive-category-option.active {
+  border-color: var(--color-navy);
+  background: #f4f6f8;
+}
+
+.archive-category-option__number {
+  display: grid;
+  width: 65px;
+  height: 65px;
+  place-items: center;
+  background: var(--color-light);
+  color: var(--color-navy);
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.archive-category-option__name {
+  font-size: .85rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.archive-category-results__heading,
+.archive-offers-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.archive-category-results__heading h2,
+.archive-offers-heading h2 {
+  margin: .25rem 0;
+  font-size: 1.6rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.archive-category-results__heading p {
+  margin: 0;
+  color: #777;
+}
+
 @media (max-width: 767px) {
   .archive-catalog-tools {
     align-items: stretch;
+    flex-direction: column;
+  }
+
+  .archive-category-selector {
+    grid-template-columns: 1fr;
+    gap: .75rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .archive-category-option {
+    min-height: 100px;
+    flex-direction: row;
+  }
+
+  .archive-category-option__number {
+    width: 48px;
+    height: 48px;
+  }
+
+  .archive-category-results__heading,
+  .archive-offers-heading {
+    align-items: flex-start;
     flex-direction: column;
   }
 }

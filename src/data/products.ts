@@ -1,4 +1,3 @@
-// Archivo: src/data/products.ts
 import type { Product } from '../types/product';
 
 export const products: Product[] = [
@@ -8,7 +7,7 @@ export const products: Product[] = [
     nombre: 'NIKE AIR MAX 1/97 SW',
     categoria: 'Sneakers',
     precio: 169990,
-    imagen: 'https://images.stockx.com/images/Nike-Air-Max-1-97-Sean-Wotherspoon-NA-Product.jpg?fit=fill&bg=FFFFFF&w=700&h=500&fm=webp&auto=compress&q=90&dpr=2&trim=color&updated_at=1738193358',
+    imagen: 'https://culture-circle.gumlet.io/productsimages/product/641262/6333922.jpeg',
     descripcion: 'Diseño híbrido icónico creado por Sean Wotherspoon con capellada de corderoy multicolor sobre la amortiguación clásica Air Max 1.',
     tallas: ['US 8', 'US 9', 'US 10', 'US 11'],
     stock: 8,
@@ -18,7 +17,8 @@ export const products: Product[] = [
     codigo: 'SNK-002',
     nombre: 'SALOMON XT-6',
     categoria: 'Sneakers',
-    precio: 189990,
+    precio: 151992,
+    precioOriginal: 189990,
     imagen: 'https://cdn.dam.salomon.com/cbbc0a38-d9b4-4f98-83de-b2f301471c94/L47866100/PNG-2000px-max-72dpi.png?width=1200&fit=cover&optimize=medium&bg-color=f5f5f5&format=pjpg',
     descripcion: 'Silueta de trail running técnico adaptada al streetwear con chasis ACS para máxima estabilidad y lazada rápida Quicklace.',
     tallas: ['US 8.5', 'US 9.5', 'US 10.5'],
@@ -29,7 +29,8 @@ export const products: Product[] = [
     codigo: 'APP-101',
     nombre: 'FOG ESSENTIALS HOODIE',
     categoria: 'Apparel',
-    precio: 54990,
+    precio: 43992,
+    precioOriginal: 54990,
     imagen: 'https://images.stockx.com/images/Fear-of-God-Essentials-Fleece-Hoodie-FW24-Black-Product.jpg?fit=fill&bg=FFFFFF&w=576&h=384&q=60&dpr=1&trim=color',
     descripcion: 'Polerón con capucha de corte boxy oversize confeccionado en polar de algodón pesado con logotipo serigrafiado.',
     tallas: ['S', 'M', 'L', 'XL'],
@@ -84,13 +85,18 @@ export const products: Product[] = [
     codigo: 'ACC-202',
     nombre: 'OFF-WHITE x CHICAGO WHITE SOX CAP',
     categoria: 'Goods',
-    precio: 129990,
+    precio: 103992,
+    precioOriginal: 129990,
     imagen: 'https://images.stockx.com/images/OFF-WHITE-x-MLB-Chicago-White-Sox-Cap-Black-White.jpg?fit=fill&bg=FFFFFF&w=576&h=384&q=57&dpr=2&trim=color',
     descripcion: 'Pieza de archivo de OFF-WHITE y MLB, confeccionada en sarga de algodón con bordado frontal.',
     tallas: ['Ajustable'],
     stock: 5,
   },
 ];
+
+export const offerProducts = products.filter(
+  (product) => product.precioOriginal !== undefined
+);
 
 export const formatPrice = (price: number): string =>
   new Intl.NumberFormat('es-CL', {

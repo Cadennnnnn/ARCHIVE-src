@@ -1,4 +1,3 @@
-// Archivo: src/pages/store/ProductDetailPage.tsx
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { products, formatPrice } from '../../data/products';
@@ -21,6 +20,8 @@ export function ProductDetailPage() {
     );
   }
 
+  const isOnSale = product.precioOriginal !== undefined;
+
   const handleAdd = () => {
     addItem(product, selectedSize);
     navigate('/carrito');
@@ -28,7 +29,9 @@ export function ProductDetailPage() {
 
   return (
     <div className="container py-5">
-      <Link to="/productos" className="archive-back-link">← Volver al catálogo</Link>
+      <Link to="/productos" className="archive-back-link">
+        ← Volver al catálogo
+      </Link>
 
       <div className="row g-5 mt-2 align-items-center">
         <div className="col-12 col-lg-6">
@@ -41,7 +44,21 @@ export function ProductDetailPage() {
           <span className="archive-eyebrow">{product.categoria}</span>
           <h1 className="product-detail__title">{product.nombre}</h1>
           <p className="product-detail__code">{product.codigo}</p>
-          <p className="product-detail__price">{formatPrice(product.precio)}</p>
+
+          <div className="product-detail__prices">
+            {isOnSale && (
+              <>
+                <span className="product-detail__badge">20% OFF</span>
+                <p className="product-detail__original-price">
+                  {formatPrice(product.precioOriginal!)}
+                </p>
+              </>
+            )}
+            <p className={`product-detail__price${isOnSale ? ' product-detail__price--sale' : ''}`}>
+              {formatPrice(product.precio)}
+            </p>
+          </div>
+
           <p>{product.descripcion}</p>
 
           <div className="my-4">
@@ -55,12 +72,16 @@ export function ProductDetailPage() {
               onChange={(event) => setSelectedSize(event.target.value)}
             >
               {product.tallas.map((size) => (
-                <option key={size} value={size}>{size}</option>
+                <option key={size} value={size}>
+                  {size}
+                </option>
               ))}
             </select>
           </div>
 
-          <p className="small text-muted">Stock disponible: {product.stock}</p>
+          <p className="small text-muted">
+            Stock disponible: {product.stock}
+          </p>
 
           <Button
             className="w-100"
