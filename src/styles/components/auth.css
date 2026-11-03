@@ -1,0 +1,78 @@
+
+
+.archive-auth-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 60vh;
+}
+
+.archive-auth-brand {
+  display: block;
+  margin-bottom: 1.5rem;
+  color: var(--color-dark);
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -0.06em;
+  text-align: center;
+}
+
+.archive-auth-brand span {
+  color: var(--color-navy);
+}
+
+.archive-auth-card {
+  width: 100%;
+  padding: 2.5rem;
+  border: 1px solid var(--color-border);
+  background: #fff;
+}
+
+.archive-form-field {
+  min-width: 0;
+  margin-bottom: 1rem;
+}
+
+.archive-form-field .form-label {
+  display: block;
+  margin-bottom: 0.45rem;
+  color: var(--color-dark);
+}
+
+.archive-form-field .form-control,
+.archive-form-field .form-select {
+  width: 100%;
+  min-width: 0;
+  border-color: var(--color-border);
+  border-radius: 0;
+  font-size: 0.9rem;
+}
+
+.archive-form-field .form-control:focus,
+.archive-form-field .form-select:focus {
+  border-color: var(--color-navy);
+  box-shadow: 0 0 0 0.15rem rgb(27 42 74 / 12%);
+}
+
+.archive-field-error {
+  display: block;
+  margin-top: 0.3rem;
+  color: #dc3545;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 576px) {
+  .archive-auth-page {
+    padding-right: 1rem;
+    padding-left: 1rem;
+  }
+
+  .archive-auth-card {
+    padding: 1.25rem;
+  }
+
+  .archive-auth-brand {
+    font-size: 1.9rem;
+  }
+}
