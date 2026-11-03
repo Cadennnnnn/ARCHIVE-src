@@ -78,3 +78,39 @@
     font-size: 1.7rem;
   }
 }
+
+/* Acciones de autenticación del Header */
+
+.archive-header__user {
+  color: var(--color-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.archive-header__logout {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-dark);
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.archive-header__logout:hover {
+  color: var(--color-navy);
+  text-decoration: underline;
+}
+
+.archive-header__actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.85rem;
+}
+
+@media (max-width: 991px) {
+  .archive-header__actions {
+    align-items: flex-start;
+    padding-top: 1rem;
+  }
+}

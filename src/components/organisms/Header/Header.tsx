@@ -1,5 +1,10 @@
-import { Link, NavLink } from 'react-router-dom';
+
+
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
+
 import { useCart } from '../../../hooks/useCart';
+import { useAuth } from '../../../hooks/useAuth';
 
 const navigation = [
   { label: 'Home', path: '/' },
@@ -13,6 +18,29 @@ const navigation = [
 
 export function Header() {
   const { itemCount } = useCart();
+  const { session, isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const canAccessAdmin =
+    session?.role === 'Administrador' ||
+    session?.role === 'Vendedor';
+
+  async function handleLogout() {
+    const result = await Swal.fire({
+      title: '¿Cerrar sesión?',
+      text: 'Tu sesión se cerrará en este dispositivo.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Cerrar sesión',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#1B2A4A',
+    });
+
+    if (result.isConfirmed) {
+      logout();
+      navigate('/', { replace: true });
+    }
+  }
 
   return (
     <header className="archive-header">
@@ -27,6 +55,8 @@ export function Header() {
           data-bs-toggle="collapse"
           data-bs-target="#archiveNavigation"
           aria-label="Abrir navegación"
+          aria-controls="archiveNavigation"
+          aria-expanded="false"
         >
           <span className="navbar-toggler-icon" />
         </button>
@@ -48,8 +78,33 @@ export function Header() {
           </div>
 
           <div className="archive-header__actions">
-            <Link to="/login">Iniciar sesión</Link>
-            <Link to="/registro">Registrar usuario</Link>
+            {isAuthenticated && session ? (
+              <>
+                <span className="archive-header__user">
+                  {session.user.nombre}
+                </span>
+
+                {canAccessAdmin && (
+                  <Link to="/admin">
+                    Panel administrativo
+                  </Link>
+                )}
+
+                <button
+                  type="button"
+                  className="archive-header__logout"
+                  onClick={handleLogout}
+                >
+                  Cerrar sesión
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/login">Iniciar sesión</Link>
+                <Link to="/registro">Registrar usuario</Link>
+              </>
+            )}
+
             <Link className="archive-cart-link" to="/carrito">
               Cart ({itemCount})
             </Link>

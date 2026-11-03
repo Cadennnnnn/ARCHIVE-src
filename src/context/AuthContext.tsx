@@ -1,4 +1,3 @@
-
 import {
   createContext,
   useCallback,
@@ -32,15 +31,24 @@ export const AuthContext = createContext<AuthContextValue | undefined>(
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [session, setSession] = useState<AuthSession | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    initializeUsers();
-    setSession(getCurrentSession());
+    try {
+      initializeUsers();
+      setSession(getCurrentSession());
+    } catch {
+      clearSession();
+      setSession(null);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const login = useCallback(
     async (credentials: AuthCredentials): Promise<AuthSession> => {
       const authenticatedSession = authenticate(credentials);
+
       setSession(authenticatedSession);
 
       return authenticatedSession;
@@ -57,10 +65,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     () => ({
       session,
       isAuthenticated: session !== null,
+      isLoading,
       login,
       logout,
     }),
-    [session, login, logout],
+    [session, isLoading, login, logout],
   );
 
   return (

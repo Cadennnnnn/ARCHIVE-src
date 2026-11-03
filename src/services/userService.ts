@@ -2,9 +2,23 @@
 import type {
   User,
   UserRegistrationData,
+  UserRole,
 } from '../types/user';
 
+import {
+  validateEmail,
+  validateRun,
+} from '../utils/validation/authValidation';
+
 const USERS_STORAGE_KEY = 'ARCHIVE_USERS';
+
+export interface AdminUserData {
+  run: string;
+  nombre: string;
+  apellidos: string;
+  correo: string;
+  rol: UserRole;
+}
 
 const DEMO_USERS: User[] = [
   {
@@ -63,7 +77,6 @@ function saveUsers(users: User[]): void {
 
 export function initializeUsers(): User[] {
   const storedUsers = readStoredUsers();
-
   const initializedUsers = [...storedUsers];
 
   DEMO_USERS.forEach((demoUser) => {
@@ -125,6 +138,61 @@ export function createUser(data: UserRegistrationData): User {
       region: data.region,
       comuna: data.comuna,
       direccion: data.direccion.trim(),
+    },
+  };
+
+  saveUsers([...users, newUser]);
+
+  return newUser;
+}
+
+export function createAdminUser(data: AdminUserData): User {
+  const users = getUsers();
+  const normalizedEmail = data.correo.trim().toLowerCase();
+  const normalizedRun = data.run.trim().toUpperCase();
+
+  if (!validateRun(normalizedRun)) {
+    throw new Error('El RUN debe tener entre 7 y 9 caracteres sin puntos ni guion.');
+  }
+
+  if (!data.nombre.trim() || data.nombre.trim().length > 50) {
+    throw new Error('El nombre es obligatorio y no puede superar los 50 caracteres.');
+  }
+
+  if (!data.apellidos.trim() || data.apellidos.trim().length > 100) {
+    throw new Error('Los apellidos son obligatorios y no pueden superar los 100 caracteres.');
+  }
+
+  if (!validateEmail(normalizedEmail)) {
+    throw new Error(
+      'Solo se autorizan cuentas @duoc.cl, @profesor.duoc.cl o @gmail.com.',
+    );
+  }
+
+  if (users.some((user) => user.correo.toLowerCase() === normalizedEmail)) {
+    throw new Error('Ya existe una cuenta registrada con ese correo.');
+  }
+
+  if (
+    users.some(
+      (user) => user.profile?.run?.toUpperCase() === normalizedRun,
+    )
+  ) {
+    throw new Error('Ya existe una cuenta registrada con ese RUN.');
+  }
+
+  const newUser: User = {
+    id: `user-${Date.now()}`,
+    nombre: data.nombre.trim(),
+    correo: normalizedEmail,
+    password: '1234',
+    rol: data.rol,
+    profile: {
+      run: normalizedRun,
+      apellidos: data.apellidos.trim(),
+      region: '',
+      comuna: '',
+      direccion: '',
     },
   };
 

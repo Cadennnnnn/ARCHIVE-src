@@ -1,5 +1,3 @@
-
-
 import type { PublicUser, UserRole } from './user';
 
 export interface AuthCredentials {
@@ -15,6 +13,7 @@ export interface AuthSession {
 export interface AuthContextValue {
   session: AuthSession | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
   login: (credentials: AuthCredentials) => Promise<AuthSession>;
   logout: () => void;
 }
