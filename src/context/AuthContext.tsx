@@ -1,4 +1,5 @@
 
+
 import {
   useCallback,
   useMemo,
@@ -12,15 +13,21 @@ import type {
   AuthSession,
 } from '../types/auth';
 
+import type { UserProfileUpdateData } from '../types/user';
+
 import { AuthContext } from './AuthContextDefinition';
 
 import {
   authenticate,
   clearSession,
   getCurrentSession,
+  refreshSession,
 } from '../services/authService';
 
-import { initializeUsers } from '../services/userService';
+import {
+  initializeUsers,
+  updateUser,
+} from '../services/userService';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -45,7 +52,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = useCallback(
     async (credentials: AuthCredentials): Promise<AuthSession> => {
-      const authenticatedSession = authenticate(credentials);
+      const authenticatedSession = authenticate(
+        credentials.correo,
+        credentials.password,
+      );
+
+      if (!authenticatedSession) {
+        throw new Error('Correo o contraseña incorrectos.');
+      }
 
       setSession(authenticatedSession);
 
@@ -59,6 +73,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
     setSession(null);
   }, []);
 
+  const updateAccount = useCallback(
+    (data: UserProfileUpdateData): AuthSession => {
+      if (!session) {
+        throw new Error('Debes iniciar sesión para actualizar tu perfil.');
+      }
+
+      const updatedUser = updateUser(session.user.id, data);
+      const updatedSession = refreshSession(updatedUser);
+
+      setSession(updatedSession);
+
+      return updatedSession;
+    },
+    [session],
+  );
+
   const contextValue = useMemo<AuthContextValue>(
     () => ({
       session,
@@ -66,8 +96,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isLoading,
       login,
       logout,
+      updateAccount,
     }),
-    [session, isLoading, login, logout],
+    [session, isLoading, login, logout, updateAccount],
   );
 
   return (

@@ -1,4 +1,3 @@
-
 import { useCallback, useState } from 'react';
 
 import {
@@ -6,15 +5,18 @@ import {
   deleteProduct,
   getProducts,
   updateProduct,
-  type ProductCategoryValue,
   type ProductInput,
 } from '../services/productService';
+import {
+  getCategories,
+  type ProductCategory,
+} from '../services/categoryService';
 import type { Product } from '../types/product';
 
 export interface AdminProductFormData {
   codigo: string;
   nombre: string;
-  categoria: ProductCategoryValue | '';
+  categoria: string;
   precio: string;
   precioOferta: string;
   imagen: string;
@@ -39,7 +41,7 @@ function productToForm(product: Product): AdminProductFormData {
   return {
     codigo: product.codigo,
     nombre: product.nombre,
-    categoria: product.categoria as ProductCategoryValue,
+    categoria: product.categoria,
     precio: String(product.precioOriginal ?? product.precio),
     precioOferta: product.precioOriginal ? String(product.precio) : '',
     imagen: product.imagen,
@@ -53,7 +55,7 @@ function formToInput(form: AdminProductFormData): ProductInput {
   return {
     codigo: form.codigo,
     nombre: form.nombre,
-    categoria: form.categoria as ProductCategoryValue,
+    categoria: form.categoria,
     precio: Number(form.precio),
     precioOferta: form.precioOferta.trim()
       ? Number(form.precioOferta)
@@ -67,12 +69,14 @@ function formToInput(form: AdminProductFormData): ProductInput {
 
 export function useAdminInventory() {
   const [products, setProducts] = useState<Product[]>(getProducts);
+  const [categories, setCategories] = useState<ProductCategory[]>(getCategories);
   const [formData, setFormData] = useState<AdminProductFormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const refreshProducts = useCallback(() => {
     setProducts(getProducts());
+    setCategories(getCategories());
   }, []);
 
   const updateField = useCallback(
@@ -146,6 +150,7 @@ export function useAdminInventory() {
 
   return {
     products,
+    categories,
     formData,
     errors,
     editingId,
@@ -154,5 +159,6 @@ export function useAdminInventory() {
     startEditing,
     removeProduct,
     resetForm,
+    refreshProducts,
   };
 }

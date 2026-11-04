@@ -3,6 +3,8 @@ import {
   validateEmail,
   validatePassword,
   validateRun,
+  validateChileanMobilePhone,
+  normalizeChileanMobilePhone,
 } from '../../src/utils/validation/authValidation';
 
 describe('Auth Validation', () => {
@@ -42,6 +44,51 @@ describe('Auth Validation', () => {
 
     it('debe rechazar caracteres especiales', () => {
       expect(validatePassword('abc@123')).toBeFalse();
+    });
+  });
+
+  describe('validateChileanMobilePhone', () => {
+    it('debe aceptar números móviles chilenos sin prefijo', () => {
+      expect(validateChileanMobilePhone('912345678')).toBeTrue();
+    });
+
+    it('debe aceptar números con prefijo 56', () => {
+      expect(validateChileanMobilePhone('56912345678')).toBeTrue();
+    });
+
+    it('debe aceptar números con prefijo internacional +56', () => {
+      expect(validateChileanMobilePhone('+56912345678')).toBeTrue();
+    });
+
+    it('debe aceptar espacios y guiones como separadores', () => {
+      expect(validateChileanMobilePhone('+56 9 1234 5678')).toBeTrue();
+      expect(validateChileanMobilePhone('9-1234-5678')).toBeTrue();
+    });
+
+    it('debe rechazar números incompletos o con formato inválido', () => {
+      expect(validateChileanMobilePhone('123456789')).toBeFalse();
+      expect(validateChileanMobilePhone('91234567')).toBeFalse();
+      expect(validateChileanMobilePhone('+5691234567')).toBeFalse();
+      expect(validateChileanMobilePhone('+54912345678')).toBeFalse();
+    });
+  });
+
+  describe('normalizeChileanMobilePhone', () => {
+    it('debe normalizar números al formato +56', () => {
+      expect(normalizeChileanMobilePhone('912345678')).toBe(
+        '+56912345678',
+      );
+      expect(normalizeChileanMobilePhone('56912345678')).toBe(
+        '+56912345678',
+      );
+      expect(normalizeChileanMobilePhone('+56 9 1234 5678')).toBe(
+        '+56912345678',
+      );
+    });
+
+    it('debe devolver null para números inválidos', () => {
+      expect(normalizeChileanMobilePhone('123456789')).toBeNull();
+      expect(normalizeChileanMobilePhone('')).toBeNull();
     });
   });
 });

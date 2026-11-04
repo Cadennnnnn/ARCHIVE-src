@@ -1,18 +1,42 @@
-
 import type { FormEvent } from 'react';
-
+import { Link } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
 import { FormField } from '../../components/molecules/FormField/FormField';
 import { useAdminUsers } from '../../hooks/useAdminUsers';
+
+function formatCurrency(value: number): string {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+function formatDate(value: string): string {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Fecha no disponible';
+  }
+
+  return new Intl.DateTimeFormat('es-CL', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date);
+}
 
 export function UsersPage() {
   const {
     users,
     formData,
     error,
+    selectedUser,
+    userOrders,
     updateField,
     submitUser,
+    selectUser,
+    closeUserHistory,
   } = useAdminUsers();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -44,7 +68,7 @@ export function UsersPage() {
       <header className="admin-page__header">
         <h1 className="h3 fw-bold mb-2">Gestión de Usuarios</h1>
         <p className="text-muted mb-0">
-          Administración de cuentas y roles del sistema.
+          Administración de cuentas, roles e historial de compras.
         </p>
       </header>
 
@@ -180,6 +204,7 @@ export function UsersPage() {
                     <th>Nombre</th>
                     <th>Correo</th>
                     <th>Rol</th>
+                    <th>Compras</th>
                   </tr>
                 </thead>
 
@@ -210,12 +235,27 @@ export function UsersPage() {
                           {user.rol}
                         </span>
                       </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-outline-dark"
+                          onClick={() => selectUser(user.id)}
+                        >
+                          {selectedUser?.id === user.id
+                            ? 'Cerrar'
+                            : 'Ver compras'}
+                        </button>
+                      </td>
                     </tr>
                   ))}
 
                   {users.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="text-center text-muted py-4">
+                      <td
+                        colSpan={5}
+                        className="text-center text-muted py-4"
+                      >
                         No hay usuarios registrados.
                       </td>
                     </tr>
@@ -226,6 +266,156 @@ export function UsersPage() {
           </div>
         </article>
       </div>
+
+      {selectedUser && (
+        <section className="admin-panel mt-4">
+          <div className="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+              <h2 className="h5 fw-bold mb-1">
+                Historial de compras
+              </h2>
+
+              <p className="text-muted mb-0">
+                {selectedUser.nombre}
+                {selectedUser.profile?.apellidos
+                  ? ` ${selectedUser.profile.apellidos}`
+                  : ''}
+                {' · '}
+                {selectedUser.correo}
+              </p>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-outline-secondary btn-sm"
+              onClick={closeUserHistory}
+            >
+              Cerrar historial
+            </button>
+          </div>
+
+          <div className="row g-3 mb-4">
+            <div className="col-sm-6 col-lg-4">
+              <div className="border p-3 h-100">
+                <span className="text-muted small d-block">
+                  Pedidos registrados
+                </span>
+                <strong className="fs-4">
+                  {userOrders.length}
+                </strong>
+              </div>
+            </div>
+
+            <div className="col-sm-6 col-lg-4">
+              <div className="border p-3 h-100">
+                <span className="text-muted small d-block">
+                  Compras aceptadas
+                </span>
+                <strong className="fs-4">
+                  {
+                    userOrders.filter(
+                      (order) => order.paymentStatus === 'Aceptado',
+                    ).length
+                  }
+                </strong>
+              </div>
+            </div>
+
+            <div className="col-sm-6 col-lg-4">
+              <div className="border p-3 h-100">
+                <span className="text-muted small d-block">
+                  Total comprado
+                </span>
+                <strong className="fs-4">
+                  {formatCurrency(
+                    userOrders
+                      .filter(
+                        (order) => order.paymentStatus === 'Aceptado',
+                      )
+                      .reduce((total, order) => total + order.total, 0),
+                  )}
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          {userOrders.length > 0 ? (
+            <div className="table-responsive">
+              <table className="table align-middle admin-table">
+                <thead>
+                  <tr>
+                    <th>Pedido</th>
+                    <th>Fecha</th>
+                    <th>Productos</th>
+                    <th>Total</th>
+                    <th>Pago</th>
+                    <th>Detalle</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {userOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td className="font-monospace">
+                        {order.id}
+                      </td>
+
+                      <td>{formatDate(order.createdAt)}</td>
+
+                      <td>
+                        {order.items.reduce(
+                          (total, item) => total + item.cantidad,
+                          0,
+                        )}{' '}
+                        unidades
+                        <small className="d-block text-muted">
+                          {order.items
+                            .map((item) => item.nombre)
+                            .join(', ')}
+                        </small>
+                      </td>
+
+                      <td className="fw-semibold">
+                        {formatCurrency(order.total)}
+                      </td>
+
+                      <td>
+                        <span
+                          className={`badge ${
+                            order.paymentStatus === 'Aceptado'
+                              ? 'bg-success'
+                              : 'bg-danger'
+                          }`}
+                        >
+                          {order.paymentStatus}
+                        </span>
+                      </td>
+
+                      <td>
+                        <Link
+                          to={`/admin/ordenes/${encodeURIComponent(order.id)}`}
+                          className="btn btn-sm btn-outline-dark"
+                        >
+                          Ver pedido
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="text-center text-muted py-5 border">
+              <p className="fw-semibold mb-1">
+                Este usuario todavía no tiene pedidos.
+              </p>
+              <p className="small mb-0">
+                Cuando registre una compra, aparecerá en este historial.
+              </p>
+            </div>
+          )}
+        </section>
+      )}
     </section>
   );
 }

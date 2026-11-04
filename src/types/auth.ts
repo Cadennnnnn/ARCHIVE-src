@@ -1,4 +1,10 @@
-import type { PublicUser, UserRole } from './user';
+
+
+import type {
+  PublicUser,
+  UserProfileUpdateData,
+  UserRole,
+} from './user';
 
 export interface AuthCredentials {
   correo: string;
@@ -16,4 +22,7 @@ export interface AuthContextValue {
   isLoading: boolean;
   login: (credentials: AuthCredentials) => Promise<AuthSession>;
   logout: () => void;
+  updateAccount: (
+    data: UserProfileUpdateData,
+  ) => AuthSession;
 }

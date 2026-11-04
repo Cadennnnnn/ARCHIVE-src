@@ -1,24 +1,55 @@
 
-import type {
-  AuthCredentials,
-  AuthSession,
-} from '../types/auth';
-
+import type { AuthSession } from '../types/auth';
 import type { User, UserRole } from '../types/user';
+import {
+  findUserByEmail,
+  getUsers,
+} from './userService';
 
-import { initializeUsers } from './userService';
+const AUTH_SESSION_KEY = 'ARCHIVE_AUTH_SESSION';
+const AUTH_ROLE_KEY = 'ARCHIVE_AUTH_ROLE';
+const USER_EMAIL_KEY = 'ARCHIVE_USER_EMAIL';
+const USER_NAME_KEY = 'ARCHIVE_USER_NAME';
 
-const SESSION_STORAGE_KEY = 'ARCHIVE_AUTH_SESSION';
-
-const LEGACY_ROLE_KEY = 'ARCHIVE_AUTH_ROLE';
-const LEGACY_EMAIL_KEY = 'ARCHIVE_USER_EMAIL';
-const LEGACY_NAME_KEY = 'ARCHIVE_USER_NAME';
-
-const VALID_ROLES: UserRole[] = [
+const VALID_ROLES: readonly UserRole[] = [
   'Administrador',
   'Vendedor',
   'Cliente',
 ];
+
+function isValidRole(role: unknown): role is UserRole {
+  return (
+    typeof role === 'string' &&
+    VALID_ROLES.includes(role as UserRole)
+  );
+}
+
+function isValidStoredSession(
+  value: unknown,
+): value is AuthSession {
+  if (typeof value !== 'object' || value === null) {
+    return false;
+  }
+
+  const session = value as Record<string, unknown>;
+  const user = session.user;
+
+  if (typeof user !== 'object' || user === null) {
+    return false;
+  }
+
+  const storedUser = user as Record<string, unknown>;
+
+  return (
+    typeof storedUser.id === 'string' &&
+    storedUser.id.length > 0 &&
+    typeof storedUser.correo === 'string' &&
+    typeof storedUser.nombre === 'string' &&
+    isValidRole(session.role) &&
+    storedUser.rol === session.role
+  );
+}
+
 
 function createSession(user: User): AuthSession {
   const publicUser = Object.fromEntries(
@@ -31,89 +62,83 @@ function createSession(user: User): AuthSession {
   };
 }
 
-export function authenticate(
-  credentials: AuthCredentials,
-): AuthSession {
-  const normalizedEmail = credentials.correo.trim().toLowerCase();
-
-  const users = initializeUsers();
-
-  const user = users.find(
-    (item) => item.correo.toLowerCase() === normalizedEmail,
+function persistSession(session: AuthSession): void {
+  localStorage.setItem(
+    AUTH_SESSION_KEY,
+    JSON.stringify(session),
   );
+  localStorage.setItem(AUTH_ROLE_KEY, session.role);
+  localStorage.setItem(USER_EMAIL_KEY, session.user.correo);
+  localStorage.setItem(USER_NAME_KEY, session.user.nombre);
+}
 
-  if (!user || user.password !== credentials.password) {
-    throw new Error('Correo electrónico o contraseña incorrectos.');
+export function authenticate(
+  correo: string,
+  password: string,
+): AuthSession | null {
+  const user = findUserByEmail(correo);
+
+  if (
+    !user ||
+    user.password !== password ||
+    !isValidRole(user.rol)
+  ) {
+    return null;
   }
 
   const session = createSession(user);
-
-  localStorage.setItem(
-    SESSION_STORAGE_KEY,
-    JSON.stringify(session),
-  );
-
-  localStorage.setItem(LEGACY_ROLE_KEY, user.rol);
-  localStorage.setItem(LEGACY_EMAIL_KEY, user.correo);
-  localStorage.setItem(LEGACY_NAME_KEY, user.nombre);
+  persistSession(session);
 
   return session;
 }
 
 export function getCurrentSession(): AuthSession | null {
+  const storedSession = localStorage.getItem(AUTH_SESSION_KEY);
+
+  if (!storedSession) {
+    return null;
+  }
+
   try {
-    const storedSession = localStorage.getItem(SESSION_STORAGE_KEY);
-
-    if (!storedSession) {
-      return null;
-    }
-
     const parsedSession: unknown = JSON.parse(storedSession);
 
-    if (
-      typeof parsedSession !== 'object' ||
-      parsedSession === null ||
-      !('user' in parsedSession) ||
-      !('role' in parsedSession)
-    ) {
+    if (!isValidStoredSession(parsedSession)) {
       clearSession();
       return null;
     }
 
-    const session = parsedSession as AuthSession;
-
-    if (
-      !session.user?.id ||
-      !session.user?.correo ||
-      !VALID_ROLES.includes(session.role)
-    ) {
-      clearSession();
-      return null;
-    }
-
-    const users = initializeUsers();
-
-    const currentUser = users.find(
-      (user) =>
-        user.id === session.user.id &&
-        user.correo.toLowerCase() === session.user.correo.toLowerCase(),
+    const user = getUsers().find(
+      (storedUser) =>
+        storedUser.id === parsedSession.user.id &&
+        storedUser.correo === parsedSession.user.correo &&
+        storedUser.rol === parsedSession.role,
     );
 
-    if (!currentUser || currentUser.rol !== session.role) {
+    if (!user || !isValidRole(user.rol)) {
       clearSession();
       return null;
     }
 
-    return createSession(currentUser);
+    const refreshedSession = createSession(user);
+    persistSession(refreshedSession);
+
+    return refreshedSession;
   } catch {
     clearSession();
     return null;
   }
 }
 
+export function refreshSession(user: User): AuthSession {
+  const session = createSession(user);
+  persistSession(session);
+
+  return session;
+}
+
 export function clearSession(): void {
-  localStorage.removeItem(SESSION_STORAGE_KEY);
-  localStorage.removeItem(LEGACY_ROLE_KEY);
-  localStorage.removeItem(LEGACY_EMAIL_KEY);
-  localStorage.removeItem(LEGACY_NAME_KEY);
+  localStorage.removeItem(AUTH_SESSION_KEY);
+  localStorage.removeItem(AUTH_ROLE_KEY);
+  localStorage.removeItem(USER_EMAIL_KEY);
+  localStorage.removeItem(USER_NAME_KEY);
 }

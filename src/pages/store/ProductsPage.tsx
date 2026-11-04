@@ -1,34 +1,26 @@
-
-
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
-import { products } from '../../data/products';
-import type { ProductCategory } from '../../types/product';
-
 import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
 import { useCart } from '../../hooks/useCart';
-
-const categories: ProductCategory[] = [
-  'Todos',
-  'Sneakers',
-  'Apparel',
-  'Goods',
-];
+import { getCategories } from '../../services/categoryService';
+import { getProducts } from '../../services/productService';
 
 export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { addItem } = useCart();
 
-  const initialCategory = searchParams.get('categoria') as ProductCategory | null;
-
-  const [category, setCategory] = useState<ProductCategory>(
-    categories.includes(initialCategory ?? 'Todos')
-      ? initialCategory ?? 'Todos'
-      : 'Todos',
-  );
-
+  const [categories] = useState(getCategories);
+  const [products] = useState(getProducts);
   const [search, setSearch] = useState('');
+
+  const requestedCategory = searchParams.get('categoria');
+
+  const category = categories.some(
+    (item) => item.nombre === requestedCategory,
+  )
+    ? requestedCategory!
+    : 'Todos';
 
   const filteredProducts = useMemo(
     () =>
@@ -36,24 +28,24 @@ export function ProductsPage() {
         const matchesCategory =
           category === 'Todos' || product.categoria === category;
 
-        const matchesSearch = product.nombre
-          .toLowerCase()
-          .includes(search.toLowerCase());
+        const normalizedSearch = search.trim().toLocaleLowerCase('es');
+
+        const matchesSearch =
+          product.nombre.toLocaleLowerCase('es').includes(normalizedSearch);
 
         return matchesCategory && matchesSearch;
       }),
-    [category, search],
+    [category, products, search],
   );
 
-  const changeCategory = (nextCategory: ProductCategory) => {
-    setCategory(nextCategory);
-
+  function changeCategory(nextCategory: string) {
     if (nextCategory === 'Todos') {
       setSearchParams({});
-    } else {
-      setSearchParams({ categoria: nextCategory });
+      return;
     }
-  };
+
+    setSearchParams({ categoria: nextCategory });
+  }
 
   return (
     <div className="container py-5">
@@ -68,15 +60,24 @@ export function ProductsPage() {
 
       <div className="archive-catalog-tools">
         <div className="archive-filters" aria-label="Filtrar por categoría">
+          <button
+            type="button"
+            className={category === 'Todos' ? 'active' : ''}
+            aria-pressed={category === 'Todos'}
+            onClick={() => changeCategory('Todos')}
+          >
+            Todos
+          </button>
+
           {categories.map((item) => (
             <button
               type="button"
-              key={item}
-              className={category === item ? 'active' : ''}
-              aria-pressed={category === item}
-              onClick={() => changeCategory(item)}
+              key={item.id}
+              className={category === item.nombre ? 'active' : ''}
+              aria-pressed={category === item.nombre}
+              onClick={() => changeCategory(item.nombre)}
             >
-              {item}
+              {item.nombre}
             </button>
           ))}
         </div>

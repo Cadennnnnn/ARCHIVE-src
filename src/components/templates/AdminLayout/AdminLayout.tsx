@@ -1,4 +1,3 @@
-
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -41,8 +40,24 @@ export function AdminLayout() {
             Dashboard
           </NavLink>
 
+          <NavLink to="/admin/ordenes">
+            Órdenes y boletas
+          </NavLink>
+
           <NavLink to="/admin/productos">
             Inventario
+          </NavLink>
+
+          <NavLink to="/admin/categorias">
+            Categorías
+          </NavLink>
+
+          <NavLink to="/admin/stock-critico">
+            Stock crítico
+          </NavLink>
+
+          <NavLink to="/admin/reportes">
+            Reportes
           </NavLink>
 
           {session?.role === 'Administrador' && (

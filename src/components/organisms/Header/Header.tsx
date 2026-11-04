@@ -1,5 +1,3 @@
-
-
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 
@@ -24,6 +22,8 @@ export function Header() {
   const canAccessAdmin =
     session?.role === 'Administrador' ||
     session?.role === 'Vendedor';
+
+  const canAccessProfile = session?.role === 'Cliente';
 
   async function handleLogout() {
     const result = await Swal.fire({
@@ -83,6 +83,12 @@ export function Header() {
                 <span className="archive-header__user">
                   {session.user.nombre}
                 </span>
+
+                {canAccessProfile && (
+                  <Link to="/perfil">
+                    Mi perfil
+                  </Link>
+                )}
 
                 {canAccessAdmin && (
                   <Link to="/admin">

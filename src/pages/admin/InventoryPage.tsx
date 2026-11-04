@@ -1,4 +1,3 @@
-
 import type { FormEvent } from 'react';
 import Swal from 'sweetalert2';
 
@@ -7,15 +6,10 @@ import { formatPrice } from '../../data/products';
 import { useAdminInventory } from '../../hooks/useAdminInventory';
 import type { Product } from '../../types/product';
 
-const CATEGORY_LABELS: Record<string, string> = {
-  Sneakers: 'Zapatillas',
-  Apparel: 'Ropa',
-  Goods: 'Accesorios',
-};
-
 export function InventoryPage() {
   const {
     products,
+    categories,
     formData,
     errors,
     editingId,
@@ -38,7 +32,6 @@ export function InventoryPage() {
         icon: 'warning',
         confirmButtonColor: '#1B2A4A',
       });
-
       return;
     }
 
@@ -144,10 +137,17 @@ export function InventoryPage() {
                     required
                   >
                     <option value="">-- Seleccionar --</option>
-                    <option value="Sneakers">Zapatillas</option>
-                    <option value="Apparel">Ropa</option>
-                    <option value="Goods">Accesorios</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.nombre}>
+                        {category.nombre}
+                      </option>
+                    ))}
                   </select>
+                  {categories.length === 0 && (
+                    <small className="text-danger">
+                      Primero debes registrar una categoría.
+                    </small>
+                  )}
                 </FormField>
               </div>
 
@@ -242,6 +242,7 @@ export function InventoryPage() {
               <button
                 type="submit"
                 className="btn btn-archive-primary w-100"
+                disabled={categories.length === 0}
               >
                 {editingId === null ? 'Guardar Producto' : 'Guardar Cambios'}
               </button>
@@ -273,15 +274,12 @@ export function InventoryPage() {
                   {products.map((product) => (
                     <tr key={product.id}>
                       <td className="font-monospace">{product.codigo}</td>
-
                       <td className="fw-semibold">{product.nombre}</td>
-
                       <td>
                         <span className="badge bg-secondary">
-                          {CATEGORY_LABELS[product.categoria] ?? product.categoria}
+                          {product.categoria}
                         </span>
                       </td>
-
                       <td className="font-monospace text-nowrap">
                         {formatPrice(product.precio)}
                         {product.precioOriginal !== undefined && (
@@ -290,9 +288,7 @@ export function InventoryPage() {
                           </small>
                         )}
                       </td>
-
                       <td>{product.stock}</td>
-
                       <td>
                         <div className="d-flex gap-2">
                           <button
@@ -303,7 +299,6 @@ export function InventoryPage() {
                           >
                             Editar
                           </button>
-
                           <button
                             type="button"
                             className="btn btn-sm btn-outline-danger"

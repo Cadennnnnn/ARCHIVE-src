@@ -1,10 +1,10 @@
 
-
 import type {
   User,
   UserRegistrationData,
   UserRole,
   PublicUser,
+  UserProfileUpdateData,
 } from '../types/user';
 
 import {
@@ -236,6 +236,81 @@ export function createAdminUser(
   saveUsers([...users, newUser]);
 
   return newUser;
+}
+
+export function updateUser(
+  userId: string,
+  data: UserProfileUpdateData,
+): User {
+  const users = getUsers();
+
+  const userIndex = users.findIndex(
+    (user) => user.id === userId,
+  );
+
+  if (userIndex === -1) {
+    throw new Error('No se encontró el usuario.');
+  }
+
+  const normalizedEmail = data.correo.trim().toLowerCase();
+  const normalizedName = data.nombre.trim();
+  const normalizedSurnames = data.apellidos.trim();
+  const normalizedPhone = data.telefono.trim();
+
+  if (!normalizedName || normalizedName.length > 50) {
+    throw new Error(
+      'El nombre es obligatorio y no puede superar los 50 caracteres.',
+    );
+  }
+
+  if (
+    !normalizedSurnames ||
+    normalizedSurnames.length > 100
+  ) {
+    throw new Error(
+      'Los apellidos son obligatorios y no pueden superar los 100 caracteres.',
+    );
+  }
+
+  if (!validateEmail(normalizedEmail)) {
+    throw new Error(
+      'El correo ingresado no tiene un formato o dominio autorizado.',
+    );
+  }
+
+  const emailExists = users.some(
+    (user) =>
+      user.id !== userId &&
+      user.correo.toLowerCase() === normalizedEmail,
+  );
+
+  if (emailExists) {
+    throw new Error(
+      'Ya existe otra cuenta registrada con ese correo.',
+    );
+  }
+
+  const updatedUser: User = {
+    ...users[userIndex],
+    nombre: normalizedName,
+    correo: normalizedEmail,
+    profile: {
+      run: users[userIndex].profile?.run ?? '',
+      region: users[userIndex].profile?.region ?? '',
+      comuna: users[userIndex].profile?.comuna ?? '',
+      direccion: users[userIndex].profile?.direccion ?? '',
+      ...users[userIndex].profile,
+      apellidos: normalizedSurnames,
+      telefono: normalizedPhone,
+    },
+  };
+
+  const updatedUsers = [...users];
+  updatedUsers[userIndex] = updatedUser;
+
+  saveUsers(updatedUsers);
+
+  return updatedUser;
 }
 
 export function getPublicUsers(): PublicUser[] {

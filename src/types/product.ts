@@ -1,3 +1,4 @@
+
 export interface Product {
   id: number;
   codigo: string;
@@ -11,4 +12,4 @@ export interface Product {
   stock: number;
 }
 
-export type ProductCategory = 'Todos' | 'Sneakers' | 'Apparel' | 'Goods';
+export type ProductCategory = string;

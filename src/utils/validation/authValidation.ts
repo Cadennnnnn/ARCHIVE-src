@@ -1,4 +1,5 @@
 
+
 import type { UserRegistrationData } from '../../types/user';
 
 export type ValidationErrors = Partial<
@@ -31,6 +32,33 @@ export function validateEmail(email: string): boolean {
 
 export function validatePassword(password: string): boolean {
   return /^[a-zA-Z0-9]{4,10}$/.test(password);
+}
+
+export function normalizeChileanMobilePhone(
+  phone: string,
+): string | null {
+  const cleanedPhone = phone.trim().replace(/[\s()-]/g, '');
+  const digits = cleanedPhone.replace(/^\+/, '');
+
+  let nationalNumber: string;
+
+  if (digits.startsWith('569') && digits.length === 11) {
+    nationalNumber = digits.slice(2);
+  } else if (digits.startsWith('9') && digits.length === 9) {
+    nationalNumber = digits;
+  } else {
+    return null;
+  }
+
+  if (!/^9\d{8}$/.test(nationalNumber)) {
+    return null;
+  }
+
+  return `+56${nationalNumber}`;
+}
+
+export function validateChileanMobilePhone(phone: string): boolean {
+  return normalizeChileanMobilePhone(phone) !== null;
 }
 
 export function validateRegistration(
