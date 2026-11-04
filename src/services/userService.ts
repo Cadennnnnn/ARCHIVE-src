@@ -1,8 +1,10 @@
 
+
 import type {
   User,
   UserRegistrationData,
   UserRole,
+  PublicUser,
 } from '../types/user';
 
 import {
@@ -72,7 +74,10 @@ function readStoredUsers(): User[] {
 }
 
 function saveUsers(users: User[]): void {
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(users));
+  localStorage.setItem(
+    USERS_STORAGE_KEY,
+    JSON.stringify(users),
+  );
 }
 
 export function initializeUsers(): User[] {
@@ -81,7 +86,8 @@ export function initializeUsers(): User[] {
 
   DEMO_USERS.forEach((demoUser) => {
     const alreadyExists = initializedUsers.some(
-      (user) => user.correo.toLowerCase() === demoUser.correo,
+      (user) =>
+        user.correo.toLowerCase() === demoUser.correo,
     );
 
     if (!alreadyExists) {
@@ -98,32 +104,43 @@ export function getUsers(): User[] {
   return initializeUsers();
 }
 
-export function findUserByEmail(email: string): User | undefined {
+export function findUserByEmail(
+  email: string,
+): User | undefined {
   const normalizedEmail = email.trim().toLowerCase();
 
   return getUsers().find(
-    (user) => user.correo.toLowerCase() === normalizedEmail,
+    (user) =>
+      user.correo.toLowerCase() === normalizedEmail,
   );
 }
 
-export function createUser(data: UserRegistrationData): User {
+export function createUser(
+  data: UserRegistrationData,
+): User {
   const users = getUsers();
   const normalizedEmail = data.correo.trim().toLowerCase();
 
   const emailExists = users.some(
-    (user) => user.correo.toLowerCase() === normalizedEmail,
+    (user) =>
+      user.correo.toLowerCase() === normalizedEmail,
   );
 
   if (emailExists) {
-    throw new Error('Ya existe una cuenta registrada con ese correo.');
+    throw new Error(
+      'Ya existe una cuenta registrada con ese correo.',
+    );
   }
 
   const runExists = users.some(
-    (user) => user.profile?.run === data.run.trim().toUpperCase(),
+    (user) =>
+      user.profile?.run === data.run.trim().toUpperCase(),
   );
 
   if (runExists) {
-    throw new Error('Ya existe una cuenta registrada con ese RUN.');
+    throw new Error(
+      'Ya existe una cuenta registrada con ese RUN.',
+    );
   }
 
   const newUser: User = {
@@ -146,21 +163,32 @@ export function createUser(data: UserRegistrationData): User {
   return newUser;
 }
 
-export function createAdminUser(data: AdminUserData): User {
+export function createAdminUser(
+  data: AdminUserData,
+): User {
   const users = getUsers();
   const normalizedEmail = data.correo.trim().toLowerCase();
   const normalizedRun = data.run.trim().toUpperCase();
 
   if (!validateRun(normalizedRun)) {
-    throw new Error('El RUN debe tener entre 7 y 9 caracteres sin puntos ni guion.');
+    throw new Error(
+      'El RUN debe tener entre 7 y 9 caracteres sin puntos ni guion.',
+    );
   }
 
   if (!data.nombre.trim() || data.nombre.trim().length > 50) {
-    throw new Error('El nombre es obligatorio y no puede superar los 50 caracteres.');
+    throw new Error(
+      'El nombre es obligatorio y no puede superar los 50 caracteres.',
+    );
   }
 
-  if (!data.apellidos.trim() || data.apellidos.trim().length > 100) {
-    throw new Error('Los apellidos son obligatorios y no pueden superar los 100 caracteres.');
+  if (
+    !data.apellidos.trim() ||
+    data.apellidos.trim().length > 100
+  ) {
+    throw new Error(
+      'Los apellidos son obligatorios y no pueden superar los 100 caracteres.',
+    );
   }
 
   if (!validateEmail(normalizedEmail)) {
@@ -169,16 +197,25 @@ export function createAdminUser(data: AdminUserData): User {
     );
   }
 
-  if (users.some((user) => user.correo.toLowerCase() === normalizedEmail)) {
-    throw new Error('Ya existe una cuenta registrada con ese correo.');
+  if (
+    users.some(
+      (user) => user.correo.toLowerCase() === normalizedEmail,
+    )
+  ) {
+    throw new Error(
+      'Ya existe una cuenta registrada con ese correo.',
+    );
   }
 
   if (
     users.some(
-      (user) => user.profile?.run?.toUpperCase() === normalizedRun,
+      (user) =>
+        user.profile?.run?.toUpperCase() === normalizedRun,
     )
   ) {
-    throw new Error('Ya existe una cuenta registrada con ese RUN.');
+    throw new Error(
+      'Ya existe una cuenta registrada con ese RUN.',
+    );
   }
 
   const newUser: User = {
@@ -201,6 +238,12 @@ export function createAdminUser(data: AdminUserData): User {
   return newUser;
 }
 
-export function getPublicUsers() {
-  return getUsers().map(({ password: _password, ...user }) => user);
+export function getPublicUsers(): PublicUser[] {
+  return getUsers().map((user): PublicUser => ({
+    id: user.id,
+    nombre: user.nombre,
+    correo: user.correo,
+    rol: user.rol,
+    ...(user.profile ? { profile: user.profile } : {}),
+  }));
 }

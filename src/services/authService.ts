@@ -1,5 +1,4 @@
 
-
 import type {
   AuthCredentials,
   AuthSession,
@@ -22,7 +21,9 @@ const VALID_ROLES: UserRole[] = [
 ];
 
 function createSession(user: User): AuthSession {
-  const { password: _password, ...publicUser } = user;
+  const publicUser = Object.fromEntries(
+    Object.entries(user).filter(([key]) => key !== 'password'),
+  ) as Omit<User, 'password'>;
 
   return {
     user: publicUser,

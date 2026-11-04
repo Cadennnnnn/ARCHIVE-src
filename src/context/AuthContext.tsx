@@ -1,7 +1,6 @@
+
 import {
-  createContext,
   useCallback,
-  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -12,6 +11,8 @@ import type {
   AuthCredentials,
   AuthSession,
 } from '../types/auth';
+
+import { AuthContext } from './AuthContextDefinition';
 
 import {
   authenticate,
@@ -25,25 +26,22 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-export const AuthContext = createContext<AuthContextValue | undefined>(
-  undefined,
-);
+function getInitialSession(): AuthSession | null {
+  try {
+    initializeUsers();
+    return getCurrentSession();
+  } catch {
+    clearSession();
+    return null;
+  }
+}
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [session, setSession] = useState<AuthSession | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [session, setSession] = useState<AuthSession | null>(
+    getInitialSession,
+  );
 
-  useEffect(() => {
-    try {
-      initializeUsers();
-      setSession(getCurrentSession());
-    } catch {
-      clearSession();
-      setSession(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+  const isLoading = false;
 
   const login = useCallback(
     async (credentials: AuthCredentials): Promise<AuthSession> => {
