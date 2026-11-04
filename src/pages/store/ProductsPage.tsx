@@ -1,28 +1,53 @@
-// Archivo: src/pages/store/ProductsPage.tsx
+
+
 import { useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+
 import { products } from '../../data/products';
 import type { ProductCategory } from '../../types/product';
-import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
 
-const categories: ProductCategory[] = ['Todos', 'Sneakers', 'Apparel', 'Goods'];
+import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
+import { useCart } from '../../hooks/useCart';
+
+const categories: ProductCategory[] = [
+  'Todos',
+  'Sneakers',
+  'Apparel',
+  'Goods',
+];
 
 export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { addItem } = useCart();
+
   const initialCategory = searchParams.get('categoria') as ProductCategory | null;
+
   const [category, setCategory] = useState<ProductCategory>(
-    categories.includes(initialCategory ?? 'Todos') ? initialCategory ?? 'Todos' : 'Todos',
+    categories.includes(initialCategory ?? 'Todos')
+      ? initialCategory ?? 'Todos'
+      : 'Todos',
   );
+
   const [search, setSearch] = useState('');
 
-  const filteredProducts = useMemo(() => products.filter((product) => {
-    const matchesCategory = category === 'Todos' || product.categoria === category;
-    const matchesSearch = product.nombre.toLowerCase().includes(search.toLowerCase());
-    return matchesCategory && matchesSearch;
-  }), [category, search]);
+  const filteredProducts = useMemo(
+    () =>
+      products.filter((product) => {
+        const matchesCategory =
+          category === 'Todos' || product.categoria === category;
+
+        const matchesSearch = product.nombre
+          .toLowerCase()
+          .includes(search.toLowerCase());
+
+        return matchesCategory && matchesSearch;
+      }),
+    [category, search],
+  );
 
   const changeCategory = (nextCategory: ProductCategory) => {
     setCategory(nextCategory);
+
     if (nextCategory === 'Todos') {
       setSearchParams({});
     } else {
@@ -35,7 +60,10 @@ export function ProductsPage() {
       <header className="archive-page-heading">
         <span className="archive-eyebrow">The collection</span>
         <h1>Catálogo de productos</h1>
-        <p>Explora nuestra selección de calzado, indumentaria y accesorios de archivo.</p>
+        <p>
+          Explora nuestra selección de calzado, indumentaria y accesorios
+          de archivo.
+        </p>
       </header>
 
       <div className="archive-catalog-tools">
@@ -64,18 +92,25 @@ export function ProductsPage() {
         </label>
       </div>
 
-      <p className="text-muted small mb-4">{filteredProducts.length} productos encontrados</p>
+      <p className="text-muted small mb-4">
+        {filteredProducts.length} productos encontrados
+      </p>
 
       <div className="row g-4">
         {filteredProducts.map((product) => (
           <div className="col-12 col-sm-6 col-lg-3" key={product.id}>
-            <ProductCard product={product} />
+            <ProductCard
+              product={product}
+              onAddToCart={addItem}
+            />
           </div>
         ))}
       </div>
 
       {filteredProducts.length === 0 && (
-        <p className="archive-empty">No encontramos productos con esos criterios.</p>
+        <p className="archive-empty">
+          No encontramos productos con esos criterios.
+        </p>
       )}
     </div>
   );

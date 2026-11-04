@@ -1,108 +1,181 @@
-// Archivo: src/pages/store/CartPage.tsx
+
 import { Link } from 'react-router-dom';
-import { formatPrice } from '../../data/products';
-import { Button } from '../../components/atoms/Button/Button';
+
+import { products, formatPrice } from '../../data/products';
 import { useCart } from '../../hooks/useCart';
+import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
 
 export function CartPage() {
   const {
     items,
     subtotal,
+    addItem,
     removeItem,
     updateQuantity,
     clearCart,
   } = useCart();
 
-  if (items.length === 0) {
-    return (
-      <section className="container py-5 archive-empty-cart">
-        <span className="archive-eyebrow">ARCHIVE[src]</span>
-        <h1>Tu carro está vacío.</h1>
-        <p>Explora nuestra selección y encuentra tu próxima pieza.</p>
-        <Link className="archive-button archive-button--primary" to="/productos">
-          Explorar productos
-        </Link>
-      </section>
-    );
-  }
-
   return (
     <section className="container py-5">
       <div className="archive-page-heading">
-        <span className="archive-eyebrow">Tu selección</span>
+        <span className="archive-eyebrow">ARCHIVE[src]</span>
         <h1>Carrito de compras</h1>
+        <p>Explora nuestros productos y administra tu selección.</p>
       </div>
 
-      <div className="row g-5">
-        <div className="col-12 col-lg-8">
-          {items.map((item) => (
-            <article
-              className="cart-item"
-              key={`${item.product.id}-${item.size}`}
-            >
-              <img src={item.product.imagen} alt={item.product.nombre} />
+      <div className="cart-information">
+        <strong>Vista de carrito de compra</strong>
+        <p>
+          Agrega productos, modifica sus cantidades o elimina artículos.
+          Tu selección se conserva automáticamente en este dispositivo
+          mediante localStorage.
+        </p>
+      </div>
 
-              <div className="cart-item__info">
-                <span className="archive-eyebrow">{item.product.categoria}</span>
-                <h2>{item.product.nombre}</h2>
-                <p>Talla: {item.size}</p>
-                <strong>{formatPrice(item.product.precio)}</strong>
-
-                <div className="cart-item__actions">
-                  <label>
-                    Cantidad
-                    <select
-                      value={item.quantity}
-                      onChange={(event) => updateQuantity(
-                        item.product.id,
-                        item.size,
-                        Number(event.target.value),
-                      )}
-                    >
-                      {Array.from(
-                        { length: item.product.stock },
-                        (_, index) => index + 1,
-                      ).map((quantity) => (
-                        <option key={quantity} value={quantity}>{quantity}</option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <button
-                    type="button"
-                    className="cart-remove"
-                    onClick={() => removeItem(item.product.id, item.size)}
-                  >
-                    Eliminar
-                  </button>
-                </div>
-              </div>
-            </article>
-          ))}
-
-          <button type="button" className="cart-clear" onClick={clearCart}>
-            Vaciar carrito
-          </button>
-        </div>
-
-        <aside className="col-12 col-lg-4">
-          <div className="cart-summary">
-            <h2>Resumen del pedido</h2>
-            <div>
-              <span>Subtotal</span>
-              <strong>{formatPrice(subtotal)}</strong>
-            </div>
-            <p>Los costos de envío se calcularán durante el proceso de compra.</p>
-            <Button className="w-100" onClick={() => window.alert(
-              'El proceso de pago estará disponible en una siguiente etapa.',
-            )}>
-              Continuar compra
-            </Button>
-            <Link to="/productos" className="cart-continue">
-              Seguir explorando
-            </Link>
+      <div className="row g-4">
+        <section className="col-12 col-xl-5" aria-labelledby="cart-products-title">
+          <div className="cart-section-heading">
+            <h2 id="cart-products-title">Lista de productos</h2>
+            <span>{products.length} productos disponibles</span>
           </div>
-        </aside>
+
+          <div className="cart-product-grid">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                onAddToCart={addItem}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="col-12 col-xl-7" aria-labelledby="cart-items-title">
+          <div className="cart-section-heading">
+            <h2 id="cart-items-title">Carrito de compras</h2>
+            <span>
+              {items.reduce((total, item) => total + item.quantity, 0)} artículos
+            </span>
+          </div>
+
+          {items.length === 0 ? (
+            <div className="cart-empty-message">
+              <h3>Tu carrito está vacío</h3>
+              <p>
+                Selecciona un producto de la lista para comenzar tu compra.
+              </p>
+              <Link to="/productos" className="cart-continue">
+                Ver catálogo completo
+              </Link>
+            </div>
+          ) : (
+            <>
+              <div className="cart-table-wrapper">
+                <table className="cart-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">Imagen</th>
+                      <th scope="col">Nombre</th>
+                      <th scope="col">Precio</th>
+                      <th scope="col">Cantidad</th>
+                      <th scope="col">Subtotal</th>
+                      <th scope="col">Acciones</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {items.map((item) => (
+                      <tr key={`${item.product.id}-${item.size}`}>
+                        <td>
+                          <img
+                            className="cart-table__image"
+                            src={item.product.imagen}
+                            alt={item.product.nombre}
+                          />
+                        </td>
+
+                        <td>
+                          <div className="cart-table__product-name">
+                            <strong>{item.product.nombre}</strong>
+                            <span>{item.product.categoria}</span>
+                            <small>Talla: {item.size}</small>
+                          </div>
+                        </td>
+
+                        <td>{formatPrice(item.product.precio)}</td>
+
+                        <td>
+                          <select
+                            className="cart-table__quantity"
+                            aria-label={`Cantidad de ${item.product.nombre}`}
+                            value={item.quantity}
+                            onChange={(event) =>
+                              updateQuantity(
+                                item.product.id,
+                                item.size,
+                                Number(event.target.value),
+                              )
+                            }
+                          >
+                            {Array.from(
+                              { length: item.product.stock },
+                              (_, index) => index + 1,
+                            ).map((quantity) => (
+                              <option key={quantity} value={quantity}>
+                                {quantity}
+                              </option>
+                            ))}
+                          </select>
+                        </td>
+
+                        <td>
+                          <strong>
+                            {formatPrice(item.product.precio * item.quantity)}
+                          </strong>
+                        </td>
+
+                        <td>
+                          <button
+                            type="button"
+                            className="cart-table__remove"
+                            aria-label={`Eliminar ${item.product.nombre}`}
+                            onClick={() =>
+                              removeItem(item.product.id, item.size)
+                            }
+                          >
+                            Eliminar
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="cart-total">
+                <span>Total</span>
+                <strong>{formatPrice(subtotal)}</strong>
+              </div>
+
+              <div className="cart-actions">
+                <button
+                  type="button"
+                  className="cart-clear"
+                  onClick={clearCart}
+                >
+                  Limpiar
+                </button>
+
+                <Link
+                  to="/checkout"
+                  className="archive-button archive-button--primary"
+                >
+                  Comprar ahora
+                </Link>
+              </div>
+            </>
+          )}
+        </section>
       </div>
     </section>
   );

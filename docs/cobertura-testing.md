@@ -1,75 +1,123 @@
 # Documento de Cobertura de Testing
-**Proyecto:** ARCHIVE[src] — Tienda online (Evaluación Parcial 2)
-**Asignatura:** DSY1104 Desarrollo Fullstack II · Duoc UC
-**Autor:** Caden Alexander Nieto González · **Fecha:** [15/10/2026]
-**Repositorio:** https://github.com/Cadennnnnn/ARCHIVE-src (rama `feature/migracion-react`)
+
+**Proyecto:** ARCHIVE[src] — Tienda online (Evaluación Parcial 2)  
+**Asignatura:** DSY1104 Desarrollo Fullstack II · Duoc UC  
+**Autor:** Caden Alexander Nieto González  
+**Fecha de actualización:** 04/11/2026  
+**Repositorio:** https://github.com/Cadennnnnn/ARCHIVE-src  
+**Rama:** `feature/react-rebuild`
 
 ---
 
 ## 1. Objetivo
-Validar el alcance de los elementos cubiertos por las pruebas unitarias del frontend React, verificando lógica, renderizado, propiedades, estado y eventos.
+
+Validar el alcance de los elementos cubiertos por las pruebas unitarias del frontend React, verificando renderizado, propiedades, estado, eventos, navegación, lógica de validación y comportamiento del carrito de compras.
+
+El proceso utiliza Jasmine y Karma para ejecutar pruebas en ChromeHeadless, junto con Istanbul para medir la cobertura del código instrumentado.
 
 ## 2. Entorno de pruebas
 
 | Herramienta | Rol |
 |---|---|
-| **Jasmine** (`jasmine-core`, `karma-jasmine`) | Framework de pruebas: `describe`, `it`, `expect`, spies |
-| **Karma** | Ejecutor de pruebas en navegador real |
-| **ChromeHeadless** | Navegador donde corren las pruebas |
-| **Webpack + Babel** (`preset-env`, `preset-react`) | Empaquetan y transpilan JSX/ES modules para Karma |
-| **Testing Library** (`@testing-library/react`) | Renderiza componentes y simula eventos sobre el DOM |
-| **Istanbul** (`babel-plugin-istanbul`, `karma-coverage`) | Instrumentación y reporte de cobertura |
+| **Jasmine** (`jasmine-core`, `karma-jasmine`) | Framework de pruebas: `describe`, `it`, `expect` y spies. |
+| **Karma** | Ejecutor de pruebas en navegador. |
+| **ChromeHeadless** | Navegador donde se ejecutan las pruebas. |
+| **Webpack + Babel** | Empaquetado y transpilación de TypeScript, JSX y módulos ES. |
+| **Testing Library** (`@testing-library/react`) | Simulación de eventos mediante `fireEvent`. |
+| **Istanbul** (`babel-plugin-istanbul`, `karma-coverage`) | Instrumentación y generación de reportes de cobertura. |
+| **React DOM** | Montaje y desmontaje de componentes mediante `createRoot`. |
 
-**Configuración:** `karma.conf.cjs` (extensión `.cjs` porque `package.json` usa `"type": "module"`). Los archivos de prueba están en `spec/*.spec.js(x)`. Se ejecutan con `npm test`.
+**Configuración:** `karma.conf.cjs`.
 
-**Problema detectado y solución:** Karma interpreta los corchetes de la ruta `ARCHIVE[src]` como patrones glob, por lo que no encontraba ningún archivo (`does not match any file`). Se resolvió ejecutando desde una ruta sin corchetes (unidad virtual `subst X:`).
+Los archivos de prueba se encuentran organizados en:
+
+- `spec/validation/authValidation.spec.ts`
+- `spec/components/componentBehavior.spec.tsx`
+- `spec/context/CartContext.spec.tsx`
+
+**Ejecución:**
+
+```bash
+npm run test
+```
+
+La configuración utiliza ChromeHeadless y genera reportes HTML, LCOV y resumen de cobertura.
 
 ## 3. Resultados de ejecución
 
-**22 de 22 pruebas exitosas (0 fallidas).**
+**36 pruebas exitosas (0 fallidas).**
 
-| Métrica | Cobertura |
-|---|---|
-| Sentencias (Statements) | 72 % (162/225) |
-| Ramas (Branches) | 65 % (91/140) |
-| Funciones (Functions) | 79,48 % (62/78) |
-| Líneas (Lines) | 74,7 % (127/170) |
+Resultados de la ejecución del 04/11/2026:
 
-El reporte HTML detallado por archivo se genera en `coverage/` (no se versiona).
+| Métrica | Resultado |
+|---|---:|
+| Sentencias (Statements) | 69,28 % (97/140) |
+| Ramas (Branches) | 50 % (44/88) |
+| Funciones (Functions) | 88,88 % (40/45) |
+| Líneas (Lines) | 69,17 % (92/133) |
+
+**Alcance de la medición:** los porcentajes corresponden a los módulos instrumentados y ejecutados durante esta suite de pruebas. No representan una medición exhaustiva de todos los archivos de la aplicación.
+
+El reporte HTML detallado se genera en `coverage/` y no se versiona.
 
 ## 4. Detalle de las pruebas
 
-| Archivo | N° | Tipo | Qué verifica |
-|---|---|---|---|
-| `validaciones.spec.js` | 4 | Lógica pura | RUN válido/inválido, dominios de correo permitidos, largo de contraseña y confirmación, errores por campo en formulario vacío |
-| `filtros.spec.js` | 2 | Lógica pura | Filtro por texto y categoría; categorías sin repetir |
-| `db.spec.js` | 4 | CRUD / mock `localStorage` | Inicialización con categorías normalizadas, crear/actualizar/eliminar producto, código duplicado y ofertas, autenticación sin exponer contraseña y correo duplicado |
-| `FormField.spec.jsx` | 3 | Renderizado, props, condicional, eventos | Etiqueta y valor por props; mensaje y clase `is-invalid` solo con error; `onChange` con el texto escrito |
-| `ProductCard.spec.jsx` | 3 | Props, condicional, eventos | Nombre/categoría/precio por props; insignia OFERTA solo en oferta; clic en Añadir invoca `onAdd` |
-| `CartContext.spec.jsx` | 3 | Estado | Agregar y acumular cantidades, precio de oferta, disminuir/eliminar y persistencia en `localStorage` |
-| `ProtectedRoute.spec.jsx` | 3 | Renderizado condicional | Redirección a `/login` sin sesión, a la tienda como Cliente, acceso del Administrador |
-| **Total** | **22** | | |
+| Archivo / componente | N.º de pruebas | Tipo | Qué verifica |
+|---|---:|---|---|
+| `authValidation.spec.ts` | 7 | Lógica | RUN, dominios de correo y reglas de contraseña. |
+| `ProductCard` | 1 | Renderizado y props | Datos del producto, imagen, categoría e insignia de oferta. |
+| `Button` | 2 | Props y eventos | Variante visual, contenido y ejecución de `onClick`. |
+| `FormInput` | 1 | Estado y eventos | Actualización del valor mediante escritura del usuario en un componente controlado. |
+| `BlogCard` | 2 | Props y navegación | Datos del artículo, imagen y destinos de los enlaces. |
+| `BlogsPage` | 1 | Renderizado | Encabezado y listado de artículos publicados. |
+| `BlogDetailPage` | 2 | Renderizado y navegación | Contenido según slug y redirección cuando no existe. |
+| `AboutPage` | 2 | Renderizado y navegación | Manifiesto, pilares de autenticidad y enlace a productos. |
+| `CartContext` | 18 | Estado y lógica | Inicialización, persistencia, almacenamiento inválido, stock, agregar productos, tallas, cantidades, eliminación, limpieza y subtotal. |
+| **Total** | **36** | | |
 
-### Correspondencia con lo solicitado por el docente
-| Tipo de prueba solicitado | Cubierto en |
+### 4.1 Correspondencia con los criterios de evaluación
+
+| Criterio | Evidencia |
 |---|---|
-| Renderizado correcto | `FormField`, `ProductCard` |
-| Renderizado condicional | Insignia OFERTA, mensaje de error, `ProtectedRoute` |
-| Propiedades (props) | `FormField`, `ProductCard` |
-| Estado (state) | `CartContext` |
-| Eventos | `fireEvent.change` en `FormField`, `fireEvent.click` en `ProductCard` y `CartContext` |
+| Renderizado correcto | ProductCard, BlogsPage, BlogDetailPage y AboutPage. |
+| Propiedades (props) | Button y BlogCard. |
+| Estado (state) | FormInput mediante un componente controlado y CartContext mediante operaciones sobre el estado del carrito. |
+| Eventos | Button mediante evento click y FormInput mediante evento change. |
+| Navegación | BlogCard, BlogDetailPage y AboutPage mediante MemoryRouter. |
+| Renderizado condicional | BlogDetailPage cuando el slug no existe. |
+| Lógica de validación | RUN, correo y contraseña. |
+| Persistencia | CartContext mediante almacenamiento local. |
 
-## 5. Uso de mocks
-- **Spies de Jasmine** (`jasmine.createSpy`): simulan los callbacks `onAdd` y `onChange` y permiten comprobar con qué argumentos fueron llamados.
-- **`localStorage` simulado:** se limpia en `beforeEach` y se siembra manualmente (por ejemplo la sesión `ARCHIVE_SESSION`) para aislar cada prueba.
-- **Componentes sonda** (`Probe`): consumen el contexto del carrito para probar el estado real con eventos.
-- **`MemoryRouter`:** simula la navegación sin depender del navegador.
+## 5. Uso de mocks y aislamiento
+
+- **Spy de Jasmine:** `jasmine.createSpy` simula el callback `onClick` y permite comprobar su ejecución.
+- **MemoryRouter:** permite probar enlaces y navegación sin depender del navegador ni de un servidor.
+- **Componente controlado:** `ControlledForm` permite verificar la actualización del estado de React al modificar un campo.
+- **DOM aislado:** cada prueba monta su propio contenedor mediante `createRoot` y lo desmonta en `afterEach`.
+- **Almacenamiento local:** las pruebas del carrito verifican inicialización, persistencia, recuperación y comportamiento ante datos inválidos de `localStorage`.
+
+Las pruebas actuales no implementan mocks de API ni de servicios externos. No se declara cobertura de esos escenarios.
 
 ## 6. Análisis de resultados
-- La **lógica de negocio** (validaciones, filtros, CRUD) está bien cubierta porque son funciones puras o de datos, fáciles de aislar.
-- Los **contextos y componentes clave** del flujo de compra (carrito, tarjeta de producto, formulario base, rutas protegidas) están probados.
-- **Menor cobertura:** las páginas completas (`Home`, `Checkout`, `AdminProducts`, `AdminUsers`, `Register`), que combinan muchos componentes y dependen de SweetAlert2 y navegación. Se consideran candidatas a pruebas de integración futuras.
-- Las ramas (65 %) quedan por debajo de las demás métricas por los caminos de error no ejercitados en páginas.
+
+La suite verifica componentes de interfaz, reglas de validación y operaciones relevantes del carrito de compras.
+
+Se incorporaron pruebas para las páginas de Blogs y Nosotros, verificando su contenido, estructura, enlaces y comportamiento ante rutas inexistentes. También se añadieron pruebas del contexto del carrito para comprobar sus operaciones y persistencia.
+
+La cobertura de funciones alcanza el 88,88 %, mientras que las ramas presentan un 50 %. Esto indica que todavía existen caminos condicionales que no han sido ejercitados.
+
+**Oportunidades de mejora:**
+
+- Ampliar pruebas de ramas y condiciones.
+- Incorporar pruebas de integración para los flujos de autenticación y checkout.
+- Probar operaciones CRUD del inventario.
+- Ampliar pruebas de navegación y protección de rutas.
+- Incorporar pruebas adicionales para el procesamiento de pedidos y sus resultados.
 
 ## 7. Conclusión
-Se implementó un proceso de testeo unitario completo: configuración del entorno, escritura de 22 pruebas, uso de mocks, análisis de resultados y medición de cobertura (72 % de sentencias), superando las 10 pruebas mínimas exigidas.
+
+El proyecto cuenta con una suite de 36 pruebas unitarias ejecutadas correctamente mediante Jasmine y Karma, sin fallos en la última ejecución.
+
+Se verifican propiedades, renderizado, estado, eventos, navegación, validaciones y operaciones del carrito. También se utiliza Istanbul para analizar la cobertura del código instrumentado.
+
+La suite supera el mínimo de 10 pruebas unitarias establecido en la rúbrica. Los resultados permiten identificar oportunidades concretas de mejora y respaldan la validación técnica de los componentes implementados.

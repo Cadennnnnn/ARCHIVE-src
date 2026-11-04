@@ -1,8 +1,10 @@
+
 import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { products, formatPrice } from '../../data/products';
 import { Button } from '../../components/atoms/Button/Button';
 import { useCart } from '../../hooks/useCart';
+import { showAddedToCartNotification } from '../../utils/cartNotifications';
 
 export function ProductDetailPage() {
   const { id } = useParams();
@@ -23,7 +25,12 @@ export function ProductDetailPage() {
   const isOnSale = product.precioOriginal !== undefined;
 
   const handleAdd = () => {
+    if (product.stock === 0) {
+      return;
+    }
+
     addItem(product, selectedSize);
+    showAddedToCartNotification(product.nombre);
     navigate('/carrito');
   };
 

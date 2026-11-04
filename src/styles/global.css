@@ -4,6 +4,7 @@
 
 @import './variables.css';
 @import './base.css';
+
 @import './components/header.css';
 @import './components/button.css';
 @import './components/home.css';
@@ -14,3 +15,6 @@
 @import './components/footer.css';
 @import './components/auth.css';
 @import './components/admin.css';
+@import './components/about.css';
+@import './components/blogs.css';
+@import './components/checkout.css';

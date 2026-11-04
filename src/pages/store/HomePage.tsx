@@ -1,8 +1,12 @@
 
+
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
 import { products } from '../../data/products';
+
 import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
+import { useCart } from '../../hooks/useCart';
 
 interface HeroSlide {
   label: string;
@@ -55,6 +59,8 @@ const slides: HeroSlide[] = [
 
 export function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const { addItem } = useCart();
+
   const slide = slides[activeSlide];
 
   useEffect(() => {
@@ -95,7 +101,10 @@ export function HomePage() {
           />
         </div>
 
-        <div className="archive-hero__controls" aria-label="Controles del carrusel">
+        <div
+          className="archive-hero__controls"
+          aria-label="Controles del carrusel"
+        >
           {slides.map((item, index) => (
             <button
               key={item.title}
@@ -115,13 +124,17 @@ export function HomePage() {
             <span className="archive-eyebrow">Selección ARCHIVE</span>
             <h2>Lanzamientos recientes</h2>
           </div>
+
           <Link to="/productos">Ver todo →</Link>
         </div>
 
         <div className="row g-4">
           {products.slice(0, 4).map((product) => (
             <div className="col-12 col-sm-6 col-lg-3" key={product.id}>
-              <ProductCard product={product} />
+              <ProductCard
+                product={product}
+                onAddToCart={addItem}
+              />
             </div>
           ))}
         </div>
@@ -131,7 +144,9 @@ export function HomePage() {
         <div>
           <span className="archive-eyebrow">Stay in touch</span>
           <h2>Únete al archivo.</h2>
-          <p>Recibe acceso prioritario a los próximos drops y noticias de la tienda.</p>
+          <p>
+            Recibe acceso prioritario a los próximos drops y noticias de la tienda.
+          </p>
         </div>
 
         <form
@@ -144,13 +159,18 @@ export function HomePage() {
           <label className="visually-hidden" htmlFor="newsletter-email">
             Correo electrónico
           </label>
+
           <input
             id="newsletter-email"
             type="email"
             placeholder="Tu correo electrónico"
             required
           />
-          <button className="archive-button archive-button--primary" type="submit">
+
+          <button
+            className="archive-button archive-button--primary"
+            type="submit"
+          >
             Suscribirme
           </button>
         </form>

@@ -1,7 +1,8 @@
-// Archivo: src/components/molecules/ProductCard/ProductCard.tsx
+
 import { Link } from 'react-router-dom';
 import type { Product } from '../../../types/product';
 import { formatPrice } from '../../../data/products';
+import { showAddedToCartNotification } from '../../../utils/cartNotifications';
 import { Button } from '../../atoms/Button/Button';
 
 interface ProductCardProps {
@@ -11,6 +12,15 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   const isOnSale = product.precioOriginal !== undefined;
+
+  const handleAddToCart = () => {
+    if (!onAddToCart || product.stock === 0) {
+      return;
+    }
+
+    onAddToCart(product);
+    showAddedToCartNotification(product.nombre);
+  };
 
   return (
     <article className="product-card">
@@ -46,7 +56,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
         <Button
           className="w-100"
           disabled={product.stock === 0}
-          onClick={() => onAddToCart?.(product)}
+          onClick={handleAddToCart}
         >
           {product.stock > 0 ? 'Añadir al carro' : 'Agotado'}
         </Button>
