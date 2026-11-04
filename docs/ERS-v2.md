@@ -1,206 +1,355 @@
 # Especificación de Requisitos de Software (ERS)
-**Estándar IEEE 830 · Proyecto ARCHIVE[src] · Revisión 2**
+
+**Estándar IEEE 830 · Proyecto ARCHIVE[src] · Revisión 3**
 
 **Asignatura:** Desarrollo Full Stack II (DSY1104) · Sección 002D
-**Profesor:** Cristian Armando Gomez Vega
 **Institución:** Duoc UC, Escuela de Informática y Telecomunicaciones
+**Fecha de actualización:** 04 de noviembre de 2026
+**Estado:** Documentación de la rama `feature/react-rebuild`
 
 ---
+## Historial de revisiones
 
-## Ficha del documento
-
-| Fecha | Revisión | Autor | Modificación |
-|---|---|---|---|
-| 08 de Septiembre de 2026 | 1 | Caden Alexander Nieto González | Propuesta inicial y especificación de requerimientos de software frontend para la Entrega 1 |
-| 15 de Octubre de 2026 | 2 | Caden Alexander Nieto González | Migración a React, nuevas vistas (categorías, ofertas, checkout), CRUD con persistencia local y pruebas unitarias con Jasmine y Karma (Entrega 2) |
-
----
+| Fecha | Revisión | Modificación |
+|---|---:|---|
+| 08-09-2026 | 1 | Propuesta inicial y especificación de requerimientos frontend para la Entrega 1. |
+| 15-10-2026 | 2 | Migración a React, nuevas vistas, CRUD con persistencia local y pruebas Jasmine/Karma. |
+| 04-11-2026 | 3 | Actualización de arquitectura, funcionalidades administrativas y de cliente, y estrategia de pruebas según la implementación de `feature/react-rebuild`. |
 
 ## 1. Introducción
 
-### 1.1. Propósito
-Este documento establece los requerimientos de software de la segunda etapa del proyecto **ARCHIVE[src]**, correspondiente a la Evaluación Parcial 2. Sirve como guía de construcción para el equipo técnico y como pauta de revisión para el docente de DSY1104.
+### 1.1 Propósito
 
-### 1.2. Ámbito del Sistema
-**Nombre del sistema:** ARCHIVE[src]
+Este documento especifica los requisitos funcionales y no funcionales de
+ARCHIVE[src] para la Evaluación Parcial 2. Describe el comportamiento
+esperado de la aplicación, sus restricciones, arquitectura frontend y
+estrategia de pruebas.
 
-**Lo que hará:** una aplicación web responsiva construida con React para explorar un catálogo de zapatillas, indumentaria y accesorios urbanos de archivo, con búsqueda y filtros por categoría; ver categorías y ofertas; consultar el detalle de cada producto; gestionar un carrito con persistencia local; completar un proceso de compra (checkout) con resultado exitoso o fallido; registrar usuarios e iniciar sesión validando contra una base de datos local; enviar consultas de contacto; y acceder a un panel administrativo por roles (Administrador y Vendedor) con mantenedores CRUD de productos y usuarios.
+### 1.2 Ámbito del sistema
 
-**Lo que NO hará:** no ejecuta cobros bancarios reales (el pago del checkout es simulado), no gestiona despachos con empresas de logística y no utiliza bases de datos relacionales ni servidor backend. La seguridad de contraseñas y sesiones es solo demostrativa.
+**Nombre:** ARCHIVE[src].
 
-**Beneficios y metas:** una base frontend modular, con componentes reutilizables, estado centralizado en contextos y pruebas unitarias, preparada para integrar un backend en etapas posteriores.
+ARCHIVE[src] es una aplicación web SPA para explorar y comprar de
+forma simulada zapatillas, indumentaria y accesorios urbanos. Incluye
+catálogo, búsqueda y filtros, categorías, ofertas, detalle de productos,
+carrito persistente, checkout con resultado de pago simulado,
+autenticación por roles, perfil de cliente y un panel administrativo
+para gestionar información de la tienda.
 
-### 1.3. Definiciones, Acrónimos y Abreviaturas
+La aplicación se ejecuta en el frontend. Los datos de usuarios,
+productos administrables, categorías, pedidos, sesión y carrito se
+almacenan localmente mediante `localStorage` y servicios frontend.
+
+**Fuera del alcance:** - Procesamiento de pagos bancarios reales. -
+Integración con empresas de despacho o seguimiento logístico. - API o
+servidor backend y base de datos remota. - Seguridad de producción para
+credenciales o sesiones. - Emisión de documentos tributarios oficiales.
+La boleta disponible es un comprobante interno de la compra simulada.
+
+### 1.3 Definiciones
+
 - **ERS:** Especificación de Requisitos de Software.
-- **RUN:** Rol Único Nacional (cédula de identidad chilena).
-- **SPA:** Single Page Application, aplicación de una sola página.
-- **Componente:** unidad reutilizable de interfaz en React.
-- **Props:** propiedades que un componente recibe de su padre.
-- **State (estado):** datos internos de un componente que, al cambiar, vuelven a renderizarlo.
-- **Context:** mecanismo de React para compartir estado global (sesión, carrito).
-- **Hook:** función de React (`useState`, `useContext`, `useEffect`) que da acceso a estado y ciclo de vida.
-- **CRUD:** Create, Read, Update, Delete.
-- **localStorage:** almacenamiento clave-valor del navegador, sin caducidad.
-- **Jasmine:** framework de pruebas unitarias. **Karma:** ejecutor de pruebas en navegador.
-- **Mock / Spy:** objeto o función simulada para aislar el código bajo prueba.
-- **Cobertura:** porcentaje del código ejecutado por las pruebas.
-- **Drop:** lanzamiento comercial limitado de productos de colección.
+- **SPA:** Single Page Application.
+- **Atomic Design:** organización de interfaz en Atoms, Molecules,
+    Organisms, Templates y Pages.
+- **Props:** propiedades recibidas por un componente React.
+- **State:** estado que controla la actualización de la interfaz.
+- **Context:** mecanismo React para compartir estado entre
+    componentes.
+- **Custom Hook:** función que encapsula lógica reutilizable de React.
+- **CRUD:** Create, Read, Update y Delete.
+- **localStorage:** almacenamiento clave-valor del navegador.
+- **Jasmine:** framework de pruebas.
+- **Karma:** ejecutor de pruebas en navegador.
+- **Mock/Spy:** sustituto o espía usado para aislar y observar una
+    dependencia durante una prueba.
 
-### 1.4. Referencias
+### 1.4 Referencias
+
 - Estándar IEEE 830-1998.
-- Pauta y Rúbrica de la Evaluación Parcial 2 y su Anexo 1 de instrucciones, DSY1104, Duoc UC.
-- ERS Revisión 1 (Evaluación 1), conservada en `docs/`.
-- Repositorio: https://github.com/Cadennnnnn/ARCHIVE-src (rama `feature/migracion-react`; versión anterior en `legacy-eval1/` y tag `v1.0-eval1`).
+- Pauta, rúbrica y Anexo 1 de la Evaluación Parcial 2, DSY1104, Duoc
+    UC.
+- Especificación de requisitos de ARCHIVE[src], revisión 1 y
+    revisión 2.
+- Repositorio del proyecto: https://github.com/Cadennnnnn/ARCHIVE-src.
 
-### 1.5. Visión General del Documento
-La Sección 2 describe la perspectiva global del producto, sus usuarios y restricciones. La Sección 3 detalla interfaces, requisitos funcionales, no funcionales, arquitectura y estrategia de pruebas.
+### 1.5 Visión general
 
----
+La sección 2 describe el producto, sus usuarios y restricciones. La
+sección 3 especifica interfaces, requisitos funcionales y no
+funcionales, arquitectura y pruebas.
 
-## 2. Descripción General
+## 2. Descripción general
 
-### 2.1. Perspectiva del Producto
-ARCHIVE[src] es una aplicación web autónoma de una sola página (SPA) centrada en el frontend. No depende de servicios backend: pedidos, usuarios, productos y sesión se persisten en `localStorage` a través de un módulo de datos (`src/data/db.js`) que expone operaciones CRUD. La navegación se divide en dos áreas, gestionadas por React Router: la **tienda** (`/`) y el **panel administrativo** (`/admin`), este último protegido por rol.
+### 2.1 Perspectiva del producto
 
-### 2.2. Funciones del Producto
-- **Exploración y filtrado:** catálogo con tarjetas responsivas, búsqueda por nombre o código y filtro por categoría.
-- **Categorías y Ofertas:** vistas dedicadas; las ofertas muestran precio rebajado y precio original tachado.
-- **Ficha de producto:** detalle por URL (`/productos/:id`) con selector de talla, cantidad y stock.
-- **Carrito:** altas, cambio de cantidad, eliminación, totales y persistencia entre sesiones.
-- **Checkout:** formulario de envío (precargado si hay sesión), opción de entrega y pago simulado con resultado exitoso o fallido.
-- **Autenticación:** registro y login validados contra la base local, con rol asignado.
-- **Panel administrativo:** dashboard con métricas reales, CRUD de productos y CRUD de usuarios (solo Administrador).
-- **Contenido:** Nosotros, Blogs con detalle y formulario de Contacto.
+ARCHIVE[src] es una aplicación frontend construida con React y Vite.
+React Router administra la navegación entre la tienda, autenticación,
+perfil y panel administrativo. No requiere backend: los servicios
+frontend gestionan la lectura y escritura de datos en `localStorage`.
 
-### 2.3. Características de los Usuarios
-- **Cliente:** usuario general; solo requiere conocimientos básicos de navegación web.
-- **Vendedor:** empleado de tienda; revisa inventario y pedidos. No accede a la gestión de usuarios.
-- **Administrador:** encargado técnico y comercial; gestiona catálogo y cuentas.
+La lógica reutilizable se distribuye entre Custom Hooks, servicios,
+contextos y utilidades. La interfaz se organiza siguiendo Atomic Design.
 
-### 2.4. Restricciones
-- **Políticas académicas:** cumplimiento de la rúbrica de DSY1104 para la Evaluación 2.
-- **Tecnología obligatoria:** framework **React** (con Vite), Bootstrap 5 para diseño responsivo, y Jasmine + Karma para pruebas unitarias.
-- **Componentes:** cada componente debe seguir el principio de responsabilidad única, usar props para recibir datos y manejar estado propio solo cuando sea necesario.
-- **Diseño e identidad:** estética minimalista monocromática con acento azul marino `#1B2A4A`.
-- **Almacenamiento:** limitado a `localStorage`.
-- **Repositorio:** se mantiene el mismo repositorio de la Evaluación 1.
+**Limitación de sincronización:** el inventario gestionado desde el
+panel administrativo utiliza su propia persistencia local y no se
+encuentra sincronizado automáticamente con el catálogo estático inicial
+de la tienda. No debe interpretarse como un sistema de inventario
+conectado a una base de datos central.
 
-### 2.5. Suposiciones y Dependencias
-- El usuario accede con un navegador moderno compatible con ECMAScript 2020 y HTML5.
-- Bootstrap 5, SweetAlert2 y React Router se instalan vía npm y se empaquetan con Vite. Las fuentes (Google Fonts) y algunas imágenes de productos se cargan desde servidores externos.
-- La persistencia depende de que el navegador tenga habilitado `localStorage`.
-- Las pruebas requieren Node.js (v18 o superior) y Google Chrome. Karma no admite rutas con corchetes (`[ ]`) en Windows, por lo que deben ejecutarse desde una ruta sin ellos.
+### 2.2 Funciones del producto
 
-### 2.6. Requisitos Futuros
-- API RESTful con framework backend (Node.js/Express, Spring Boot o Django).
-- Base de datos relacional (PostgreSQL u Oracle) con contraseñas cifradas.
-- Pasarela de pago real (Webpay Plus).
-- Pruebas de integración de páginas completas (checkout y panel admin).
+- Catálogo de productos con búsqueda y filtros.
+- Vistas de categorías y ofertas.
+- Detalle de producto con tallas, stock y selección de cantidad.
+- Carrito con modificación de cantidades, eliminación, cálculo de
+    subtotal y persistencia.
+- Checkout con datos de envío y pago simulado.
+- Registro, inicio de sesión y control de acceso según rol.
+- Perfil de cliente con edición de datos personales, direcciones y
+    métodos de pago guardados.
+- Historial de pedidos del cliente y consulta de comprobante interno
+    (boleta).
+- Panel administrativo con dashboard.
+- Gestión administrativa de productos, usuarios y categorías.
+- Consulta de pedidos y detalle de órdenes.
+- Identificación de productos con stock crítico.
+- Reportes administrativos con filtros y exportación CSV.
+- Páginas Nosotros, Blogs, detalle de blog y Contacto.
+- Página 404 para rutas no encontradas.
 
----
+### 2.3 Tipos de usuario
 
-## 3. Requisitos Específicos
+- **Cliente:** navega por la tienda, administra su perfil, realiza
+    compras simuladas y consulta sus pedidos y comprobantes.
+- **Vendedor:** accede a las funciones administrativas autorizadas
+    para su rol, como consulta y gestión operativa de inventario y
+    pedidos. No tiene acceso a la gestión administrativa de usuarios.
+- **Administrador:** dispone de las funciones administrativas,
+    incluida la gestión de usuarios.
 
-### 3.1. Requisitos comunes de las interfaces
+Las rutas administrativas están protegidas por autenticación y
+autorización por rol.
 
-#### 3.1.1. Interfaces de usuario
-- **Navegación:** barra superior con logo, enlaces (Home, Productos, Categorías, Ofertas, Nosotros, Blogs, Contacto), acceso a sesión/registro, saludo y salida cuando hay sesión activa, enlace al panel para el personal y botón de carrito con contador dinámico.
-- **Paleta y tipografía:** fondo blanco `#FFFFFF`, gris suave `#F8F9FA`, bordes `#E5E5E5`, tipografía Inter en pesos altos y acentos en azul marino `#1B2A4A`.
-- **Pie de página:** créditos, enlaces por categoría, información y redes.
-- **Panel administrativo:** diseño propio con barra lateral, que oculta "Gestión Usuarios" al Vendedor.
-- **Retroalimentación:** mensajes de error bajo cada campo y alertas/toasts con SweetAlert2.
+### 2.4 Restricciones
 
-#### 3.1.2. Interfaces de hardware
-Escritorio (≥ 1024 px) y dispositivos móviles táctiles (desde 320 px), mediante la grilla de Bootstrap.
+- Framework frontend: React.
+- Lenguaje de aplicación: TypeScript.
+- Herramienta de desarrollo y build: Vite.
+- Navegación: React Router.
+- Estilos y diseño responsivo: Bootstrap 5 y CSS del proyecto.
+- Alertas: SweetAlert2.
+- Pruebas: Jasmine y Karma.
+- Persistencia: `localStorage`.
+- No se utiliza backend ni base de datos remota.
+- La interfaz debe mantener una organización por Atomic Design y
+    separar la lógica de negocio de la presentación.
 
-#### 3.1.3. Interfaces de software
-- React 19 y React DOM; React Router (rutas, rutas anidadas y rutas protegidas).
-- Vite como herramienta de desarrollo y empaquetado.
-- Bootstrap 5.3 y SweetAlert2 vía npm.
-- Pruebas: Jasmine, Karma, ChromeHeadless, Webpack, Babel, Testing Library e Istanbul.
-- Git y GitHub para control de versiones.
+### 2.5 Suposiciones y dependencias
 
-#### 3.1.4. Interfaces de comunicación
-Entrega de activos estáticos mediante HTTP/HTTPS. No hay comunicación con servidores de datos.
+- El usuario dispone de un navegador moderno compatible con las APIs
+    utilizadas por React.
+- El navegador permite el uso de `localStorage`.
+- Las pruebas se ejecutan en un entorno con Node.js y Google
+    Chrome/ChromeHeadless instalados.
+- Los recursos externos, como imágenes y fuentes, dependen de su
+    disponibilidad en sus respectivos servidores.
 
-### 3.2. Requisitos funcionales
+### 2.6 Requisitos futuros y limitaciones conocidas
+
+- Incorporar backend y API para centralizar usuarios, productos,
+    inventario y pedidos.
+- Incorporar base de datos persistente y almacenamiento seguro de
+    credenciales.
+- Integrar una pasarela de pago real.
+- Sincronizar el inventario administrativo con el catálogo de la
+    tienda.
+- Integrar servicios de despacho.
+- Incorporar video embebido en los artículos del blog (RF-18,
+    pendiente).
+- Ampliar pruebas de integración para checkout, autenticación, CRUD y
+    rutas protegidas.
+
+## 3. Requisitos específicos
+
+### 3.1 Interfaces
+
+#### 3.1.1 Interfaz de usuario
+
+La tienda dispone de navegación hacia Inicio, Productos, Categorías,
+Ofertas, Nosotros, Blogs y Contacto, además de acceso a autenticación,
+perfil y carrito según el estado de sesión.
+
+El panel administrativo utiliza una estructura de navegación propia. Las
+opciones visibles y accesibles dependen del rol autenticado.
+
+La interfaz debe presentar mensajes de validación y retroalimentación
+para las operaciones relevantes.
+
+#### 3.1.2 Hardware y diseño adaptable
+
+La aplicación está diseñada para escritorio, tabletas y dispositivos
+móviles mediante CSS y grillas responsivas de Bootstrap. La
+compatibilidad exacta debe verificarse en los tamaños definidos por la
+pauta del proyecto.
+
+#### 3.1.3 Interfaces de software
+
+La implementación utiliza React, React DOM, TypeScript, Vite, React
+Router, Bootstrap, SweetAlert2, Jasmine, Karma, Webpack, Babel, Testing
+Library e Istanbul, según las dependencias y configuración del proyecto.
+
+#### 3.1.4 Comunicación
+
+No existe comunicación con un backend de datos. Los recursos estáticos
+pueden obtenerse desde servidores externos; las operaciones de negocio
+descritas se ejecutan localmente en el navegador.
+
+### 3.2 Requisitos funcionales
 
 | Código | Requisito | Actor | Descripción |
 |---|---|---|---|
-| RF-01 | Visualización del catálogo | Cliente/Vendedor/Admin | El sistema debe renderizar tarjetas (`ProductCard`) desde la base local, mostrando imagen, nombre, categoría, precio en pesos chilenos y botones de acción. |
-| RF-02 | Búsqueda y filtros | Cliente | Debe permitir filtrar por texto (nombre o código) y por categoría, mostrando un mensaje cuando no hay coincidencias. |
-| RF-03 | Categorías | Cliente | La vista `/categorias` debe separar los productos por categoría mediante botones y parámetro de URL. |
-| RF-04 | Ofertas | Cliente | La vista `/ofertas` debe listar solo productos con precio de oferta, mostrando el precio rebajado y el original tachado. |
-| RF-05 | Ficha de detalle | Cliente | La ruta `/productos/:id` debe mostrar descripción, selector de talla, cantidad limitada por stock y botón de compra; si el producto no existe debe mostrar un mensaje. |
-| RF-06 | Carrito con persistencia | Cliente | Debe permitir añadir, aumentar, disminuir y eliminar artículos, calcular subtotales y total, aplicar el precio de oferta y persistir en `localStorage`. |
-| RF-07 | Checkout | Cliente | Debe solicitar nombre, apellidos, correo, región, comuna, dirección y opción de entrega, con validaciones. Si hay sesión, los datos se precargan. No permite ingresar con el carrito vacío. |
-| RF-08 | Resultado de compra | Cliente | Tras el pago simulado debe mostrar una vista de compra exitosa con número de orden y resumen (y registrar el pedido), o una vista de pago fallido que conserva el carrito. |
-| RF-09 | Registro de usuario | Cliente | Debe validar: RUN (7 a 9 caracteres, sin puntos ni guion), nombre (máx. 50), apellidos (máx. 100), correo (máx. 100, dominios `@duoc.cl`, `@profesor.duoc.cl` o `@gmail.com`), contraseña (4 a 10) con confirmación, región, comuna y dirección (máx. 300). Rechaza RUN o correo duplicados. |
-| RF-10 | Selectores región/comuna | Cliente/Admin | Al elegir una región, el selector de comunas debe actualizarse con las comunas de esa región. |
-| RF-11 | Inicio de sesión | Cliente/Admin/Vendedor | Debe validar formato de correo y contraseña (4 a 10) y autenticar contra los usuarios almacenados. El personal es redirigido al panel y el cliente a la tienda. |
-| RF-12 | Formulario de contacto | Cliente | Debe validar nombre (máx. 100), correo autorizado y mensaje obligatorio (máx. 500). |
-| RF-13 | Control de acceso por rol | Admin/Vendedor | Las rutas `/admin` deben estar protegidas: sin sesión redirigen a `/login`, un Cliente es enviado a la tienda y la gestión de usuarios solo está disponible para el Administrador. |
-| RF-14 | Dashboard | Admin/Vendedor | Debe mostrar en tiempo real la cantidad de productos, usuarios (solo Administrador), pedidos e ingresos acumulados. |
-| RF-15 | CRUD de productos | Admin/Vendedor | Debe permitir crear, editar y eliminar productos (con confirmación). Código con formato `ABC-123` y único, categoría obligatoria, precio entero mayor a 0, oferta menor al precio y stock entero ≥ 0. |
-| RF-16 | CRUD de usuarios | Admin | Debe permitir crear, editar (RUN inmutable, contraseña opcional) y eliminar usuarios, asignando el rol mediante lista desplegable. No permite eliminar la propia cuenta. El rol no es editable en el registro público. |
-| RF-17 | Contenido editorial | Cliente | Debe incluir la página Nosotros y un listado de blogs con vista de detalle por artículo. |
-| RF-18 | Contenido multimedia en blogs | Cliente | Los detalles de blog deben incorporar video embebido. **[Pendiente de implementar en esta entrega]** |
-| RF-19 | Página no encontrada | Cliente | Toda ruta inexistente debe mostrar una página 404 con enlace al inicio. |
+| RF-01 | Catálogo | Cliente/Vendedor/Admin | Mostrar productos con imagen, nombre, categoría y precio. |
+| RF-02 | Búsqueda y filtros | Cliente | Filtrar productos por texto y categoría y comunicar cuando no existan coincidencias. |
+| RF-03 | Categorías | Cliente | Mostrar la vista de categorías y permitir navegar a productos de una categoría. |
+| RF-04 | Ofertas | Cliente | Mostrar productos con precio rebajado y precio original cuando corresponda. |
+| RF-05 | Detalle de producto | Cliente | Mostrar información del producto y permitir seleccionar talla y cantidad respetando el stock disponible. |
+| RF-06 | Carrito persistente | Cliente | Agregar, actualizar y eliminar productos; calcular subtotales y conservar el carrito en `localStorage`. |
+| RF-07 | Checkout | Cliente | Recopilar datos de envío, validar la información y procesar un pago simulado. No debe permitir continuar con el carrito vacío. |
+| RF-08 | Resultado de compra | Cliente | Registrar el pedido y mostrar resultado aceptado o declinado. Si el pago es declinado, conservar el carrito. |
+| RF-09 | Registro | Cliente | Validar los datos requeridos y evitar duplicidad de identificadores y correo según las reglas implementadas. |
+| RF-10 | Región y comuna | Cliente/Admin | Permitir seleccionar región y comuna mediante los datos geográficos disponibles en la aplicación. |
+| RF-11 | Inicio de sesión | Cliente/Admin/Vendedor | Validar credenciales locales y establecer una sesión con el rol correspondiente. |
+| RF-12 | Contacto | Cliente | Presentar un formulario de contacto con validación de campos. |
+| RF-13 | Control de acceso | Cliente/Admin/Vendedor | Restringir rutas administrativas según autenticación y rol. La gestión de usuarios corresponde al Administrador. |
+| RF-14 | Dashboard | Admin/Vendedor | Mostrar indicadores administrativos derivados de los datos locales disponibles. |
+| RF-15 | CRUD de productos | Admin/Vendedor | Crear, consultar, editar y eliminar productos del inventario administrativo con validaciones. El inventario administrativo no está sincronizado automáticamente con el catálogo inicial de la tienda. |
+| RF-16 | CRUD de usuarios | Admin | Crear, consultar, editar y eliminar usuarios según las restricciones de la aplicación. Permitir consultar el historial de compras del usuario seleccionado. |
+| RF-17 | Contenido editorial | Cliente | Mostrar la página Nosotros, el listado de blogs y el detalle de cada artículo. |
+| RF-18 | Video en blogs | Cliente | Incorporar video embebido en los detalles de blog. **Pendiente de implementación.** |
+| RF-19 | Página 404 | Todos | Mostrar una página de recurso no encontrado para rutas inexistentes. |
+| RF-20 | Gestión de categorías | Admin/Vendedor | Administrar categorías disponibles mediante las funciones del panel y utilizarlas en las vistas de categorías y filtros de la tienda. |
+| RF-21 | Stock crítico | Admin/Vendedor | Identificar y mostrar productos cuyo stock cumpla la condición de stock crítico configurada por la aplicación. |
+| RF-22 | Gestión de pedidos | Admin/Vendedor | Consultar pedidos registrados y acceder al detalle de una orden. |
+| RF-23 | Reportes | Admin/Vendedor | Consultar indicadores de pedidos y ventas, aplicar filtros disponibles y exportar los resultados a CSV. Los cálculos utilizan los pedidos guardados localmente. |
+| RF-24 | Perfil del cliente | Cliente | Consultar y actualizar datos personales y administrar direcciones y métodos de pago guardados. |
+| RF-25 | Historial y boletas | Cliente | Consultar los pedidos asociados a la cuenta y abrir el comprobante interno de una orden propia. El comprobante no constituye un documento tributario. |
+### 3.3 Requisitos no funcionales
 
-### 3.3. Requisitos no funcionales
+#### 3.3.1 Rendimiento
 
-#### 3.3.1. Rendimiento
-- El renderizado de las vistas principales debe completarse en menos de 300 ms en condiciones normales de hardware.
-- El cambio entre vistas no debe recargar la página (SPA).
+La aplicación debe mantener navegación SPA sin recarga completa entre
+vistas. No se establece un resultado de rendimiento medido en
+milisegundos sin una prueba de rendimiento documentada.
 
-#### 3.3.2. Seguridad
-- Validación de entradas en cliente mediante funciones puras reutilizables (`src/utils/validaciones.js`).
-- Control de acceso por rol mediante `ProtectedRoute`.
-- La autenticación no expone la contraseña en el objeto de sesión.
-- **Limitación conocida:** las contraseñas se almacenan sin cifrar en `localStorage`; es aceptable solo por tratarse de una simulación sin backend.
+#### 3.3.2 Seguridad
 
-#### 3.3.3. Fiabilidad
-El carrito y la sesión deben tolerar recargas del navegador sin pérdida de datos. La lectura de `localStorage` debe manejar datos corruptos sin romper la aplicación.
+- Validar entradas en el frontend.
+- Proteger rutas mediante componentes de autorización.
+- Evitar exponer contraseñas en el objeto de sesión.
+- Restringir el acceso a datos de pedidos y comprobantes según la
+    cuenta autenticada.
+- **Limitación:** `localStorage` y la autenticación frontend no
+    proporcionan seguridad equivalente a un backend. Las credenciales y
+    datos locales no deben considerarse protegidos para producción.
 
-#### 3.3.4. Disponibilidad
-Al ser una aplicación de archivos estáticos, puede alojarse en cualquier servidor web o servicio de hosting estático.
+#### 3.3.3 Fiabilidad
 
-#### 3.3.5. Mantenibilidad
-- Componentes de responsabilidad única, organizados en `components/`, `pages/`, `context/`, `data/` y `utils/`.
-- Lógica de negocio en funciones puras, fáciles de probar.
-- Estilos centralizados en `src/styles/styles.css`.
-- Control de versiones con Conventional Commits en una rama de trabajo.
-- Pruebas automatizadas que permiten refactorizar con seguridad.
+El carrito y la sesión utilizan persistencia local. La lectura de datos
+almacenados debe contemplar valores ausentes o inválidos para evitar
+fallos de la interfaz.
 
-#### 3.3.6. Portabilidad
-Funciona en Windows, macOS y Linux con un navegador moderno. El diseño responsivo cubre móviles (320 a 768 px), tabletas (768 a 1024 px) y escritorio (> 1024 px).
+#### 3.3.4 Disponibilidad
 
-#### 3.3.7. Testeabilidad
-El código debe poder verificarse mediante pruebas unitarias con Jasmine y Karma, con un mínimo de 10 pruebas que validen lógica, renderizado, propiedades, estado y eventos.
+La aplicación puede desplegarse como frontend estático. La persistencia
+depende del navegador y del dispositivo donde se utiliza.
 
-### 3.4. Arquitectura de la solución
+#### 3.3.5 Mantenibilidad
 
-```
+- Organizar la interfaz mediante Atomic Design.
+- Mantener componentes enfocados en una responsabilidad.
+- Reutilizar lógica mediante Custom Hooks, servicios y utilidades.
+- Mantener el estado compartido en contextos cuando corresponda.
+- Separar tipos, datos, presentación y lógica de negocio.
+- Mantener pruebas automatizadas para reducir regresiones.
+
+#### 3.3.6 Portabilidad
+
+La aplicación debe funcionar en navegadores modernos compatibles con
+React y `localStorage`. El comportamiento responsivo debe validarse en
+dispositivos móviles, tabletas y escritorio.
+
+#### 3.3.7 Testeabilidad
+
+La suite utiliza Jasmine y Karma. La ejecución documentada contiene 43
+pruebas unitarias que verifican validaciones, renderizado, props,
+estado, eventos, navegación y comportamiento del carrito. El detalle y
+los límites de cobertura se describen en `docs/cobertura-testing.md`.
+
+### 3.4 Arquitectura de la solución
+
+La estructura principal del frontend es:
+
+``` text
 src/
-├── components/   layout (Navbar, Footer, AdminLayout) · products · cart · forms · common
-├── pages/        store/ (tienda) · admin/ (panel)
-├── context/      AuthContext (sesión y roles) · CartContext (carrito)
-├── data/         db.js (CRUD en localStorage) · chileGeo.js · blogs.js
-└── utils/        validaciones · filtros · formatters · precios · alerts
-spec/             pruebas Jasmine
+├── components/
+│   ├── atoms/
+│   ├── molecules/
+│   ├── organisms/
+│   └── templates/
+├── pages/
+│   ├── admin/
+│   ├── auth/
+│   └── store/
+├── context/
+├── hooks/
+├── services/
+├── data/
+├── routes/
+├── types/
+├── styles/
+└── utils/
+spec/
+├── components/
+├── context/
+└── validation/
 ```
 
-- **Estado global:** `AuthContext` (usuario, login, logout, roles) y `CartContext` (ítems, totales).
-- **Estado local:** formularios, filtros y selección de talla con `useState`.
-- **Persistencia:** `db.js` expone CRUD de productos, usuarios y pedidos sobre `localStorage`.
+**Responsabilidades principales:**
 
-### 3.5. Estrategia de pruebas
-- **Herramientas:** Jasmine, Karma, ChromeHeadless, Webpack, Babel, Testing Library e Istanbul.
-- **Alcance:** 22 pruebas que cubren renderizado, renderizado condicional, props, estado y eventos.
-- **Mocks:** spies de Jasmine, `localStorage` simulado y `MemoryRouter`.
-- **Cobertura obtenida:** sentencias 72 %, ramas 65 %, funciones 79,48 % y líneas 74,7 %.
-- **Detalle:** ver `docs/cobertura-testing.md`.
+- `components/`: componentes reutilizables organizados mediante Atomic
+    Design.
+- `pages/`: composición de vistas completas por área funcional.
+- `context/`: estado compartido de autenticación y carrito.
+- `hooks/`: lógica reutilizable y coordinación de operaciones para las
+    vistas.
+- `services/`: operaciones de negocio y persistencia local.
+- `data/`: datos iniciales y contenido local.
+- `routes/`: protección y control de acceso a rutas.
+- `types/`: contratos TypeScript.
+- `styles/`: estilos globales y específicos.
+- `utils/`: validaciones y funciones auxiliares.
+- `spec/`: pruebas automatizadas.
 
-### 3.6. Otros Requisitos
-- **Repositorio público:** el código se mantiene en https://github.com/Cadennnnnn/ARCHIVE-src, en el mismo repositorio de la Evaluación 1.
-- **Entregables:** enlace a GitHub, proyecto comprimido, este documento ERS (v2) y el documento de cobertura de testing.
+### 3.5 Estrategia de pruebas
+
+- **Framework:** Jasmine.
+- **Ejecutor:** Karma con ChromeHeadless.
+- **Transpilación y empaquetado de pruebas:** Webpack y Babel.
+- **Interacción de componentes:** React DOM y Testing Library.
+- **Cobertura:** Istanbul mediante `babel-plugin-istanbul` y
+    `karma-coverage`.
+- **Ejecución:** `npm run test`.
+
+La suite documentada contiene 43 pruebas: 11 pruebas de componentes y
+páginas, 18 pruebas del contexto del carrito y 14 pruebas de validación.
+Ver `docs/cobertura-testing.md` para resultados, alcance y limitaciones.
+
+### 3.6 Entregables
+
+- Repositorio público del proyecto.
+- Proyecto frontend.
+- ERS actualizado.
+- Documento de cobertura de testing.
+- Evidencias de ejecución y explicación del proceso de pruebas, de
+    acuerdo con la pauta de evaluación.
