@@ -1,20 +1,18 @@
 # Documento de Cobertura de Testing
 
-**Proyecto:** ARCHIVE[src] --- Tienda online
+**Proyecto:** ARCHIVE[src] — Tienda online
 **Asignatura:** DSY1104 Desarrollo Full Stack II · Duoc UC
-**Fecha de actualización documental:** 04/11/2026
+**Fecha de actualización:** 04/11/2026
 **Rama:** `feature/react-rebuild`
 **Repositorio:** https://github.com/Cadennnnnn/ARCHIVE-src
 
 ---
+
 ## 1. Objetivo
 
-Documentar el alcance de la suite de pruebas unitarias del frontend
-React, las herramientas utilizadas, los comportamientos verificados, los
-resultados de cobertura y las limitaciones que permanecen pendientes.
+Documentar el entorno de pruebas automatizadas del frontend React, los comportamientos verificados, las herramientas utilizadas, los resultados de ejecución y las limitaciones de cobertura.
 
-La suite verifica funciones de validación, renderizado de componentes y
-páginas, props, estado, eventos, navegación y operaciones del carrito.
+La suite contempla pruebas de validación, renderizado, props, estado, eventos, navegación, contextos, servicios, rutas protegidas y procesamiento del checkout.
 
 ## 2. Entorno de pruebas
 
@@ -23,193 +21,126 @@ páginas, props, estado, eventos, navegación y operaciones del carrito.
 | Jasmine | Framework de pruebas: `describe`, `it`, `expect` y spies. |
 | Karma | Ejecutor de pruebas en navegador. |
 | ChromeHeadless | Navegador utilizado por Karma. |
-| Webpack + Babel | Empaquetado y transpilación de los archivos de prueba. |
-| Testing Library | Utilidades para disparar eventos en componentes React. |
-| React DOM | Montaje y desmontaje de componentes mediante `createRoot`. |
+| Webpack | Empaquetado de los archivos de prueba. |
+| Babel | Transpilación de código. |
+| Testing Library | Utilidades para interactuar con componentes React. |
+| React DOM | Montaje y desmontaje mediante `createRoot`. |
 | Istanbul | Instrumentación y medición de cobertura. |
 
 La configuración se encuentra en `karma.conf.cjs`.
 
 ### 2.1 Archivos de prueba
 
+La suite incluye pruebas en las siguientes áreas:
+
 - `spec/components/componentBehavior.spec.tsx`
 - `spec/context/CartContext.spec.tsx`
+- `spec/context/AuthContext.spec.tsx`
 - `spec/validation/authValidation.spec.ts`
+- `spec/services/productService.spec.ts`
+- `spec/services/userService.spec.ts`
+- `spec/services/authService.spec.ts`
+- `spec/service/productService.spec.ts`
+- `spec/service/userService.spec.ts`
+- `spec/service/authService.spec.ts`
+- `spec/service/orderService.spec.ts`
+- `spec/routes/ProtectedRoute.spec.tsx`
+- `spec/hooks/useCheckout.spec.tsx`
 
-### 2.2 Ejecución
+## 3. Ejecución y resultados
 
-Desde la raíz del proyecto:
+Para ejecutar la suite desde la raíz del proyecto:
+
 ```bash
 npm run test
 ```
 
-Karma ejecuta las pruebas en ChromeHeadless y genera reportes HTML, LCOV
-y resumen de cobertura en el directorio `coverage/`.
+La última ejecución validada registró:
 
-## 3. Resultados de ejecución
-
-La última ejecución validada antes de esta actualización documental
-registró **43 pruebas exitosas y 0 fallidas**.
-
-| Métrica | Resultado registrado |
+| Métrica | Resultado |
 |---|---:|
-| Pruebas exitosas | 43 |
+| Pruebas exitosas | 135 |
 | Pruebas fallidas | 0 |
-| Statements | 70,86 % (107/151) |
-| Branches | 54,08 % (53/98) |
-| Functions | 89,36 % (42/47) |
-| Lines | 70,83 % (102/144) |
+| Statements | 85,74 % (391/456) |
+| Branches | 77,97 % (223/286) |
+| Functions | 94,95 % (113/119) |
+| Lines | 85,90 % (378/440) |
 
-**Importante:** estos porcentajes corresponden a la última ejecución
-validada disponible y a los módulos instrumentados por la configuración
-de pruebas. Antes de entregar o integrar cambios posteriores, se debe
-volver a ejecutar `npm run test` y reemplazar esta tabla si los
-resultados cambian. No representan cobertura exhaustiva de todos los
-archivos de la aplicación.
+La ejecución se realizó con Karma y ChromeHeadless. El reporte detallado se genera en `coverage/`.
 
-El reporte HTML detallado se genera en `coverage/` y no se versiona.
+Los porcentajes corresponden al código instrumentado por la configuración de cobertura y no representan necesariamente todos los archivos de la aplicación.
 
-## 4. Detalle de las pruebas
+## 4. Alcance de las pruebas
 
-  ---------------------------------------------------------------------------
-  Archivo / grupo           N.º de pruebas Tipo             Qué verifica
-  ------------------ --------------------- ---------------- -----------------
-  `ProductCard`                          1 Renderizado y    Datos del
-                                           props            producto, imagen,
-                                                            categoría e
-                                                            insignia de
-                                                            oferta.
+La suite verifica los siguientes comportamientos:
 
-  `Button`                               2 Props y eventos  Variante visual,
-                                                            contenido y
-                                                            ejecución de
-                                                            `onClick`.
-
-  `FormInput`                            1 Estado y eventos Actualización del
-                                                            valor de un
-                                                            componente
-                                                            controlado al
-                                                            escribir.
-
-  `BlogCard`                             2 Props y          Datos del
-                                           navegación       artículo, imagen
-                                                            y destinos de los
-                                                            enlaces.
-
-  `BlogsPage`                            1 Renderizado      Encabezado y
-                                                            listado de
-                                                            artículos
-                                                            publicados.
-
-  `BlogDetailPage`                       2 Renderizado y    Contenido según
-                                           navegación       slug y
-                                                            redirección
-                                                            cuando no existe.
-
-  `AboutPage`                            2 Renderizado y    Manifiesto,
-                                           navegación       pilares de
-                                                            autenticidad y
-                                                            enlace a
-                                                            productos.
-
-  `CartContext` /                       18 Estado y lógica  Inicialización,
-  `useCart`                                                 persistencia,
-                                                            almacenamiento
-                                                            inválido, stock,
-                                                            agregar
-                                                            productos,
-                                                            tallas,
-                                                            cantidades,
-                                                            eliminación,
-                                                            limpieza,
-                                                            subtotal y uso
-                                                            fuera del
-                                                            proveedor.
-
-  `authValidation`                      14 Lógica           RUN, dominios de
-                                                            correo, reglas de
-                                                            contraseña,
-                                                            validación y
-                                                            normalización de
-                                                            teléfonos móviles
-                                                            chilenos.
-
-  **Total**                         **43**
-  ---------------------------------------------------------------------------
+- **Componentes:** renderizado, contenido, propiedades y eventos.
+- **Formularios:** actualización de estado y validaciones.
+- **Carrito:** inicialización, persistencia, cantidades, tallas, stock, eliminación y subtotal.
+- **Autenticación:** validación de credenciales, contexto y sesión.
+- **Servicios:** operaciones de productos, usuarios, autenticación y pedidos.
+- **Rutas protegidas:** acceso según autenticación y rol.
+- **Checkout:** rechazo de operaciones inválidas, creación de pedidos, datos de envío, persistencia, pagos aceptados y declinados, y manejo de errores.
 
 ### 4.1 Correspondencia con criterios de evaluación
 
 | Criterio | Evidencia |
 |---|---|
-| Renderizado | ProductCard, BlogsPage, BlogDetailPage y AboutPage. |
-| Props | Button y BlogCard reciben y representan propiedades. |
-| Estado | FormInput mediante un componente controlado y CartContext mediante operaciones sobre estado compartido. |
-| Eventos | Button mediante click, FormInput mediante change y operaciones del carrito mediante interacción. |
-| Navegación | BlogCard, BlogDetailPage y AboutPage mediante MemoryRouter. |
-| Renderizado condicional | BlogDetailPage cuando el slug solicitado no existe. |
-| Lógica de validación | RUN, correo, contraseña y teléfono móvil chileno. |
-| Persistencia | CartContext mediante `localStorage`. |
-  -----------------------------------------------------------------------
+| Renderizado | Pruebas de componentes y páginas. |
+| Props | Verificación de propiedades recibidas por componentes. |
+| Estado | Formularios controlados y contextos React. |
+| Eventos | Interacción mediante eventos click y change. |
+| Navegación | Pruebas con MemoryRouter. |
+| Renderizado condicional | Contenido según datos y rutas disponibles. |
+| Lógica de negocio | Validaciones y servicios. |
+| Persistencia | Verificación de datos almacenados en localStorage. |
+| Integración | Pruebas de AuthContext, rutas protegidas y useCheckout. |
 
-## 5. Uso de spies, aislamiento y almacenamiento
+## 5. Uso de mocks y spies
 
-- **Spy de Jasmine:** `jasmine.createSpy` permite observar la
-    ejecución del callback `onClick` del botón.
-- **MemoryRouter:** permite comprobar destinos y navegación sin
-    depender de un servidor o de la navegación real del navegador.
-- **Componente controlado:** el formulario de prueba permite comprobar
-    el cambio de estado React al modificar un campo.
-- **DOM aislado:** las pruebas de componentes montan un contenedor
-    propio mediante `createRoot` y lo desmontan al finalizar.
-- **localStorage:** las pruebas del carrito limpian el almacenamiento
-    antes y después de cada caso y verifican recuperación, persistencia
-    y tratamiento de datos inválidos.
+Se utilizan spies de Jasmine para observar o simular comportamientos durante las pruebas.
 
-Las pruebas no implementan mocks de API ni de servicios externos. El
-almacenamiento local se utiliza directamente en las pruebas del carrito;
-no debe describirse como una API simulada.
+Ejemplos implementados:
 
-## 6. Análisis de resultados y limitaciones
+- `jasmine.createSpy('onClick')`: permite verificar que el callback de un botón se ejecute cuando el usuario realiza click.
+- `spyOn(console, 'error')`: intercepta mensajes de error generados durante una prueba de uso incorrecto de `useCart`.
+- `spyOn(Storage.prototype, 'setItem').and.throwError(...)`: simula un fallo de persistencia para verificar el manejo de errores del checkout.
 
-La suite demuestra pruebas de renderizado, props, estado, eventos,
-navegación, validación y persistencia del carrito. Las 43 pruebas
-superan el mínimo de 10 pruebas indicado para el proyecto.
+El último caso permite comprobar que, cuando falla el guardado del pedido, el hook muestra un mensaje de error, restablece el estado de procesamiento y conserva los productos del carrito.
 
-La cobertura de funciones registrada es superior a la cobertura de
-ramas. El 54,08 % de ramas indica que existen condiciones y caminos
-alternativos del código instrumentado que no han sido ejercitados por
-esta suite.
+También se utiliza `MemoryRouter` para probar navegación sin depender de un servidor ni de la navegación real del navegador.
 
-### 6.1 Escenarios no cubiertos actualmente por esta suite
+**Limitación:** no se implementan mocks de API ni de servicios externos. Las pruebas de persistencia utilizan `localStorage` del navegador, salvo cuando se intercepta deliberadamente su método `setItem` mediante un spy.
 
-- Flujo completo de autenticación y autorización por roles.
-- Integración del checkout y sus resultados aceptado/declinado.
-- Operaciones CRUD de productos, usuarios y categorías.
-- Protección de rutas administrativas.
-- Flujo completo de pedidos, reportes y generación de boletas.
-- Pruebas de integración entre páginas y servicios.
-- Comportamiento con API o backend, ya que la aplicación no utiliza
-    uno.
+## 6. Análisis de resultados
 
-### 6.2 Oportunidades de mejora
+Las 135 pruebas finalizaron correctamente, sin errores de ejecución.
 
-- Ampliar pruebas de ramas y condiciones.
-- Incorporar pruebas del checkout y procesamiento de pedidos.
-- Probar CRUD de inventario, usuarios y categorías.
-- Incorporar pruebas de rutas protegidas y permisos por rol.
-- Ampliar pruebas de reportes, historial de compras y comprobantes.
-- Mantener los porcentajes de cobertura actualizados después de cada
-    cambio relevante.
+La cobertura de funciones alcanza el 94,95 %, mientras que la cobertura de ramas alcanza el 77,97 %. Esto indica que todavía existen condiciones alternativas que podrían contar con más casos de prueba.
+
+La cobertura de líneas es de 85,90 %, por lo que una parte importante del código instrumentado está siendo ejecutada durante las pruebas.
+
+Las pruebas de integración de checkout verifican escenarios aceptados, declinados y fallidos, incluyendo la conservación del carrito ante errores de persistencia.
+
+### 6.1 Limitaciones
+
+- La suite no sustituye pruebas completas de aceptación de todos los flujos de interfaz.
+- No se prueban integraciones con backend porque la aplicación no dispone de uno.
+- No se realizan pruebas de carga ni rendimiento.
+- No se simulan servicios externos ni una pasarela bancaria real.
+- La cobertura corresponde a los módulos instrumentados, no necesariamente a toda la aplicación.
+
+### 6.2 Mejoras futuras
+
+- Ampliar la cobertura de ramas y condiciones.
+- Incorporar pruebas de interacción de páginas completas.
+- Ampliar escenarios de errores y permisos por rol.
+- Mantener los resultados de cobertura actualizados después de cambios relevantes.
 
 ## 7. Conclusión
 
-La suite documentada contiene 43 pruebas unitarias y cubre aspectos
-esenciales de la evaluación: renderizado, props, estado, eventos,
-navegación, validaciones y persistencia del carrito. La ejecución
-utiliza Jasmine y Karma, y la cobertura se mide mediante Istanbul.
+La suite utiliza Jasmine y Karma para verificar componentes, validaciones, estado, eventos, navegación, persistencia y lógica de negocio del frontend.
 
-Los resultados disponibles muestran oportunidades de mejora,
-especialmente en cobertura de ramas y en pruebas de integración de
-flujos funcionales. Por ello, los porcentajes deben interpretarse dentro
-del alcance de los módulos instrumentados y no como una medición
-completa de toda la aplicación.
+La última ejecución validada alcanzó 135 pruebas exitosas y una cobertura de 85,90 % en líneas. Se incorporan spies de Jasmine para observar callbacks, interceptar errores y simular fallos de persistencia.
+
+Los resultados evidencian una suite funcional y una base de pruebas amplia, aunque se mantienen oportunidades de mejora en cobertura de ramas y pruebas de aceptación de flujos completos.

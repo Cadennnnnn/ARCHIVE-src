@@ -300,4 +300,26 @@ describe('Pruebas de integración de useCheckout', () => {
 
     expect(getText('processing')).toBe('false');
   });
+    it('debe manejar un error de persistencia y conservar el carrito', () => {
+    renderCheckout(true);
+
+    addProductToCart();
+
+    // Simula un fallo al guardar el pedido en localStorage.
+    spyOn(Storage.prototype, 'setItem').and.throwError(
+      'Error simulado de persistencia',
+    );
+
+    act(() => {
+      getButton('Procesar pago aceptado').click();
+    });
+
+    expect(getText('checkout-error')).toBe(
+      'No fue posible procesar la compra. Inténtalo nuevamente.',
+    );
+
+    expect(getText('cart-count')).toBe('1');
+    expect(getText('cart-quantity')).toBe('1');
+    expect(getText('processing')).toBe('false');
+  });
 });
