@@ -1,0 +1,67 @@
+.reports-page__footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e4e7ec;
+  color: #737b89;
+  font-size: 0.85rem;
+}
+
+.reports-page__actions {
+  align-items: center;
+}
+
+.reports-page__filters label {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 15mm;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .archive-admin__sidebar,
+  .archive-admin__topbar,
+  .reports-page__actions,
+  .reports-page__filters {
+    display: none !important;
+  }
+
+  .archive-admin {
+    display: block;
+    min-height: auto;
+    background: #fff;
+  }
+
+  .archive-admin__content,
+  .archive-admin__main {
+    padding: 0;
+  }
+
+  .reports-page {
+    width: 100%;
+  }
+
+  .admin-panel,
+  .admin-stat-card {
+    break-inside: avoid;
+    border: 1px solid #ccc;
+  }
+
+  .reports-page .table-responsive {
+    overflow: visible;
+  }
+
+  .reports-page .admin-table {
+    font-size: 10px;
+  }
+}

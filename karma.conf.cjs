@@ -1,42 +1,82 @@
+// Archivo: karma.conf.cjs
 module.exports = function (config) {
   config.set({
-    basePath: "",
-    frameworks: ["jasmine", "webpack"],
-    files: ["spec/**/*.spec.js", "spec/**/*.spec.jsx"],
+    basePath: '',
+    frameworks: ['jasmine'],
+
+    files: [
+      'spec/**/*.spec.ts',
+      'spec/**/*.spec.tsx',
+    ],
+
     preprocessors: {
-      "spec/**/*.spec.js": ["webpack"],
-      "spec/**/*.spec.jsx": ["webpack"],
+      'spec/**/*.spec.ts': ['webpack'],
+      'spec/**/*.spec.tsx': ['webpack'],
     },
+
     webpack: {
-      mode: "development",
-      devtool: false,
-      resolve: { extensions: [".js", ".jsx"] },
+      mode: 'development',
+      devtool: 'inline-source-map',
+
+      resolve: {
+        extensions: ['.ts', '.tsx', '.js', '.jsx'],
+      },
+
       module: {
         rules: [
           {
-            test: /\.(js|jsx)$/,
+            test: /\.(ts|tsx|js|jsx)$/,
             exclude: /node_modules/,
             use: {
-              loader: "babel-loader",
+              loader: 'babel-loader',
               options: {
                 presets: [
-                  ["@babel/preset-env", { targets: { chrome: "100" } }],
-                  ["@babel/preset-react", { runtime: "automatic" }],
+                  [
+                    '@babel/preset-env',
+                    {
+                      targets: {
+                        chrome: '100',
+                      },
+                    },
+                  ],
+                  [
+                    '@babel/preset-react',
+                    {
+                      runtime: 'automatic',
+                    },
+                  ],
+                  '@babel/preset-typescript',
                 ],
-                plugins: [["istanbul", { exclude: ["spec/**", "**/*.spec.*"] }]],
+                plugins: [
+                  [
+                    'istanbul',
+                    {
+                      exclude: ['spec/**', '**/*.spec.*'],
+                    },
+                  ],
+                ],
               },
             },
           },
         ],
       },
     },
-    reporters: ["progress", "coverage"],
+
+    reporters: ['progress', 'coverage'],
+
     coverageReporter: {
-      dir: "coverage",
-      reporters: [{ type: "html" }, { type: "text-summary" }, { type: "lcovonly" }],
+      dir: 'coverage',
+      reporters: [
+        { type: 'html' },
+        { type: 'lcovonly' },
+        { type: 'text-summary' },
+      ],
     },
-    browsers: ["ChromeHeadless"],
+
+    browsers: ['ChromeHeadless'],
     singleRun: true,
     restartOnFileChange: false,
+    colors: true,
+    logLevel: config.LOG_INFO,
   });
 };

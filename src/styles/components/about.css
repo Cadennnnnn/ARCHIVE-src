@@ -1,0 +1,214 @@
+
+/* Archivo: src/styles/components/about.css */
+
+.about-page {
+  padding: 3rem 0 5rem;
+  color: var(--color-dark);
+}
+
+.about-page__intro {
+  max-width: 1000px;
+  padding-bottom: 2.5rem;
+  margin-bottom: 3.5rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.about-page__eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  color: var(--color-navy);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.about-page__intro h1 {
+  max-width: 900px;
+  margin-bottom: 1.5rem;
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.98;
+}
+
+.about-page__intro p {
+  max-width: 850px;
+  margin: 0;
+  color: #666;
+  font-size: clamp(1rem, 2vw, 1.2rem);
+  line-height: 1.8;
+}
+
+.about-page__concept {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4rem;
+  align-items: center;
+  margin-bottom: 5rem;
+}
+
+.about-page__concept-copy h2,
+.about-page__section-heading h2,
+.about-page__closing h2 {
+  margin-bottom: 1.5rem;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.about-page__concept-copy > p {
+  margin-bottom: 1.25rem;
+  color: #626262;
+  line-height: 1.8;
+}
+
+.about-page__statement {
+  margin: 2rem 0 0;
+  padding: 1.5rem;
+  border-left: 4px solid var(--color-navy);
+  background: var(--color-light);
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+
+.about-page__image {
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--color-border);
+  background: var(--color-light);
+}
+
+.about-page__image img {
+  display: block;
+  width: 100%;
+  min-height: 300px;
+  max-height: 440px;
+  object-fit: cover;
+}
+
+.about-page__image figcaption {
+  padding: 0.75rem 0.5rem 0.25rem;
+  color: #777;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.about-page__pillars {
+  padding: 4rem 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.about-page__section-heading {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+.about-page__section-heading h2 {
+  margin-bottom: 0.5rem;
+}
+
+.about-page__section-heading p {
+  color: #777;
+  font-size: 0.85rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.about-page__pillar {
+  height: 100%;
+  padding: 2rem;
+  border: 1px solid var(--color-border);
+  background: #fff;
+  transition: border-color 180ms ease, transform 180ms ease;
+}
+
+.about-page__pillar:hover {
+  border-color: var(--color-navy);
+  transform: translateY(-4px);
+}
+
+.about-page__pillar-number {
+  display: block;
+  margin-bottom: 1.5rem;
+  color: var(--color-navy);
+  font-family: monospace;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.about-page__pillar h3 {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.about-page__pillar p {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.8;
+}
+
+.about-page__closing {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding-top: 4rem;
+}
+
+.about-page__closing h2 {
+  margin-bottom: 0;
+}
+
+.about-page__button {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1rem 1.5rem;
+  border: 1px solid var(--color-navy);
+  background: var(--color-navy);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: background-color 180ms ease, color 180ms ease;
+}
+
+.about-page__button:hover {
+  background: #fff;
+  color: var(--color-navy);
+}
+
+@media (max-width: 767.98px) {
+  .about-page {
+    padding: 2rem 0 3rem;
+  }
+
+  .about-page__concept {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .about-page__image img {
+    min-height: 220px;
+  }
+
+  .about-page__pillars {
+    padding: 3rem 0;
+  }
+
+  .about-page__closing {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-top: 3rem;
+  }
+}

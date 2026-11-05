@@ -1,0 +1,14 @@
+// Archivo: src/types/cart.ts
+import type { Product } from './product';
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+  size: string;
+}
+
+export interface StoredCartItem {
+  productId: number;
+  quantity: number;
+  size: string;
+}
