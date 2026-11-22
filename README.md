@@ -1,8 +1,8 @@
 # ARCHIVE[src] — E-commerce & Management System
 
-Plataforma e-commerce y sistema de administración desarrollados con **React y TypeScript** para la asignatura **Desarrollo Full Stack II (DSY1104), Duoc UC**.
+Plataforma e-commerce y sistema de administración desarrollados con **React y TypeScript** en el frontend y **Spring Boot** en el backend, para la asignatura **Desarrollo Full Stack II (DSY1104), Duoc UC**.
 
-El proyecto corresponde a la migración de una aplicación web legacy hacia una arquitectura frontend moderna, modular y reutilizable, aplicando **Atomic Design**, separación de responsabilidades y persistencia mediante `localStorage`.
+El proyecto corresponde a la migración de una aplicación web legacy hacia una arquitectura frontend moderna, modular y reutilizable, aplicando **Atomic Design** y separación de responsabilidades. A partir de la Evaluación 3, el frontend se integró con un backend propio en **Spring Boot**, con base de datos MySQL y autenticación mediante **JWT**, reemplazando a `localStorage` como fuente de los datos de la tienda (catálogo, usuarios, pedidos, perfil).
 
 ## 1. Descripción del proyecto
 
@@ -17,6 +17,8 @@ La aplicación implementa autenticación y control de acceso por roles, validaci
 
 ## 2. Tecnologías utilizadas
 
+### 2.1 Frontend
+
 | Tecnología | Uso |
 |---|---|
 | React 19 | Construcción de interfaces y componentes. |
@@ -30,6 +32,20 @@ La aplicación implementa autenticación y control de acceso por roles, validaci
 | ChromeHeadless | Navegador utilizado en la ejecución automatizada. |
 | Istanbul | Medición de cobertura de pruebas. |
 | Git y GitHub | Control de versiones. |
+
+### 2.2 Backend
+
+| Tecnología | Uso |
+|---|---|
+| Spring Boot 4 | Framework principal del backend y servidor embebido. |
+| Spring Data JPA / Hibernate | Acceso a datos y mapeo objeto-relacional. |
+| MySQL | Base de datos relacional. |
+| Spring Security | Autenticación y control de acceso por roles. |
+| JWT (jjwt) | Generación y validación de tokens de sesión. |
+| springdoc-openapi (Swagger UI) | Documentación interactiva de los endpoints REST. |
+| JUnit 5, MockMvc, Mockito | Pruebas de integración del backend. |
+| H2 | Base de datos en memoria utilizada solo durante las pruebas. |
+| Maven | Gestión de dependencias y build. |
 
 ## 3. Arquitectura del proyecto
 
@@ -124,22 +140,30 @@ La aplicación contempla tres roles:
 
 Las rutas protegidas utilizan componentes de control de acceso y validación de roles.
 
+### 4.4 Backend y API REST
+
+El backend (`tienda-backend/`) expone una API REST construida con Spring Boot, documentada en Swagger UI, y es la fuente de datos real del catálogo, usuarios, categorías y pedidos.
+
+- **Autenticación:** `POST /api/v1/auth/login` y `/auth/register` devuelven un token JWT.
+- **Catálogo:** `GET/POST/PUT/DELETE /api/v1/productos` y `/api/v1/categorias`. La lectura es pública; crear, editar y eliminar requiere rol `ADMINISTRADOR` o `VENDEDOR`.
+- **Usuarios:** `GET/POST/PUT/DELETE /api/v1/usuarios`. Cada usuario puede actualizar su propio perfil; listar, crear y eliminar cuentas es exclusivo de `ADMINISTRADOR`.
+- **Documentación interactiva:** disponible en `http://localhost:8080/swagger-ui.html` mientras el backend está corriendo.
+
+El frontend consume esta API mediante `src/services/httpClient.ts`, que agrega automáticamente el token JWT a cada petición.
+
 ## 5. Persistencia y datos
 
-La aplicación utiliza `localStorage` como mecanismo de persistencia en el navegador.
+Desde la integración con el backend, los datos de la tienda ya no se generan ni se guardan en `localStorage`: viven en la base de datos MySQL del backend y se consultan mediante la API REST.
 
-Entre los datos almacenados se encuentran:
+| Dato | Dónde vive |
+|---|---|
+| Catálogo (productos, categorías) | Backend (MySQL), vía API REST. |
+| Usuarios y perfiles | Backend (MySQL), vía API REST. |
+| Pedidos | Backend (MySQL), vía API REST. |
+| Token JWT y sesión del usuario | `localStorage` del navegador, para mantener la sesión activa ante recargas de página (ver `src/services/httpClient.ts` y `authService.ts`). |
+| Carrito de compras | `localStorage` del navegador (estado del cliente, no es un recurso del backend). |
 
-- Carrito de compras.
-- Sesión y datos de autenticación.
-- Usuarios registrados.
-- Pedidos y sus detalles.
-- Información de perfil y preferencias.
-- Datos de administración que utilizan los servicios locales.
-
-Los pedidos conservan información de los productos y precios registrados al momento de la compra, permitiendo consultar el historial y generar comprobantes internos.
-
-**Importante:** el proyecto no cuenta con backend ni base de datos remota. Los datos permanecen en el almacenamiento local del navegador y no se sincronizan entre dispositivos.
+Los pedidos conservan en el backend la información de productos y precios registrados al momento de la compra, permitiendo consultar el historial y generar comprobantes internos.
 
 El checkout implementa una simulación de pago. No existe integración con una pasarela de pago real ni procesamiento financiero externo.
 
@@ -161,7 +185,9 @@ La aplicación incorpora validaciones para:
 
 Las validaciones se implementan mediante funciones reutilizables y lógica de negocio separada de los componentes de presentación.
 
-## 7. Pruebas unitarias y cobertura
+## 7. Pruebas
+
+### 7.1 Frontend (Jasmine / Karma)
 
 El proyecto utiliza Jasmine y Karma para ejecutar pruebas en ChromeHeadless, con medición de cobertura mediante Istanbul.
 
@@ -197,36 +223,55 @@ Para mayor detalle, consultar:
 
 - `docs/cobertura-testing.md`
 
+### 7.2 Backend (JUnit / MockMvc)
+
+El backend utiliza JUnit 5 y MockMvc con `@SpringBootTest`, contra el contexto real de Spring Security, usando una base de datos H2 en memoria (ver `src/test/resources/application.properties`).
+
+| Suite | Cantidad | Qué valida |
+|---|---:|---|
+| `RolesYAutenticacionIntegrationTest` | 8 | Login/registro JWT, y que las restricciones por rol de `SecurityConfig` funcionen (catálogo público vs. escritura solo Admin/Vendedor, gestión de usuarios solo Admin). |
+| `TiendaBackendApplicationTests` | 1 | Que el contexto de Spring levante correctamente. |
+| **Total** | **9** | `Tests run: 9, Failures: 0, Errors: 0` — BUILD SUCCESS. |
+
+Para correrlas:
+
+```bash
+cd tienda-backend
+.\mvnw clean test
+```
+
 ## 8. Instalación y ejecución
 
-### Requisitos previos
+### 8.1 Frontend
+
+#### Requisitos previos
 
 - Node.js y npm.
 - Git.
 - Google Chrome para ejecutar las pruebas con ChromeHeadless.
 
-### Clonar el repositorio
+#### Clonar el repositorio
 
 ```bash
 git clone https://github.com/Cadennnnnn/ARCHIVE-src.git
 cd ARCHIVE-src
 ```
 
-### Instalar dependencias
+#### Instalar dependencias
 
 ```bash
 npm install
 ```
 
-### Iniciar el entorno de desarrollo
+#### Iniciar el entorno de desarrollo
 
 ```bash
 npm run dev
 ```
 
-Vite mostrará la dirección local para acceder a la aplicación.
+Vite mostrará la dirección local para acceder a la aplicación. Por defecto, el frontend espera el backend corriendo en `http://localhost:8080` (ver `API_BASE_URL` en `src/services/httpClient.ts`).
 
-### Ejecutar validaciones
+#### Ejecutar validaciones
 
 ```bash
 npm run typecheck
@@ -243,27 +288,60 @@ npm run test
 | `npm run build` | Ejecuta la comprobación de tipos y genera la compilación de producción. |
 | `npm run test` | Ejecuta las pruebas Jasmine/Karma en ChromeHeadless. |
 
+### 8.2 Backend
+
+#### Requisitos previos
+
+- JDK 21.
+- MySQL (servidor corriendo localmente).
+- Maven Wrapper incluido en el proyecto (`mvnw` / `mvnw.cmd`), no requiere instalar Maven aparte.
+
+#### Crear la base de datos y el usuario
+
+Con el cliente de MySQL (los valores vienen de `src/main/resources/application.properties`):
+
+```sql
+CREATE DATABASE tienda_db;
+CREATE USER 'tienda_user'@'localhost' IDENTIFIED BY 'tienda123';
+GRANT ALL PRIVILEGES ON tienda_db.* TO 'tienda_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+Las tablas se crean solas al iniciar la aplicación (`spring.jpa.hibernate.ddl-auto=create-drop`), y `DataInitializer` crea una cuenta administradora por defecto (`admin@duoc.cl` / `admin123`).
+
+#### Clonar y ejecutar
+
+```bash
+git clone <URL del repositorio backend>
+cd tienda-backend
+.\mvnw spring-boot:run
+```
+
+El backend queda disponible en `http://localhost:8080`. La documentación interactiva de la API está en `http://localhost:8080/swagger-ui.html`.
+
 ## 9. Documentación adicional
 
 La documentación técnica se encuentra en la carpeta `docs/`:
 
-- `docs/ERS-v2.md`: Especificación de Requisitos de Software.
-- `docs/cobertura-testing.md`: documentación de pruebas, herramientas, resultados y cobertura.
+- `docs/ERS-v3.md`: Especificación de Requisitos de Software (incluye el backend, roles y JWT).
+- `docs/cobertura-testing.md`: documentación de pruebas, herramientas, resultados y cobertura (frontend y backend).
 
 ## 10. Estado y limitaciones conocidas
 
-- La aplicación frontend está implementada y validada mediante pruebas manuales de sus módulos principales.
-- La persistencia se realiza localmente mediante `localStorage`.
-- No existe backend ni base de datos remota.
+- El frontend está integrado con el backend Spring Boot: catálogo, usuarios y pedidos ya no se generan en `localStorage`, sino que vienen de la API REST.
+- El carrito de compras sigue siendo estado del cliente en `localStorage`; no es un recurso del backend ni lo pide la rúbrica de esta evaluación.
 - El pago es simulado y no utiliza una pasarela real.
 - El inventario administrativo no está sincronizado automáticamente con el catálogo inicial de la tienda.
 - La integración de video en los artículos del blog (RF-18) permanece pendiente de una URL válida.
+- El backend usa `ddl-auto=create-drop`: cada reinicio de la aplicación recrea las tablas desde cero (válido para la evaluación; no para producción).
 - La boleta generada es un comprobante interno y no constituye un documento tributario.
 
 ## 11. Control de versiones
 
-Repositorio: [ARCHIVE-src](https://github.com/Cadennnnnn/ARCHIVE-src)
+**Frontend:** [ARCHIVE-src](https://github.com/Cadennnnnn/ARCHIVE-src)
 
 Rama de desarrollo de la migración: `feature/react-rebuild`.
 
 La rama `main` se mantiene separada de los cambios de migración hasta completar la revisión y validación correspondiente.
+
+**Backend:** [ARCHIVE-backend](https://github.com/Cadennnnnn/ARCHIVE-backend)

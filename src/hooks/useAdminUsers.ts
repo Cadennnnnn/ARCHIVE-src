@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   createAdminUser,
@@ -20,9 +20,7 @@ const INITIAL_FORM: AdminUserData = {
 };
 
 export function useAdminUsers() {
-  const [users, setUsers] = useState<PublicUser[]>(() =>
-    getPublicUsers(),
-  );
+  const [users, setUsers] = useState<PublicUser[]>([]);
 
   const [formData, setFormData] =
     useState<AdminUserData>(INITIAL_FORM);
@@ -38,13 +36,18 @@ export function useAdminUsers() {
     [users, selectedUserId],
   );
 
-  const userOrders: Order[] = useMemo(
-    () =>
-      selectedUserId
-        ? getOrdersByUser(selectedUserId)
-        : [],
-    [selectedUserId],
-  );
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
+
+  useEffect(() => {
+    if (!selectedUserId) {
+      setUserOrders([]);
+      return;
+    }
+
+    getOrdersByUser(selectedUserId)
+      .then(setUserOrders)
+      .catch(() => setUserOrders([]));
+  }, [selectedUserId]);
 
   function updateField(
     field: keyof AdminUserData,
@@ -58,14 +61,22 @@ export function useAdminUsers() {
     setError('');
   }
 
-  const refreshUsers = useCallback(() => {
-    setUsers(getPublicUsers());
+  const refreshUsers = useCallback(async () => {
+    try {
+      setUsers(await getPublicUsers());
+    } catch {
+      setUsers([]);
+    }
   }, []);
 
-  function submitUser(): boolean {
+  useEffect(() => {
+    void refreshUsers();
+  }, [refreshUsers]);
+
+  async function submitUser(): Promise<boolean> {
     try {
-      createAdminUser(formData);
-      refreshUsers();
+      await createAdminUser(formData);
+      await refreshUsers();
       setFormData(INITIAL_FORM);
       setError('');
 

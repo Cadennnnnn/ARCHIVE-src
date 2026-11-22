@@ -1,4 +1,5 @@
 
+
 import { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
@@ -8,7 +9,7 @@ import { FormInput } from '../../atoms/FormInput/FormInput';
 import { FormField } from '../../molecules/FormField/FormField';
 
 import { chileRegions } from '../../../data/chileRegions';
-import { createUser } from '../../../services/userService';
+import { useAuth } from '../../../hooks/useAuth';
 
 import type { UserRegistrationData } from '../../../types/user';
 import {
@@ -31,6 +32,7 @@ const INITIAL_FORM: UserRegistrationData = {
 
 export function RegisterForm() {
   const navigate = useNavigate();
+  const { register } = useAuth();
 
   const [formData, setFormData] = useState<UserRegistrationData>(INITIAL_FORM);
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -72,18 +74,17 @@ export function RegisterForm() {
     setIsSubmitting(true);
 
     try {
-      createUser(formData);
+      await register(formData);
 
       await Swal.fire({
         title: '¡REGISTRO EXITOSO!',
         text: `Bienvenido/a ${formData.nombre.trim()}. Tu cuenta ha sido creada.`,
         icon: 'success',
         confirmButtonColor: '#1B2A4A',
-        confirmButtonText: 'IR AL LOGIN',
       });
 
       setFormData(INITIAL_FORM);
-      navigate('/login', { replace: true });
+      navigate('/', { replace: true });
     } catch (error) {
       await Swal.fire({
         title: 'No fue posible registrar la cuenta',

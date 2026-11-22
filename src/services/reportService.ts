@@ -16,8 +16,10 @@ export interface SalesSummary {
   averageSale: number;
 }
 
-export function getSalesReport(filters: ReportFilters): Order[] {
-  return getOrders().filter((order) => {
+export async function getSalesReport(filters: ReportFilters): Promise<Order[]> {
+  const orders = await getOrders();
+
+  return orders.filter((order) => {
     const orderDate = new Date(order.createdAt);
 
     if (Number.isNaN(orderDate.getTime())) {

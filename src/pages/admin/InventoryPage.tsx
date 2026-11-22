@@ -23,7 +23,7 @@ export function InventoryPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const wasSaved = submitProduct();
+    const wasSaved = await submitProduct();
 
     if (!wasSaved) {
       await Swal.fire({
@@ -57,7 +57,7 @@ export function InventoryPage() {
 
     if (!confirmation.isConfirmed) return;
 
-    const wasRemoved = removeProduct(product.id);
+    const wasRemoved = await removeProduct(product.id);
 
     if (wasRemoved) {
       await Swal.fire({

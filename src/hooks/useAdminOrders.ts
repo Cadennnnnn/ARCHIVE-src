@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { getOrders } from '../services/orderService';
 import type { Order, PaymentStatus } from '../types/order';
@@ -39,9 +39,15 @@ export function formatOrderDate(date: string): string {
 }
 
 export function useAdminOrders() {
-  const [orders] = useState<Order[]>(() => getOrders());
+  const [orders, setOrders] = useState<Order[]>([]);
   const [filters, setFilters] =
     useState<AdminOrderFilters>(INITIAL_FILTERS);
+
+  useEffect(() => {
+    getOrders()
+      .then(setOrders)
+      .catch(() => setOrders([]));
+  }, []);
 
   const filteredOrders = useMemo(() => {
     const normalizedSearch = filters.search.trim().toLowerCase();

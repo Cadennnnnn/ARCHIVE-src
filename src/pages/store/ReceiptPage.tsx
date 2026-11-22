@@ -1,9 +1,11 @@
 
 
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { useAuth } from '../../hooks/useAuth';
 import { getOrderById } from '../../services/orderService';
+import type { Order } from '../../types/order';
 
 import '../../styles/components/receipt.css';
 
@@ -26,7 +28,29 @@ export function ReceiptPage() {
   const { orderId } = useParams();
   const { session } = useAuth();
 
-  const order = orderId ? getOrderById(orderId) : undefined;
+  const [order, setOrder] = useState<Order | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!orderId) {
+      setOrder(undefined);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    getOrderById(orderId)
+      .then(setOrder)
+      .finally(() => setIsLoading(false));
+  }, [orderId]);
+
+  if (isLoading) {
+    return (
+      <section className="container py-5 text-center">
+        <p>Cargando boleta...</p>
+      </section>
+    );
+  }
 
   if (!order || order.userId !== session?.user.id) {
     return (

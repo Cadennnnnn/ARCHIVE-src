@@ -67,10 +67,10 @@ export function CheckoutPage() {
     }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const order = processCheckout(
+    const order = await processCheckout(
       shipping,
       paymentMethod,
       paymentStatus,

@@ -22,7 +22,7 @@ const EMPTY_PAYMENT: PaymentData = {
 
 interface ProfilePaymentMethodsProps {
   methods: SavedPaymentMethod[];
-  onAdd: (data: PaymentData) => void;
+  onAdd: (data: PaymentData) => Promise<unknown>;
   onDelete: (id: string) => void;
   onSetDefault: (id: string) => void;
 }
@@ -47,11 +47,11 @@ export function ProfilePaymentMethods({
     }));
   }
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
-      onAdd(form);
+      await onAdd(form);
       setForm(EMPTY_PAYMENT);
       setMessage('Método de pago guardado correctamente.');
     } catch (error) {

@@ -1,17 +1,39 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { products, formatPrice } from '../../data/products';
+import { formatPrice } from '../../data/products';
 import { Button } from '../../components/atoms/Button/Button';
 import { useCart } from '../../hooks/useCart';
+import { getProducts } from '../../services/productService';
+import type { Product } from '../../types/product';
 import { showAddedToCartNotification } from '../../utils/cartNotifications';
 
 export function ProductDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addItem } = useCart();
-  const product = products.find((item) => item.id === Number(id));
-  const [selectedSize, setSelectedSize] = useState(product?.tallas[0] ?? '');
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedSize, setSelectedSize] = useState('');
+
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        const found = data.find((item) => item.id === Number(id)) ?? null;
+        setProduct(found);
+        setSelectedSize(found?.tallas[0] ?? '');
+      })
+      .catch(() => setProduct(null))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="container py-5">
+        <p className="text-muted">Cargando producto...</p>
+      </div>
+    );
+  }
 
   if (!product) {
     return (

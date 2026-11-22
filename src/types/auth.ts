@@ -3,6 +3,7 @@
 import type {
   PublicUser,
   UserProfileUpdateData,
+  UserRegistrationData,
   UserRole,
 } from './user';
 
@@ -21,8 +22,9 @@ export interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (credentials: AuthCredentials) => Promise<AuthSession>;
+  register: (data: UserRegistrationData) => Promise<AuthSession>;
   logout: () => void;
   updateAccount: (
     data: UserProfileUpdateData,
-  ) => AuthSession;
+  ) => Promise<AuthSession>;
 }

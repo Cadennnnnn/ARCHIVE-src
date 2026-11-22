@@ -21,11 +21,11 @@ export function useCheckout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
 
-  function processCheckout(
+  async function processCheckout(
     shipping: ShippingData,
     paymentMethod: PaymentMethod,
     paymentStatus: PaymentStatus,
-  ): Order | null {
+  ): Promise<Order | null> {
     if (!session) {
       setError('Debes iniciar sesión para realizar una compra.');
       return null;
@@ -40,7 +40,7 @@ export function useCheckout() {
     setError('');
 
     try {
-      const order = createOrder({
+      const order = await createOrder({
         user: session.user,
         shipping,
         items,

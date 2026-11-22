@@ -85,13 +85,13 @@ export function Header() {
                 </span>
 
                 {canAccessProfile && (
-                  <Link to="/perfil">
+                  <Link className="archive-header__link" to="/perfil">
                     Mi perfil
                   </Link>
                 )}
 
                 {canAccessAdmin && (
-                  <Link to="/admin">
+                  <Link className="archive-header__link" to="/admin">
                     Panel administrativo
                   </Link>
                 )}
@@ -106,8 +106,12 @@ export function Header() {
               </>
             ) : (
               <>
-                <Link to="/login">Iniciar sesión</Link>
-                <Link to="/registro">Registrar usuario</Link>
+                <Link className="archive-header__link" to="/login">
+                  Iniciar sesión
+                </Link>
+                <Link className="archive-header__link" to="/registro">
+                  Registrar usuario
+                </Link>
               </>
             )}
 

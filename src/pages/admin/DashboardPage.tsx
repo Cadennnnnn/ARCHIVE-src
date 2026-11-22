@@ -5,7 +5,7 @@ import { useAdminDashboard } from '../../hooks/useAdminDashboard';
 
 export function DashboardPage() {
   const { session } = useAuth();
-  const { totalProducts, totalUsers } = useAdminDashboard();
+  const { totalProducts, totalUsers, totalOrders } = useAdminDashboard();
   const isAdmin = session?.role === 'Administrador';
 
   return (
@@ -59,12 +59,12 @@ export function DashboardPage() {
             </span>
 
             <strong className="admin-stat-card__value">
-              Pendientes
+              {totalOrders} Órdenes
             </strong>
 
-            <span className="admin-stat-card__notice">
-              Simulación Frontend
-            </span>
+            <Link to="/admin/ordenes">
+              Ver órdenes →
+            </Link>
           </div>
         </article>
       </div>

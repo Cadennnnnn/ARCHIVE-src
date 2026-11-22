@@ -1,7 +1,22 @@
-import { offerProducts } from '../../data/products';
+import { useEffect, useState } from 'react';
+
 import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
+import { getProducts } from '../../services/productService';
+import type { Product } from '../../types/product';
 
 export function OffersPage() {
+  const [offerProducts, setOfferProducts] = useState<Product[]>([]);
+
+  useEffect(() => {
+    getProducts()
+      .then((data) => {
+        setOfferProducts(
+          data.filter((product) => product.precioOriginal !== undefined),
+        );
+      })
+      .catch(() => setOfferProducts([]));
+  }, []);
+
   return (
     <main className="container py-5">
       <header className="archive-page-heading">

@@ -13,7 +13,10 @@ import type {
   AuthSession,
 } from '../types/auth';
 
-import type { UserProfileUpdateData } from '../types/user';
+import type {
+  UserProfileUpdateData,
+  UserRegistrationData,
+} from '../types/user';
 
 import { AuthContext } from './AuthContextDefinition';
 
@@ -21,13 +24,11 @@ import {
   authenticate,
   clearSession,
   getCurrentSession,
-  refreshSession,
+  updateSessionUser,
+  register as registerRequest,
 } from '../services/authService';
 
-import {
-  initializeUsers,
-  updateUser,
-} from '../services/userService';
+import { updateUser } from '../services/userService';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -35,7 +36,6 @@ interface AuthProviderProps {
 
 function getInitialSession(): AuthSession | null {
   try {
-    initializeUsers();
     return getCurrentSession();
   } catch {
     clearSession();
@@ -52,18 +52,25 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const login = useCallback(
     async (credentials: AuthCredentials): Promise<AuthSession> => {
-      const authenticatedSession = authenticate(
+      const authenticatedSession = await authenticate(
         credentials.correo,
         credentials.password,
       );
 
-      if (!authenticatedSession) {
-        throw new Error('Correo o contraseña incorrectos.');
-      }
-
       setSession(authenticatedSession);
 
       return authenticatedSession;
+    },
+    [],
+  );
+
+  const register = useCallback(
+    async (data: UserRegistrationData): Promise<AuthSession> => {
+      const newSession = await registerRequest(data);
+
+      setSession(newSession);
+
+      return newSession;
     },
     [],
   );
@@ -74,13 +81,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, []);
 
   const updateAccount = useCallback(
-    (data: UserProfileUpdateData): AuthSession => {
+    async (data: UserProfileUpdateData): Promise<AuthSession> => {
       if (!session) {
         throw new Error('Debes iniciar sesión para actualizar tu perfil.');
       }
 
-      const updatedUser = updateUser(session.user.id, data);
-      const updatedSession = refreshSession(updatedUser);
+      const updatedUser = await updateUser(session.user.id, data);
+      const updatedSession = updateSessionUser(updatedUser);
 
       setSession(updatedSession);
 
@@ -95,10 +102,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
       isAuthenticated: session !== null,
       isLoading,
       login,
+      register,
       logout,
       updateAccount,
     }),
-    [session, isLoading, login, logout, updateAccount],
+    [session, isLoading, login, register, logout, updateAccount],
   );
 
   return (

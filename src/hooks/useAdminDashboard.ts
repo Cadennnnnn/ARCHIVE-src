@@ -1,16 +1,32 @@
 
-import { useMemo } from 'react';
+import { useEffect, useState } from 'react';
 
-import { products } from '../data/products';
-import { getUsers } from '../services/userService';
+import { getProducts } from '../services/productService';
+import { getPublicUsers } from '../services/userService';
+
+interface DashboardStats {
+  totalProducts: number;
+  totalUsers: number;
+}
 
 export function useAdminDashboard() {
-  return useMemo(() => {
-    const users = getUsers();
+  const [stats, setStats] = useState<DashboardStats>({
+    totalProducts: 0,
+    totalUsers: 0,
+  });
 
-    return {
-      totalProducts: products.length,
-      totalUsers: users.length,
-    };
+  useEffect(() => {
+    Promise.all([getProducts(), getPublicUsers()])
+      .then(([products, users]) => {
+        setStats({
+          totalProducts: products.length,
+          totalUsers: users.length,
+        });
+      })
+      .catch(() => {
+        setStats({ totalProducts: 0, totalUsers: 0 });
+      });
   }, []);
+
+  return stats;
 }
