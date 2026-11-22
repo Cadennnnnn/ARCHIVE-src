@@ -16,18 +16,32 @@ export function validateRun(run: string): boolean {
   return /^[0-9]{7,8}[0-9K]$/i.test(run.trim());
 }
 
-export function validateEmail(email: string): boolean {
+/**
+ * Valida que el correo tenga un formato válido, sin restringir el
+ * dominio. Se usa en el login: ahí no importa si la cuenta es de un
+ * administrador, vendedor o cliente, solo que el formato sea correcto.
+ */
+export function validateEmailFormat(email: string): boolean {
   const normalizedEmail = email.trim().toLowerCase();
 
-  const validFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
-    normalizedEmail,
+  return (
+    normalizedEmail.length <= 100 &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)
   );
+}
+
+/**
+ * Valida el correo para el REGISTRO de clientes: además del formato,
+ * exige que sea de un dominio autorizado (@duoc.cl, @gmail.com, etc.).
+ */
+export function validateEmail(email: string): boolean {
+  const normalizedEmail = email.trim().toLowerCase();
 
   const validDomain = ALLOWED_EMAIL_DOMAINS.some((domain) =>
     normalizedEmail.endsWith(domain),
   );
 
-  return normalizedEmail.length <= 100 && validFormat && validDomain;
+  return validateEmailFormat(normalizedEmail) && validDomain;
 }
 
 export function validatePassword(password: string): boolean {

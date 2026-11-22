@@ -1,10 +1,10 @@
 
-
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useAuth } from './useAuth';
 
 import {
-  getUserProfile,
+  getAddresses,
+  getPaymentMethods,
   addShippingAddress,
   removeShippingAddress,
   setDefaultShippingAddress,
@@ -26,78 +26,53 @@ import type { Order } from '../types/order';
 type AddressData = Omit<ShippingAddress, 'id' | 'isDefault'>;
 type PaymentData = Omit<SavedPaymentMethod, 'id' | 'isDefault'>;
 
-interface ProfileData {
-  addresses: ShippingAddress[];
-  paymentMethods: SavedPaymentMethod[];
-  orders: Order[];
-}
-
-function getInitialProfile(userId?: string): ProfileData {
-  if (!userId) {
-    return {
-      addresses: [],
-      paymentMethods: [],
-      orders: [],
-    };
-  }
-
-  try {
-    const user = getUserProfile(userId);
-
-    return {
-      addresses: user.profile?.direcciones ?? [],
-      paymentMethods: user.profile?.metodosPago ?? [],
-      orders: getOrdersByUser(userId),
-    };
-  } catch {
-    return {
-      addresses: [],
-      paymentMethods: [],
-      orders: [],
-    };
-  }
-}
-
 export function useProfile() {
   const { session, updateAccount } = useAuth();
 
   const userId = session?.user.id;
 
-  const [profile, setProfile] = useState<ProfileData>(
-    () => getInitialProfile(userId),
-  );
-
-  const [isLoading] = useState(false);
+  const [addresses, setAddresses] = useState<ShippingAddress[]>([]);
+  const [paymentMethods, setPaymentMethods] = useState<SavedPaymentMethod[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const reload = useCallback(() => {
+  const reload = useCallback(async () => {
     if (!userId) {
-      setProfile({
-        addresses: [],
-        paymentMethods: [],
-        orders: [],
-      });
+      setAddresses([]);
+      setPaymentMethods([]);
+      setOrders([]);
+      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
+
     try {
-      const user = getUserProfile(userId);
+      const [addressList, paymentList, orderList] = await Promise.all([
+        getAddresses(userId),
+        getPaymentMethods(userId),
+        getOrdersByUser(userId),
+      ]);
 
-      setProfile({
-        addresses: user.profile?.direcciones ?? [],
-        paymentMethods: user.profile?.metodosPago ?? [],
-        orders: getOrdersByUser(userId),
-      });
-
+      setAddresses(addressList);
+      setPaymentMethods(paymentList);
+      setOrders(orderList);
       setError('');
     } catch {
       setError('No fue posible cargar la información del perfil.');
+    } finally {
+      setIsLoading(false);
     }
   }, [userId]);
 
+  useEffect(() => {
+    void reload();
+  }, [reload]);
+
   const savePersonalInfo = useCallback(
-    (data: UserProfileUpdateData) => {
-      const updatedSession = updateAccount(data);
+    async (data: UserProfileUpdateData) => {
+      const updatedSession = await updateAccount(data);
       setError('');
       return updatedSession;
     },
@@ -105,94 +80,64 @@ export function useProfile() {
   );
 
   const addAddress = useCallback(
-    (data: AddressData) => {
+    async (data: AddressData) => {
       if (!userId) throw new Error('Debes iniciar sesión.');
 
-      const user = addShippingAddress(userId, data);
-
-      setProfile((current) => ({
-        ...current,
-        addresses: user.profile?.direcciones ?? [],
-      }));
+      setAddresses(await addShippingAddress(userId, data));
     },
     [userId],
   );
 
   const deleteAddress = useCallback(
-    (addressId: string) => {
+    async (addressId: string) => {
       if (!userId) throw new Error('Debes iniciar sesión.');
 
-      const user = removeShippingAddress(userId, addressId);
-
-      setProfile((current) => ({
-        ...current,
-        addresses: user.profile?.direcciones ?? [],
-      }));
+      setAddresses(await removeShippingAddress(userId, addressId));
     },
     [userId],
   );
 
   const makeDefaultAddress = useCallback(
-    (addressId: string) => {
+    async (addressId: string) => {
       if (!userId) throw new Error('Debes iniciar sesión.');
 
-      const user = setDefaultShippingAddress(userId, addressId);
-
-      setProfile((current) => ({
-        ...current,
-        addresses: user.profile?.direcciones ?? [],
-      }));
+      setAddresses(await setDefaultShippingAddress(userId, addressId));
     },
     [userId],
   );
 
   const addPaymentMethod = useCallback(
-    (data: PaymentData) => {
+    async (data: PaymentData) => {
       if (!userId) throw new Error('Debes iniciar sesión.');
 
-      const user = addSavedPaymentMethod(userId, data);
-
-      setProfile((current) => ({
-        ...current,
-        paymentMethods: user.profile?.metodosPago ?? [],
-      }));
+      setPaymentMethods(await addSavedPaymentMethod(userId, data));
     },
     [userId],
   );
 
   const deletePaymentMethod = useCallback(
-    (paymentId: string) => {
+    async (paymentId: string) => {
       if (!userId) throw new Error('Debes iniciar sesión.');
 
-      const user = removeSavedPaymentMethod(userId, paymentId);
-
-      setProfile((current) => ({
-        ...current,
-        paymentMethods: user.profile?.metodosPago ?? [],
-      }));
+      setPaymentMethods(await removeSavedPaymentMethod(userId, paymentId));
     },
     [userId],
   );
 
   const makeDefaultPaymentMethod = useCallback(
-    (paymentId: string) => {
+    async (paymentId: string) => {
       if (!userId) throw new Error('Debes iniciar sesión.');
 
-      const user = setDefaultPaymentMethod(userId, paymentId);
-
-      setProfile((current) => ({
-        ...current,
-        paymentMethods: user.profile?.metodosPago ?? [],
-      }));
+      setPaymentMethods(await setDefaultPaymentMethod(userId, paymentId));
     },
     [userId],
   );
 
   return {
     user: session?.user ?? null,
-    addresses: profile.addresses,
-    paymentMethods: profile.paymentMethods,
-    orders: profile.orders,
+    addresses,
+    paymentMethods,
+    orders,
     isLoading,
     error,
     reload,

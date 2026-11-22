@@ -1,7 +1,6 @@
-import { products as initialProducts } from '../data/products';
 import type { Product } from '../types/product';
-
-const PRODUCTS_STORAGE_KEY = 'ARCHIVE_PRODUCTS';
+import { apiFetch } from './httpClient';
+import { getCategories } from './categoryService';
 
 export type ProductCategoryValue = string;
 
@@ -22,68 +21,44 @@ export interface ProductValidationResult {
   errors: string[];
 }
 
-function isProduct(value: unknown): value is Product {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const product = value as Product;
-
-  return (
-    Number.isInteger(product.id) &&
-    typeof product.codigo === 'string' &&
-    typeof product.nombre === 'string' &&
-    typeof product.categoria === 'string' &&
-    product.categoria.trim().length > 0 &&
-    Number.isInteger(product.precio) &&
-    Array.isArray(product.tallas) &&
-    product.tallas.every((size) => typeof size === 'string') &&
-    typeof product.imagen === 'string' &&
-    typeof product.descripcion === 'string' &&
-    Number.isInteger(product.stock)
-  );
+/** Forma de un producto tal como lo devuelve el backend. */
+interface BackendProducto {
+  id: number;
+  codigo: string;
+  nombre: string;
+  descripcion: string | null;
+  precio: number;
+  precioOferta: number | null;
+  stock: number;
+  imagen: string | null;
+  categoria: { id: number; nombre: string; descripcion: string | null } | null;
+  tallas: string[] | null;
 }
 
-function saveProducts(items: Product[]): void {
-  localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(items));
+/** Convierte un producto del backend al formato que usa el frontend. */
+function toProduct(data: BackendProducto): Product {
+  const precioNormal = Math.round(Number(data.precio));
+  const precioOferta =
+    data.precioOferta !== null ? Math.round(Number(data.precioOferta)) : null;
+
+  return {
+    id: data.id,
+    codigo: data.codigo,
+    nombre: data.nombre,
+    categoria: data.categoria?.nombre ?? '',
+    precio: precioOferta ?? precioNormal,
+    ...(precioOferta !== null ? { precioOriginal: precioNormal } : {}),
+    imagen: data.imagen ?? '',
+    descripcion: data.descripcion ?? '',
+    tallas: data.tallas ?? [],
+    stock: data.stock,
+  };
 }
 
-export function getProducts(): Product[] {
-  try {
-    const storedProducts = localStorage.getItem(PRODUCTS_STORAGE_KEY);
-
-    if (storedProducts === null) {
-      const initialData = initialProducts.map((product) => ({ ...product }));
-      saveProducts(initialData);
-      return initialData;
-    }
-
-    const parsed: unknown = JSON.parse(storedProducts);
-
-    if (!Array.isArray(parsed) || !parsed.every(isProduct)) {
-      saveProducts(initialProducts);
-      return initialProducts.map((product) => ({ ...product }));
-    }
-
-    return parsed;
-  } catch {
-    return initialProducts.map((product) => ({ ...product }));
-  }
-}
-
-export function replaceProductCategory(
-  previousName: string,
-  nextName: string,
-): void {
-  const currentProducts = getProducts();
-
-  const updatedProducts = currentProducts.map((product) =>
-    product.categoria === previousName
-      ? { ...product, categoria: nextName }
-      : product,
-  );
-
-  saveProducts(updatedProducts);
+/** Lista todos los productos del catálogo. */
+export async function getProducts(): Promise<Product[]> {
+  const data = await apiFetch<BackendProducto[]>('/productos');
+  return data.map(toProduct);
 }
 
 export function validateProduct(
@@ -154,49 +129,60 @@ export function validateProduct(
   return { isValid: errors.length === 0, errors };
 }
 
-function toProduct(input: ProductInput, id: number): Product {
-  const hasOffer = input.precioOferta !== null;
+/** Busca el id de la categoría a partir de su nombre (el formulario trabaja con el nombre). */
+async function resolverCategoriaId(nombreCategoria: string): Promise<number> {
+  const categorias = await getCategories();
+  const categoria = categorias.find((item) => item.nombre === nombreCategoria);
+
+  if (!categoria) {
+    throw new Error('La categoría seleccionada ya no existe.');
+  }
+
+  return Number(categoria.id);
+}
+
+/** Arma el cuerpo de la petición que espera el backend a partir del formulario. */
+async function toBackendPayload(input: ProductInput) {
+  const categoriaId = await resolverCategoriaId(input.categoria.trim());
 
   return {
-    id,
     codigo: input.codigo.trim().toUpperCase(),
     nombre: input.nombre.trim(),
-    categoria: input.categoria.trim(),
-    precio: hasOffer ? input.precioOferta! : input.precio,
-    ...(hasOffer ? { precioOriginal: input.precio } : {}),
-    imagen: input.imagen.trim(),
     descripcion: input.descripcion.trim(),
-    tallas: input.tallas.map((size) => size.trim()).filter(Boolean),
+    precio: input.precio,
+    precioOferta: input.precioOferta,
     stock: input.stock,
+    imagen: input.imagen.trim(),
+    tallas: input.tallas.map((size) => size.trim()).filter(Boolean),
+    categoria: { id: categoriaId },
   };
 }
 
-export function createProduct(input: ProductInput): Product {
-  const currentProducts = getProducts();
+/** Crea un producto nuevo. Valida contra el catálogo actual antes de enviarlo. */
+export async function createProduct(input: ProductInput): Promise<Product> {
+  const currentProducts = await getProducts();
   const validation = validateProduct(input, currentProducts);
 
   if (!validation.isValid) {
     throw new Error(validation.errors.join('\n'));
   }
 
-  const nextId =
-    currentProducts.reduce(
-      (maximum, product) => Math.max(maximum, product.id),
-      0,
-    ) + 1;
+  const payload = await toBackendPayload(input);
 
-  const newProduct = toProduct(input, nextId);
+  const data = await apiFetch<BackendProducto>('/productos', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 
-  saveProducts([...currentProducts, newProduct]);
-
-  return newProduct;
+  return toProduct(data);
 }
 
-export function updateProduct(
+/** Actualiza un producto existente. Valida contra el catálogo actual antes de enviarlo. */
+export async function updateProduct(
   id: number,
   input: ProductInput,
-): Product {
-  const currentProducts = getProducts();
+): Promise<Product> {
+  const currentProducts = await getProducts();
   const productExists = currentProducts.some((product) => product.id === id);
 
   if (!productExists) {
@@ -209,27 +195,17 @@ export function updateProduct(
     throw new Error(validation.errors.join('\n'));
   }
 
-  const updatedProduct = toProduct(input, id);
+  const payload = await toBackendPayload(input);
 
-  const nextProducts = currentProducts.map((product) =>
-    product.id === id ? updatedProduct : product,
-  );
+  const data = await apiFetch<BackendProducto>(`/productos/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  });
 
-  saveProducts(nextProducts);
-
-  return updatedProduct;
+  return toProduct(data);
 }
 
-export function deleteProduct(id: number): void {
-  const currentProducts = getProducts();
-
-  const nextProducts = currentProducts.filter(
-    (product) => product.id !== id,
-  );
-
-  if (nextProducts.length === currentProducts.length) {
-    throw new Error('El producto que intentas eliminar ya no existe.');
-  }
-
-  saveProducts(nextProducts);
+/** Elimina un producto del catálogo. */
+export async function deleteProduct(id: number): Promise<void> {
+  await apiFetch<void>(`/productos/${id}`, { method: 'DELETE' });
 }

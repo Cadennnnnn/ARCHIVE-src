@@ -12,6 +12,7 @@ import { CategoriesPage } from './pages/store/CategoriesPage';
 import { OffersPage } from './pages/store/OffersPage';
 import { CartPage } from './pages/store/CartPage';
 import { AboutPage } from './pages/store/AboutPage';
+import { ContactoPage } from './pages/store/ContactoPage';
 import { BlogsPage } from './pages/store/BlogsPage';
 import { BlogDetailPage } from './pages/store/BlogDetailPage';
 import { CheckoutPage } from './pages/store/CheckoutPage';
@@ -43,6 +44,7 @@ function App() {
         <Route path="/carrito" element={<CartPage />} />
 
         <Route path="/nosotros" element={<AboutPage />} />
+        <Route path="/contacto" element={<ContactoPage />} />
         <Route path="/blogs" element={<BlogsPage />} />
         <Route path="/blogs/:slug" element={<BlogDetailPage />} />
 

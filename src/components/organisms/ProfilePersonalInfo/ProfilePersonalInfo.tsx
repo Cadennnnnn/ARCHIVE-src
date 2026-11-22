@@ -9,7 +9,7 @@ import type { UserProfileUpdateData } from '../../../types/user';
 
 interface ProfilePersonalInfoProps {
   initialData: UserProfileUpdateData;
-  onSave: (data: UserProfileUpdateData) => void;
+  onSave: (data: UserProfileUpdateData) => Promise<unknown>;
 }
 
 export function ProfilePersonalInfo({
@@ -19,11 +19,11 @@ export function ProfilePersonalInfo({
   const [form, setForm] = useState(initialData);
   const [message, setMessage] = useState('');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
-      onSave(form);
+      await onSave(form);
       setMessage('Los datos personales se actualizaron correctamente.');
     } catch (error) {
       setMessage(

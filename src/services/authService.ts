@@ -1,98 +1,105 @@
 
 import type { AuthSession } from '../types/auth';
-import type { User, UserRole } from '../types/user';
-import {
-  findUserByEmail,
-  getUsers,
-} from './userService';
+import type { PublicUser, UserRegistrationData } from '../types/user';
+import { apiFetch, clearToken, getToken, setToken } from './httpClient';
+import { mapRolBackendAFrontend } from '../utils/roleMapper';
 
 const AUTH_SESSION_KEY = 'ARCHIVE_AUTH_SESSION';
-const AUTH_ROLE_KEY = 'ARCHIVE_AUTH_ROLE';
-const USER_EMAIL_KEY = 'ARCHIVE_USER_EMAIL';
-const USER_NAME_KEY = 'ARCHIVE_USER_NAME';
 
-const VALID_ROLES: readonly UserRole[] = [
-  'Administrador',
-  'Vendedor',
-  'Cliente',
-];
-
-function isValidRole(role: unknown): role is UserRole {
-  return (
-    typeof role === 'string' &&
-    VALID_ROLES.includes(role as UserRole)
-  );
+/** Forma de la respuesta que manda el backend al hacer login o registro. */
+interface BackendAuthResponse {
+  token: string;
+  id: number;
+  nombre: string;
+  apellidos: string;
+  correo: string;
+  rol: string;
+  run: string;
+  region: string;
+  comuna: string;
+  direccion: string;
+  telefono: string | null;
 }
 
-function isValidStoredSession(
-  value: unknown,
-): value is AuthSession {
-  if (typeof value !== 'object' || value === null) {
-    return false;
-  }
-
-  const session = value as Record<string, unknown>;
-  const user = session.user;
-
-  if (typeof user !== 'object' || user === null) {
-    return false;
-  }
-
-  const storedUser = user as Record<string, unknown>;
-
-  return (
-    typeof storedUser.id === 'string' &&
-    storedUser.id.length > 0 &&
-    typeof storedUser.correo === 'string' &&
-    typeof storedUser.nombre === 'string' &&
-    isValidRole(session.role) &&
-    storedUser.rol === session.role
-  );
-}
-
-
-function createSession(user: User): AuthSession {
-  const publicUser = Object.fromEntries(
-    Object.entries(user).filter(([key]) => key !== 'password'),
-  ) as Omit<User, 'password'>;
+/** Arma la sesión del frontend a partir de la respuesta del backend. */
+function construirSesion(data: BackendAuthResponse): AuthSession {
+  const rol = mapRolBackendAFrontend(data.rol);
 
   return {
-    user: publicUser,
-    role: user.rol,
+    user: {
+      id: String(data.id),
+      nombre: data.nombre,
+      correo: data.correo,
+      rol,
+      profile: {
+        run: data.run,
+        apellidos: data.apellidos,
+        region: data.region,
+        comuna: data.comuna,
+        direccion: data.direccion,
+        telefono: data.telefono ?? undefined,
+      },
+    },
+    role: rol,
   };
 }
 
 function persistSession(session: AuthSession): void {
-  localStorage.setItem(
-    AUTH_SESSION_KEY,
-    JSON.stringify(session),
-  );
-  localStorage.setItem(AUTH_ROLE_KEY, session.role);
-  localStorage.setItem(USER_EMAIL_KEY, session.user.correo);
-  localStorage.setItem(USER_NAME_KEY, session.user.nombre);
+  localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify(session));
 }
 
-export function authenticate(
+/** Inicia sesión contra el backend. Guarda el token JWT y la sesión. */
+export async function authenticate(
   correo: string,
   password: string,
-): AuthSession | null {
-  const user = findUserByEmail(correo);
+): Promise<AuthSession> {
+  const data = await apiFetch<BackendAuthResponse>('/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email: correo, password }),
+  });
 
-  if (
-    !user ||
-    user.password !== password ||
-    !isValidRole(user.rol)
-  ) {
-    return null;
-  }
-
-  const session = createSession(user);
+  setToken(data.token);
+  const session = construirSesion(data);
   persistSession(session);
 
   return session;
 }
 
+/** Registra un cliente nuevo contra el backend. Guarda el token JWT y la sesión. */
+export async function register(
+  datos: UserRegistrationData,
+): Promise<AuthSession> {
+  const data = await apiFetch<BackendAuthResponse>('/auth/register', {
+    method: 'POST',
+    body: JSON.stringify({
+      run: datos.run,
+      nombre: datos.nombre,
+      apellidos: datos.apellidos,
+      correo: datos.correo,
+      password: datos.password,
+      region: datos.region,
+      comuna: datos.comuna,
+      direccion: datos.direccion,
+    }),
+  });
+
+  setToken(data.token);
+  const session = construirSesion(data);
+  persistSession(session);
+
+  return session;
+}
+
+/**
+ * Devuelve la sesión guardada localmente, siempre que exista un token
+ * JWT activo. No vuelve a consultar el backend: confía en lo guardado
+ * al momento del login/registro.
+ */
 export function getCurrentSession(): AuthSession | null {
+  if (!getToken()) {
+    return null;
+  }
+
   const storedSession = localStorage.getItem(AUTH_SESSION_KEY);
 
   if (!storedSession) {
@@ -100,45 +107,28 @@ export function getCurrentSession(): AuthSession | null {
   }
 
   try {
-    const parsedSession: unknown = JSON.parse(storedSession);
-
-    if (!isValidStoredSession(parsedSession)) {
-      clearSession();
-      return null;
-    }
-
-    const user = getUsers().find(
-      (storedUser) =>
-        storedUser.id === parsedSession.user.id &&
-        storedUser.correo === parsedSession.user.correo &&
-        storedUser.rol === parsedSession.role,
-    );
-
-    if (!user || !isValidRole(user.rol)) {
-      clearSession();
-      return null;
-    }
-
-    const refreshedSession = createSession(user);
-    persistSession(refreshedSession);
-
-    return refreshedSession;
+    return JSON.parse(storedSession) as AuthSession;
   } catch {
     clearSession();
     return null;
   }
 }
 
-export function refreshSession(user: User): AuthSession {
-  const session = createSession(user);
+/**
+ * Reconstruye y guarda la sesión a partir de un usuario actualizado
+ * (usado al editar el perfil). No llama al backend: solo refresca lo
+ * que ya está guardado localmente con los datos ya actualizados.
+ */
+export function updateSessionUser(user: PublicUser): AuthSession {
+  const session: AuthSession = { user, role: user.rol };
+
   persistSession(session);
 
   return session;
 }
 
+/** Cierra la sesión: borra el token JWT y los datos guardados. */
 export function clearSession(): void {
+  clearToken();
   localStorage.removeItem(AUTH_SESSION_KEY);
-  localStorage.removeItem(AUTH_ROLE_KEY);
-  localStorage.removeItem(USER_EMAIL_KEY);
-  localStorage.removeItem(USER_NAME_KEY);
 }

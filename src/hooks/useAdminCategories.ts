@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   createCategory,
@@ -19,14 +19,26 @@ const EMPTY_FORM: CategoryFormData = {
 };
 
 export function useAdminCategories() {
-  const [categories, setCategories] = useState<ProductCategory[]>(getCategories);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [formData, setFormData] = useState<CategoryFormData>(EMPTY_FORM);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [error, setError] = useState('');
 
-  const refreshCategories = useCallback(() => {
-    setCategories(getCategories());
+  const refreshCategories = useCallback(async () => {
+    try {
+      setCategories(await getCategories());
+    } catch (caughtError) {
+      setError(
+        caughtError instanceof Error
+          ? caughtError.message
+          : 'No fue posible cargar las categorías.',
+      );
+    }
   }, []);
+
+  useEffect(() => {
+    void refreshCategories();
+  }, [refreshCategories]);
 
   const updateField = useCallback(
     (field: keyof CategoryFormData, value: string) => {
@@ -54,19 +66,19 @@ export function useAdminCategories() {
     setError('');
   }, []);
 
-  const submitCategory = useCallback((): boolean => {
+  const submitCategory = useCallback(async (): Promise<boolean> => {
     try {
       if (editingId === null) {
-        createCategory(formData.nombre, formData.descripcion);
+        await createCategory(formData.nombre, formData.descripcion);
       } else {
-        updateCategory(
+        await updateCategory(
           editingId,
           formData.nombre,
           formData.descripcion,
         );
       }
 
-      refreshCategories();
+      await refreshCategories();
       resetForm();
 
       return true;
@@ -82,10 +94,10 @@ export function useAdminCategories() {
   }, [editingId, formData, refreshCategories, resetForm]);
 
   const removeCategory = useCallback(
-    (id: string): boolean => {
+    async (id: string): Promise<boolean> => {
       try {
-        deleteCategory(id);
-        refreshCategories();
+        await deleteCategory(id);
+        await refreshCategories();
 
         if (editingId === id) {
           resetForm();

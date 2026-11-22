@@ -42,7 +42,7 @@ export function UsersPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const wasCreated = submitUser();
+    const wasCreated = await submitUser();
 
     if (!wasCreated) {
       await Swal.fire({

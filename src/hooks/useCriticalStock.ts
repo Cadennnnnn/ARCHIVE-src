@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { getProducts } from '../services/productService';
 import type { Product } from '../types/product';
@@ -15,11 +15,17 @@ export function getStockStatus(stock: number): StockStatus {
 }
 
 export function useCriticalStock() {
-  const [products, setProducts] = useState<Product[]>(getProducts);
+  const [products, setProducts] = useState<Product[]>([]);
 
   const refresh = useCallback(() => {
-    setProducts(getProducts());
+    getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]));
   }, []);
+
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   const criticalProducts = products.filter(
     (product) => product.stock <= CRITICAL_STOCK_THRESHOLD,

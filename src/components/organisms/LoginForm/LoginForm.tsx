@@ -10,7 +10,7 @@ import { FormField } from '../../molecules/FormField/FormField';
 
 import { useAuth } from '../../../hooks/useAuth';
 import {
-  validateEmail,
+  validateEmailFormat,
   validatePassword,
 } from '../../../utils/validation/authValidation';
 
@@ -35,8 +35,8 @@ export function LoginForm() {
 
     if (!correo.trim()) {
       nextErrors.correo = 'El correo es obligatorio.';
-    } else if (!validateEmail(correo)) {
-      nextErrors.correo = 'Ingresa un correo de dominio autorizado.';
+    } else if (!validateEmailFormat(correo)) {
+      nextErrors.correo = 'Ingresa un correo válido.';
     }
 
     if (!password) {

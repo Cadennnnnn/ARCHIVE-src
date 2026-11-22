@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 
 import { getOrderById } from '../../services/orderService';
@@ -5,10 +6,33 @@ import {
   formatOrderCurrency,
   formatOrderDate,
 } from '../../hooks/useAdminOrders';
+import type { Order } from '../../types/order';
 
 export function AdminOrderDetailPage() {
   const { orderId } = useParams<{ orderId: string }>();
-  const order = orderId ? getOrderById(orderId) : undefined;
+  const [order, setOrder] = useState<Order | undefined>(undefined);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!orderId) {
+      setOrder(undefined);
+      setIsLoading(false);
+      return;
+    }
+
+    setIsLoading(true);
+    getOrderById(orderId)
+      .then(setOrder)
+      .finally(() => setIsLoading(false));
+  }, [orderId]);
+
+  if (isLoading) {
+    return (
+      <section className="admin-page">
+        <p className="text-muted">Cargando orden...</p>
+      </section>
+    );
+  }
 
   if (!order) {
     return (

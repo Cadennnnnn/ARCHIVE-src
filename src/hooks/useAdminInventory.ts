@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import {
   createProduct,
@@ -68,16 +68,33 @@ function formToInput(form: AdminProductFormData): ProductInput {
 }
 
 export function useAdminInventory() {
-  const [products, setProducts] = useState<Product[]>(getProducts);
-  const [categories, setCategories] = useState<ProductCategory[]>(getCategories);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
   const [formData, setFormData] = useState<AdminProductFormData>(EMPTY_FORM);
   const [errors, setErrors] = useState<string[]>([]);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const refreshProducts = useCallback(() => {
-    setProducts(getProducts());
-    setCategories(getCategories());
+  const refreshCategories = useCallback(async () => {
+    try {
+      setCategories(await getCategories());
+    } catch {
+      setCategories([]);
+    }
   }, []);
+
+  const refreshProducts = useCallback(async () => {
+    try {
+      setProducts(await getProducts());
+    } catch {
+      setProducts([]);
+    }
+
+    await refreshCategories();
+  }, [refreshCategories]);
+
+  useEffect(() => {
+    void refreshProducts();
+  }, [refreshProducts]);
 
   const updateField = useCallback(
     (field: keyof AdminProductFormData, value: string) => {
@@ -99,17 +116,17 @@ export function useAdminInventory() {
     setErrors([]);
   }, []);
 
-  const submitProduct = useCallback((): boolean => {
+  const submitProduct = useCallback(async (): Promise<boolean> => {
     try {
       const input = formToInput(formData);
 
       if (editingId === null) {
-        createProduct(input);
+        await createProduct(input);
       } else {
-        updateProduct(editingId, input);
+        await updateProduct(editingId, input);
       }
 
-      refreshProducts();
+      await refreshProducts();
       resetForm();
 
       return true;
@@ -125,10 +142,10 @@ export function useAdminInventory() {
   }, [editingId, formData, refreshProducts, resetForm]);
 
   const removeProduct = useCallback(
-    (id: number): boolean => {
+    async (id: number): Promise<boolean> => {
       try {
-        deleteProduct(id);
-        refreshProducts();
+        await deleteProduct(id);
+        await refreshProducts();
 
         if (editingId === id) {
           resetForm();

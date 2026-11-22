@@ -21,7 +21,7 @@ export function CategoriesAdminPage() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const wasSaved = submitCategory();
+    const wasSaved = await submitCategory();
 
     if (!wasSaved) {
       await Swal.fire({
@@ -57,7 +57,7 @@ export function CategoriesAdminPage() {
       return;
     }
 
-    const wasRemoved = removeCategory(category.id);
+    const wasRemoved = await removeCategory(category.id);
 
     if (wasRemoved) {
       await Swal.fire({

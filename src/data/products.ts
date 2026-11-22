@@ -53,7 +53,7 @@ export const products: Product[] = [
     nombre: 'ASICS GEL-NYC',
     categoria: 'Sneakers',
     precio: 199990,
-    imagen: 'https://imgs.search.brave.com/QEZIVZs4alOwLlzPk7_oSRJYMGdeUiPZITldPjsLPBo/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9tLm1l/ZGlhLWFtYXpvbi5j/b20vaW1hZ2VzL0kv/NjFGVWo1YVZ2Q0wu/anBn',
+    imagen: 'https://images.stockx.com/360/ASICS-Gel-NYC-Cream-Mineral-Beige-Pink/Images/ASICS-Gel-NYC-Cream-Mineral-Beige-Pink/Lv2/img01.jpg?fm=avif&auto=compress&w=576&dpr=2&h=384&q=60',
     descripcion: 'Fusión retro running que combina elementos de la GEL-Nimbus 3 y MC-PLUS V con amortiguación GEL.',
     tallas: ['US 8.5', 'US 9.5', 'US 10'],
     stock: 4,

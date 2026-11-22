@@ -1,18 +1,31 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
 import { useCart } from '../../hooks/useCart';
-import { getCategories } from '../../services/categoryService';
+import { getCategories, type ProductCategory } from '../../services/categoryService';
 import { getProducts } from '../../services/productService';
+import type { Product } from '../../types/product';
 
 export function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { addItem } = useCart();
 
-  const [categories] = useState(getCategories);
-  const [products] = useState(getProducts);
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    getCategories()
+      .then(setCategories)
+      .catch(() => setCategories([]));
+  }, []);
+
+  useEffect(() => {
+    getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]));
+  }, []);
 
   const requestedCategory = searchParams.get('categoria');
 

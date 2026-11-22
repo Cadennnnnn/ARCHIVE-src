@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { products } from '../../data/products';
-
 import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
 import { useCart } from '../../hooks/useCart';
+import { getProducts } from '../../services/productService';
+import type { Product } from '../../types/product';
 
 interface HeroSlide {
   label: string;
@@ -59,6 +59,7 @@ const slides: HeroSlide[] = [
 
 export function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0);
+  const [products, setProducts] = useState<Product[]>([]);
   const { addItem } = useCart();
 
   const slide = slides[activeSlide];
@@ -69,6 +70,12 @@ export function HomePage() {
     }, 5000);
 
     return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]));
   }, []);
 
   const showSlide = (index: number) => {

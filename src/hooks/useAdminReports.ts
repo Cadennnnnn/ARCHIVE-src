@@ -1,6 +1,7 @@
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
+import type { Order } from '../types/order';
 import {
   calculateSalesSummary,
   getSalesReport,
@@ -15,11 +16,13 @@ const INITIAL_FILTERS: ReportFilters = {
 
 export function useAdminReports() {
   const [filters, setFilters] = useState<ReportFilters>(INITIAL_FILTERS);
+  const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
 
-  const filteredOrders = useMemo(
-    () => getSalesReport(filters),
-    [filters],
-  );
+  useEffect(() => {
+    getSalesReport(filters)
+      .then(setFilteredOrders)
+      .catch(() => setFilteredOrders([]));
+  }, [filters]);
 
   const summary = useMemo(
     () => calculateSalesSummary(filteredOrders),

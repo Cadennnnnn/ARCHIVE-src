@@ -1,15 +1,29 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { ProductCard } from '../../components/molecules/ProductCard/ProductCard';
-import { getCategories } from '../../services/categoryService';
+import { getCategories, type ProductCategory } from '../../services/categoryService';
 import { getProducts } from '../../services/productService';
+import type { Product } from '../../types/product';
 
 export function CategoriesPage() {
-  const [categories] = useState(getCategories);
-  const [products] = useState(getProducts);
-  const [selectedCategory, setSelectedCategory] = useState(
-    () => getCategories()[0]?.nombre ?? '',
-  );
+  const [categories, setCategories] = useState<ProductCategory[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+
+  useEffect(() => {
+    getCategories()
+      .then((data) => {
+        setCategories(data);
+        setSelectedCategory((current) => current || data[0]?.nombre || '');
+      })
+      .catch(() => setCategories([]));
+  }, []);
+
+  useEffect(() => {
+    getProducts()
+      .then(setProducts)
+      .catch(() => setProducts([]));
+  }, []);
 
   const filteredProducts = useMemo(
     () =>

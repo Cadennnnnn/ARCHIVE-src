@@ -7,7 +7,7 @@ type AddressData = Omit<ShippingAddress, 'id' | 'isDefault'>;
 
 interface ProfileAddressesProps {
   addresses: ShippingAddress[];
-  onAdd: (data: AddressData) => void;
+  onAdd: (data: AddressData) => Promise<unknown>;
   onDelete: (id: string) => void;
   onSetDefault: (id: string) => void;
 }
@@ -33,11 +33,11 @@ export function ProfileAddresses({
   const [form, setForm] = useState<AddressData>(EMPTY_ADDRESS);
   const [message, setMessage] = useState('');
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     try {
-      onAdd(form);
+      await onAdd(form);
       setForm(EMPTY_ADDRESS);
       setMessage('Dirección agregada correctamente.');
     } catch (error) {

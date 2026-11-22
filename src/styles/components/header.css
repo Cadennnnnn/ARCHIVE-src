@@ -101,6 +101,22 @@
   text-decoration: underline;
 }
 
+/* Enlaces del header que no son parte de la navegación principal
+   (Mi perfil, Panel administrativo, Iniciar sesión, Registrar usuario).
+   Usan la misma tipografía que "Cerrar sesión" para que no se vean
+   desalineados ni con una fuente distinta al resto del header. */
+.archive-header__link {
+  color: var(--color-dark);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.archive-header__link:hover {
+  color: var(--color-navy);
+  text-decoration: underline;
+}
+
 .archive-header__actions {
   display: flex;
   align-items: center;

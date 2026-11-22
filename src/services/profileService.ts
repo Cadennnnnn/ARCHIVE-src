@@ -1,46 +1,78 @@
-
-
 import type {
   SavedPaymentMethod,
+  SavedPaymentType,
   ShippingAddress,
-  User,
 } from '../types/user';
-
-
-import { getUsers } from './userService';
-
-import {
-  normalizeChileanMobilePhone,
-} from '../utils/validation/authValidation';
-
-const USERS_STORAGE_KEY = 'ARCHIVE_USERS';
+import { apiFetch } from './httpClient';
+import { normalizeChileanMobilePhone } from '../utils/validation/authValidation';
 
 type AddressData = Omit<ShippingAddress, 'id' | 'isDefault'>;
 type PaymentData = Omit<SavedPaymentMethod, 'id' | 'isDefault'>;
 
-function createId(prefix: string): string {
-  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+/** Forma de una dirección tal como la devuelve el backend. */
+interface BackendDireccion {
+  id: number;
+  alias: string;
+  nombre: string;
+  apellidos: string;
+  telefono: string;
+  direccion: string;
+  departamento: string | null;
+  region: string;
+  comuna: string;
+  indicaciones: string | null;
+  esPredeterminada: boolean;
 }
 
-function saveUser(updatedUser: User): User {
-  const users = getUsers();
-  const updatedUsers = users.map((user) =>
-    user.id === updatedUser.id ? updatedUser : user,
-  );
-
-  localStorage.setItem(USERS_STORAGE_KEY, JSON.stringify(updatedUsers));
-
-  return updatedUser;
+/** Forma de un método de pago tal como lo devuelve el backend. */
+interface BackendMetodoPago {
+  id: number;
+  tipo: 'TARJETA_CREDITO' | 'TARJETA_DEBITO';
+  marca: string;
+  ultimosCuatro: string;
+  titular: string;
+  mesExpiracion: string;
+  anioExpiracion: string;
+  esPredeterminado: boolean;
 }
 
-function findUser(userId: string): User {
-  const user = getUsers().find((item) => item.id === userId);
+const TIPO_BACKEND_A_FRONTEND: Record<string, SavedPaymentType> = {
+  TARJETA_CREDITO: 'Tarjeta de crédito',
+  TARJETA_DEBITO: 'Tarjeta de débito',
+};
 
-  if (!user) {
-    throw new Error('No se encontró el usuario.');
-  }
+const TIPO_FRONTEND_A_BACKEND: Record<SavedPaymentType, string> = {
+  'Tarjeta de crédito': 'TARJETA_CREDITO',
+  'Tarjeta de débito': 'TARJETA_DEBITO',
+};
 
-  return user;
+function toShippingAddress(data: BackendDireccion): ShippingAddress {
+  return {
+    id: String(data.id),
+    alias: data.alias,
+    nombre: data.nombre,
+    apellidos: data.apellidos,
+    telefono: data.telefono,
+    direccion: data.direccion,
+    departamento: data.departamento ?? '',
+    region: data.region,
+    comuna: data.comuna,
+    indicaciones: data.indicaciones ?? '',
+    isDefault: data.esPredeterminada,
+  };
+}
+
+function toSavedPaymentMethod(data: BackendMetodoPago): SavedPaymentMethod {
+  return {
+    id: String(data.id),
+    tipo: TIPO_BACKEND_A_FRONTEND[data.tipo],
+    marca: data.marca,
+    ultimosCuatro: data.ultimosCuatro,
+    titular: data.titular,
+    mesExpiracion: data.mesExpiracion,
+    anioExpiracion: data.anioExpiracion,
+    isDefault: data.esPredeterminado,
+  };
 }
 
 function normalizeAddress(address: AddressData): AddressData {
@@ -98,180 +130,179 @@ function normalizePayment(payment: PaymentData): PaymentData {
     throw new Error('Los datos del método de pago no son válidos.');
   }
 
-  if (
-    payment.tipo !== 'Tarjeta de crédito' &&
-    payment.tipo !== 'Tarjeta de débito'
-  ) {
-    throw new Error('El tipo de tarjeta no es válido.');
-  }
-
   return normalized;
 }
 
-export function getUserProfile(userId: string): User {
-  return findUser(userId);
+// --- Direcciones --------------------------------------------------------
+
+export async function getAddresses(userId: string): Promise<ShippingAddress[]> {
+  const data = await apiFetch<BackendDireccion[]>(`/direcciones/usuario/${userId}`);
+  return data.map(toShippingAddress);
 }
 
-export function addShippingAddress(
+export async function addShippingAddress(
   userId: string,
   data: AddressData,
-): User {
-  const user = findUser(userId);
-  const addressData = normalizeAddress(data);
-  const addresses = user.profile?.direcciones ?? [];
+): Promise<ShippingAddress[]> {
+  const normalized = normalizeAddress(data);
+  const current = await getAddresses(userId);
 
-  const newAddress: ShippingAddress = {
-    ...addressData,
-    id: createId('address'),
-    isDefault: addresses.length === 0,
-  };
-
-  return saveUser({
-    ...user,
-    profile: {
-      ...user.profile,
-      run: user.profile?.run ?? '',
-      apellidos: user.profile?.apellidos ?? '',
-      region: user.profile?.region ?? '',
-      comuna: user.profile?.comuna ?? '',
-      direccion: user.profile?.direccion ?? '',
-      direcciones: [...addresses, newAddress],
-    },
+  await apiFetch('/direcciones', {
+    method: 'POST',
+    body: JSON.stringify({
+      usuario: { id: Number(userId) },
+      ...normalized,
+      esPredeterminada: current.length === 0,
+    }),
   });
+
+  return getAddresses(userId);
 }
 
-export function removeShippingAddress(
+export async function removeShippingAddress(
   userId: string,
   addressId: string,
-): User {
-  const user = findUser(userId);
-  const addresses = user.profile?.direcciones ?? [];
-  const remaining = addresses.filter(
-    (address) => address.id !== addressId,
-  );
+): Promise<ShippingAddress[]> {
+  const current = await getAddresses(userId);
+  const target = current.find((address) => address.id === addressId);
 
-  if (remaining.length === addresses.length) {
+  if (!target) {
     throw new Error('No se encontró la dirección seleccionada.');
   }
 
-  const removedDefault = addresses.some(
-    (address) => address.id === addressId && address.isDefault,
-  );
+  await apiFetch(`/direcciones/${addressId}`, { method: 'DELETE' });
 
-  if (removedDefault && remaining.length > 0) {
-    remaining[0] = { ...remaining[0], isDefault: true };
+  const remaining = current.filter((address) => address.id !== addressId);
+
+  if (target.isDefault && remaining.length > 0) {
+    return setDefaultShippingAddress(userId, remaining[0].id);
   }
 
-  return saveUser({
-    ...user,
-    profile: {
-      ...user.profile!,
-      direcciones: remaining,
-    },
-  });
+  return remaining;
 }
 
-export function setDefaultShippingAddress(
+export async function setDefaultShippingAddress(
   userId: string,
   addressId: string,
-): User {
-  const user = findUser(userId);
-  const addresses = user.profile?.direcciones ?? [];
+): Promise<ShippingAddress[]> {
+  const current = await getAddresses(userId);
 
-  if (!addresses.some((address) => address.id === addressId)) {
+  if (!current.some((address) => address.id === addressId)) {
     throw new Error('No se encontró la dirección seleccionada.');
   }
 
-  return saveUser({
-    ...user,
-    profile: {
-      ...user.profile!,
-      direcciones: addresses.map((address) => ({
-        ...address,
-        isDefault: address.id === addressId,
-      })),
-    },
-  });
+  // El backend guarda la entidad completa en cada PUT, así que hay que
+  // reenviar cada dirección con su bandera "esPredeterminada" actualizada.
+  await Promise.all(
+    current
+      .filter((address) => address.isDefault !== (address.id === addressId))
+      .map((address) =>
+        apiFetch(`/direcciones/${address.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            usuario: { id: Number(userId) },
+            alias: address.alias,
+            nombre: address.nombre,
+            apellidos: address.apellidos,
+            telefono: address.telefono,
+            direccion: address.direccion,
+            departamento: address.departamento,
+            region: address.region,
+            comuna: address.comuna,
+            indicaciones: address.indicaciones,
+            esPredeterminada: address.id === addressId,
+          }),
+        }),
+      ),
+  );
+
+  return getAddresses(userId);
 }
 
-export function addSavedPaymentMethod(
+// --- Métodos de pago ------------------------------------------------------
+
+export async function getPaymentMethods(
+  userId: string,
+): Promise<SavedPaymentMethod[]> {
+  const data = await apiFetch<BackendMetodoPago[]>(`/metodos-pago/usuario/${userId}`);
+  return data.map(toSavedPaymentMethod);
+}
+
+export async function addSavedPaymentMethod(
   userId: string,
   data: PaymentData,
-): User {
-  const user = findUser(userId);
-  const paymentData = normalizePayment(data);
-  const methods = user.profile?.metodosPago ?? [];
+): Promise<SavedPaymentMethod[]> {
+  const normalized = normalizePayment(data);
+  const current = await getPaymentMethods(userId);
 
-  const newMethod: SavedPaymentMethod = {
-    ...paymentData,
-    id: createId('payment'),
-    isDefault: methods.length === 0,
-  };
-
-  return saveUser({
-    ...user,
-    profile: {
-      ...user.profile,
-      run: user.profile?.run ?? '',
-      apellidos: user.profile?.apellidos ?? '',
-      region: user.profile?.region ?? '',
-      comuna: user.profile?.comuna ?? '',
-      direccion: user.profile?.direccion ?? '',
-      metodosPago: [...methods, newMethod],
-    },
+  await apiFetch('/metodos-pago', {
+    method: 'POST',
+    body: JSON.stringify({
+      usuario: { id: Number(userId) },
+      tipo: TIPO_FRONTEND_A_BACKEND[normalized.tipo],
+      marca: normalized.marca,
+      ultimosCuatro: normalized.ultimosCuatro,
+      titular: normalized.titular,
+      mesExpiracion: normalized.mesExpiracion,
+      anioExpiracion: normalized.anioExpiracion,
+      esPredeterminado: current.length === 0,
+    }),
   });
+
+  return getPaymentMethods(userId);
 }
 
-export function removeSavedPaymentMethod(
+export async function removeSavedPaymentMethod(
   userId: string,
   paymentId: string,
-): User {
-  const user = findUser(userId);
-  const methods = user.profile?.metodosPago ?? [];
-  const remaining = methods.filter(
-    (method) => method.id !== paymentId,
-  );
+): Promise<SavedPaymentMethod[]> {
+  const current = await getPaymentMethods(userId);
+  const target = current.find((method) => method.id === paymentId);
 
-  if (remaining.length === methods.length) {
+  if (!target) {
     throw new Error('No se encontró el método de pago seleccionado.');
   }
 
-  const removedDefault = methods.some(
-    (method) => method.id === paymentId && method.isDefault,
-  );
+  await apiFetch(`/metodos-pago/${paymentId}`, { method: 'DELETE' });
 
-  if (removedDefault && remaining.length > 0) {
-    remaining[0] = { ...remaining[0], isDefault: true };
+  const remaining = current.filter((method) => method.id !== paymentId);
+
+  if (target.isDefault && remaining.length > 0) {
+    return setDefaultPaymentMethod(userId, remaining[0].id);
   }
 
-  return saveUser({
-    ...user,
-    profile: {
-      ...user.profile!,
-      metodosPago: remaining,
-    },
-  });
+  return remaining;
 }
 
-export function setDefaultPaymentMethod(
+export async function setDefaultPaymentMethod(
   userId: string,
   paymentId: string,
-): User {
-  const user = findUser(userId);
-  const methods = user.profile?.metodosPago ?? [];
+): Promise<SavedPaymentMethod[]> {
+  const current = await getPaymentMethods(userId);
 
-  if (!methods.some((method) => method.id === paymentId)) {
+  if (!current.some((method) => method.id === paymentId)) {
     throw new Error('No se encontró el método de pago seleccionado.');
   }
 
-  return saveUser({
-    ...user,
-    profile: {
-      ...user.profile!,
-      metodosPago: methods.map((method) => ({
-        ...method,
-        isDefault: method.id === paymentId,
-      })),
-    },
-  });
+  await Promise.all(
+    current
+      .filter((method) => method.isDefault !== (method.id === paymentId))
+      .map((method) =>
+        apiFetch(`/metodos-pago/${method.id}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            usuario: { id: Number(userId) },
+            tipo: TIPO_FRONTEND_A_BACKEND[method.tipo],
+            marca: method.marca,
+            ultimosCuatro: method.ultimosCuatro,
+            titular: method.titular,
+            mesExpiracion: method.mesExpiracion,
+            anioExpiracion: method.anioExpiracion,
+            esPredeterminado: method.id === paymentId,
+          }),
+        }),
+      ),
+  );
+
+  return getPaymentMethods(userId);
 }
